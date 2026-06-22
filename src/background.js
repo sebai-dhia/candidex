@@ -1,7 +1,10 @@
 chrome.action.onClicked.addListener((tab) => {
   if (tab.id && tab.url) {
     // Prevent execution on restricted URLs
-    if (tab.url.startsWith('chrome://') || tab.url.startsWith('edge://') || tab.url.startsWith('chrome-extension://')) {
+    const restrictedProtocols = ['chrome:', 'edge:', 'opera:', 'about:', 'chrome-extension:'];
+    const isRestricted = restrictedProtocols.some(protocol => tab.url.startsWith(protocol));
+
+    if (isRestricted) {
       console.warn('Candidex cannot be opened on restricted browser pages. Please try on a normal website.');
       return;
     }
