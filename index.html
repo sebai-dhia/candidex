@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Candidex — Open-source job application tracker</title>
+    <meta
+      name="description"
+      content="Candidex is an open-source browser extension for tracking job applications from any job page, with data stored in your own Google Sheet."
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #111827;
+        --muted: #5f6b7a;
+        --soft: #eef2f8;
+        --panel: #ffffff;
+        --paper: #f7f9fd;
+        --line: #dfe6f0;
+        --brand: #6255f6;
+        --brand-strong: #4738ec;
+        --success: #10b981;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at top left, rgba(98, 85, 246, 0.16), transparent 34rem),
+          linear-gradient(180deg, #ffffff 0%, #f7f9fd 100%);
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.55;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .page {
+        width: min(1120px, calc(100% - 40px));
+        margin: 0 auto;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 28px 0;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        text-decoration: none;
+        font-size: 1.25rem;
+      }
+
+      .brand img {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .nav-links a {
+        text-decoration: none;
+      }
+
+      .nav-links a:hover {
+        color: var(--ink);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 0.9fr 1.1fr;
+        gap: 48px;
+        align-items: center;
+        padding: 72px 0 56px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: fit-content;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.7);
+        border-radius: 999px;
+        padding: 8px 12px;
+        color: var(--brand-strong);
+        font-size: 0.88rem;
+        font-weight: 700;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        background: var(--success);
+        border-radius: 50%;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+      }
+
+      h1 {
+        max-width: 680px;
+        margin: 22px 0 18px;
+        font-size: clamp(3rem, 7vw, 5.9rem);
+        line-height: 0.92;
+        letter-spacing: -0.08em;
+      }
+
+      .lead {
+        max-width: 620px;
+        margin: 0;
+        color: var(--muted);
+        font-size: clamp(1.05rem, 2vw, 1.25rem);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-top: 34px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 48px;
+        border-radius: 999px;
+        padding: 0 22px;
+        font-weight: 800;
+        text-decoration: none;
+      }
+
+      .button.primary {
+        background: var(--brand);
+        color: white;
+        box-shadow: 0 18px 40px rgba(98, 85, 246, 0.25);
+      }
+
+      .button.secondary {
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.72);
+      }
+
+      .hero-card {
+        position: relative;
+        border: 1px solid rgba(17, 24, 39, 0.08);
+        border-radius: 32px;
+        padding: 14px;
+        background: rgba(255, 255, 255, 0.66);
+        box-shadow: 0 30px 90px rgba(17, 24, 39, 0.14);
+      }
+
+      .hero-card::before {
+        content: "";
+        position: absolute;
+        inset: -18px;
+        z-index: -1;
+        border-radius: 42px;
+        background: linear-gradient(135deg, rgba(98, 85, 246, 0.2), rgba(16, 185, 129, 0.08));
+        filter: blur(20px);
+      }
+
+      .hero-card img {
+        display: block;
+        width: 100%;
+        border-radius: 22px;
+      }
+
+      .section {
+        padding: 70px 0;
+      }
+
+      .section-heading {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        align-items: end;
+        margin-bottom: 26px;
+      }
+
+      h2 {
+        max-width: 620px;
+        margin: 0;
+        font-size: clamp(2rem, 4vw, 3.25rem);
+        line-height: 1;
+        letter-spacing: -0.06em;
+      }
+
+      .section-heading p {
+        max-width: 420px;
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+
+      .feature {
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: 24px;
+        background: rgba(255, 255, 255, 0.78);
+      }
+
+      .feature strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 1.05rem;
+      }
+
+      .feature p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .privacy {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+
+      .privacy-panel {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 30px;
+        padding: 32px;
+        background: #101622;
+        color: white;
+      }
+
+      .privacy-panel p,
+      .privacy-panel li {
+        color: #cbd5e1;
+      }
+
+      .privacy-panel ul {
+        padding-left: 18px;
+        margin: 18px 0 0;
+      }
+
+      .install {
+        border: 1px solid var(--line);
+        border-radius: 30px;
+        padding: 34px;
+        background: var(--panel);
+      }
+
+      .install ol {
+        margin: 0;
+        padding-left: 20px;
+        color: var(--muted);
+      }
+
+      .code {
+        margin: 18px 0;
+        overflow-x: auto;
+        border-radius: 18px;
+        padding: 18px;
+        background: #0c1220;
+        color: #dbeafe;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 0.9rem;
+      }
+
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 42px 0;
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+      }
+
+      @media (max-width: 880px) {
+        .hero,
+        .privacy {
+          grid-template-columns: 1fr;
+        }
+
+        .feature-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .section-heading,
+        .footer {
+          display: block;
+        }
+
+        .nav-links {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <nav class="nav" aria-label="Main navigation">
+        <a class="brand" href="./" aria-label="Candidex home">
+          <img src="public/candidex_logo.png" alt="" />
+          <span>Candidex</span>
+        </a>
+        <div class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#privacy">Privacy</a>
+          <a href="#install">Install</a>
+          <a href="https://github.com/sebai-dhia/candidex">GitHub</a>
+        </div>
+      </nav>
+
+      <section class="hero">
+        <div>
+          <span class="eyebrow">Opera-first, open-source extension</span>
+          <h1>Track every job application from the page you are on.</h1>
+          <p class="lead">
+            Candidex opens as a slide-out panel, saves applications to your own Google Sheet, and
+            helps you find the right record when a company finally replies.
+          </p>
+          <div class="actions">
+            <a class="button primary" href="#install">Install from source</a>
+            <a class="button secondary" href="https://github.com/sebai-dhia/candidex">
+              View on GitHub
+            </a>
+          </div>
+        </div>
+        <figure class="hero-card">
+          <img src="public/app_in_use.png" alt="Candidex dashboard panel open beside job results" />
+        </figure>
+      </section>
+
+      <section class="section" id="features">
+        <div class="section-heading">
+          <h2>A small tracker for a messy job search.</h2>
+          <p>
+            Designed for real application flow: save quickly, review clearly, and update responses
+            without handing your data to another platform.
+          </p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature">
+            <strong>Slide-out workflow</strong>
+            <p>Open Candidex over job boards, career pages, and search results without context switching.</p>
+          </article>
+          <article class="feature">
+            <strong>Application dashboard</strong>
+            <p>Track totals, response rate, success rate, platforms, countries, work types, and recent entries.</p>
+          </article>
+          <article class="feature">
+            <strong>Response tracking</strong>
+            <p>Search by company or role, then update status and interview dates when replies arrive.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section privacy" id="privacy">
+        <article class="privacy-panel">
+          <h2>Your data stays yours.</h2>
+          <p>
+            Candidex has no backend server and no hosted database. Your applications are written to a
+            Google Sheet in your own Drive.
+          </p>
+        </article>
+        <article class="privacy-panel">
+          <strong>Privacy defaults</strong>
+          <ul>
+            <li>No analytics or telemetry.</li>
+            <li>No cookies or tracking pixels.</li>
+            <li>No client secret in source code.</li>
+            <li>OAuth through the browser identity flow.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="section" id="install">
+        <div class="section-heading">
+          <h2>Install from source.</h2>
+          <p>Packaged store releases are not available yet. Opera is the primary target today.</p>
+        </div>
+        <div class="install">
+          <div class="code">git clone https://github.com/sebai-dhia/candidex.git<br />cd candidex<br />npm install<br />npm run build</div>
+          <ol>
+            <li>Open <code>opera://extensions</code>.</li>
+            <li>Enable <strong>Developer mode</strong>.</li>
+            <li>Choose <strong>Load unpacked</strong>.</li>
+            <li>Select <code>dist/candidex/browser</code>.</li>
+          </ol>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <span>MIT licensed. Built for Opera first, with broader browser support planned.</span>
+        <a href="docs/privacy-policy.md">Privacy policy</a>
+      </footer>
+    </main>
+  </body>
+</html>
