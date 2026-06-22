@@ -41,8 +41,13 @@ export class App {
     this.isConnecting.set(true);
     try {
       await this.auth.connect();
-    } catch (error) {
-      console.error('Connection failed:', error);
+    } catch (error: any) {
+      const errorMsg = typeof error === 'string' ? error : error?.message || '';
+      if (errorMsg.includes('did not approve access') || errorMsg.includes('cancel')) {
+        console.warn('Google Sign-in was cancelled by the user.');
+      } else {
+        console.error('Connection failed:', error);
+      }
     } finally {
       this.isConnecting.set(false);
       this.cdr.detectChanges();
