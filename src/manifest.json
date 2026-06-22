@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "Candidex",
+  "version": "1.0.0",
+  "icons": {
+    "16": "candidex_logo.png",
+    "48": "candidex_logo.png",
+    "128": "candidex_logo.png"
+  },
+  "action": {},
+  "permissions": [
+    "scripting",
+    "identity",
+    "storage",
+    "activeTab"
+  ],
+  "oauth2": {
+    "client_id": "737956559797-qkjchps7rc3o9avme3bk1n8fiukbmibr.apps.googleusercontent.com",
+    "scopes": ["https://www.googleapis.com/auth/drive.file"]
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["index.html", "*.js", "*.css", "*.woff", "*.woff2"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'"
+  }
+}

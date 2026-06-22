@@ -1,0 +1,409 @@
+<div class="tracking-container">
+  @if (isLoading() && allApplications().length === 0) {
+    <div class="loading-state">
+      <span class="spinner"></span>
+      <p>Loading your data...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="alert error">
+      {{ error() }}
+    </div>
+  }
+
+  @if (successMessage()) {
+    <div class="alert success">
+      {{ successMessage() }}
+    </div>
+  }
+
+  @if (allApplications().length > 0) {
+    <div class="tracking-content">
+      <!-- Header: Title and Count -->
+      <div class="tracking-header">
+        <h2>Response Tracking</h2>
+        <span class="count">{{ allApplications().length }} Applications</span>
+      </div>
+      <!-- Toolbar: Search + Filters -->
+      @if (!selectedApp()) {
+        <div class="toolbar">
+          <!-- Search Bar -->
+          <div class="search-compact">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input
+              type="text"
+              [ngModel]="searchQuery()"
+              (ngModelChange)="searchQuery.set($event)"
+              placeholder="Search..."
+            />
+          </div>
+          <!-- Controls: Filter Dropdown + Sort Toggle -->
+          <div class="controls-row">
+            <!-- Filter Dropdown -->
+            <div class="custom-select-container filter-select">
+              @if (mainFilterDropdownOpen()) {
+                <div class="dropdown-backdrop" (click)="mainFilterDropdownOpen.set(false)"></div>
+              }
+              <button
+                class="filter-trigger"
+                [class.focused]="mainFilterDropdownOpen()"
+                (click)="mainFilterDropdownOpen.set(!mainFilterDropdownOpen())"
+              >
+                <span class="filter-label">{{ activeFilter() }}</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+              @if (mainFilterDropdownOpen()) {
+                <div class="custom-select-menu">
+                  @for (option of filterOptions; track option) {
+                    <div
+                      class="custom-select-option"
+                      [class.selected]="option === activeFilter()"
+                      (click)="activeFilter.set(option); mainFilterDropdownOpen.set(false)"
+                    >
+                      {{ option }}
+                      @if (option === activeFilter()) {
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          class="check-icon"
+                        >
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+            <!-- Sort Toggle -->
+            <button
+              class="sort-toggle"
+              (click)="toggleSort()"
+              [title]="sortOrder() === 'desc' ? 'Newest first' : 'Oldest first'"
+            >
+              @if (sortOrder() === 'desc') {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <polyline points="19 12 12 19 5 12"></polyline>
+                </svg>
+              }
+              @if (sortOrder() === 'asc') {
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <line x1="12" y1="19" x2="12" y2="5"></line>
+                  <polyline points="5 12 12 5 19 12"></polyline>
+                </svg>
+              }
+            </button>
+          </div>
+        </div>
+      }
+      <!-- Divider -->
+      @if (!selectedApp()) {
+        <div class="section-divider"></div>
+      }
+      <!-- Results List -->
+      <div class="compact-results">
+        <!-- Empty State for Filters -->
+        @if (filteredApplications().length === 0) {
+          <div class="empty-state">
+            @if (searchQuery()) {
+              No matches found for "{{ searchQuery() }}"
+            } @else {
+              No {{ activeFilter() !== 'All' ? activeFilter() : '' }} applications.
+            }
+          </div>
+        }
+        @for (app of filteredApplications(); track app) {
+          <div
+            class="compact-row"
+            [class.editing]="selectedApp()?.id === app.id"
+            (click)="selectedApp()?.id !== app.id ? selectApp(app) : null"
+          >
+            <!-- View Mode (compact row) -->
+            @if (selectedApp()?.id !== app.id) {
+              <div class="row-main">
+                <div class="role-wrapper">
+                  <span class="row-role">{{ app.role }}</span>
+                  @if (app.job_link) {
+                    <a
+                      [href]="app.job_link"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="job-link-icon"
+                      (click)="$event.stopPropagation()"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <line x1="7" y1="17" x2="17" y2="7"></line>
+                        <polyline points="7 7 17 7 17 17"></polyline>
+                      </svg>
+                    </a>
+                  }
+                </div>
+                <span class="badge" [attr.data-status]="app.status">{{ app.status }}</span>
+              </div>
+              <div class="row-sub">
+                <span>{{ app.company }}</span>
+                <span class="dot">·</span>
+                <span>{{ formatDate(app.date_applied) }}</span>
+              </div>
+            }
+            <!-- Edit Mode -->
+            @if (selectedApp()?.id === app.id) {
+              <div class="editor-minimal">
+                <div class="editor-label">
+                  <div class="role-wrapper">
+                    <span
+                      >{{ app.role }} <span class="label-muted">at {{ app.company }}</span></span
+                    >
+                    @if (app.job_link) {
+                      <a
+                        [href]="app.job_link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="job-link-icon"
+                        (click)="$event.stopPropagation()"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2.5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        >
+                          <line x1="7" y1="17" x2="17" y2="7"></line>
+                          <polyline points="7 7 17 7 17 17"></polyline>
+                        </svg>
+                      </a>
+                    }
+                  </div>
+                </div>
+                <div class="editor-row">
+                  <!-- Custom Select -->
+                  <div class="custom-select-container">
+                    @if (statusDropdownOpen()) {
+                      <div class="dropdown-backdrop" (click)="statusDropdownOpen.set(false)"></div>
+                    }
+                    <div
+                      class="minimal-input custom-select-display"
+                      [class.focused]="statusDropdownOpen()"
+                      (click)="statusDropdownOpen.set(!statusDropdownOpen())"
+                    >
+                      {{ newStatus() }}
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </div>
+                    @if (statusDropdownOpen()) {
+                      <div class="custom-select-menu">
+                        @for (s of statuses; track s) {
+                          <div
+                            class="custom-select-option"
+                            [class.selected]="s === newStatus()"
+                            (click)="newStatus.set(s); statusDropdownOpen.set(false)"
+                          >
+                            {{ s }}
+                            @if (s === newStatus()) {
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="check-icon"
+                              >
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                              </svg>
+                            }
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
+                  @if (newStatus() === 'Interview') {
+                    <input
+                      type="date"
+                      [ngModel]="newInterviewDate()"
+                      (ngModelChange)="newInterviewDate.set($event)"
+                      class="minimal-input"
+                    />
+                  }
+                </div>
+                <div class="editor-actions-row">
+                  @if (!confirmingDelete()) {
+                    <div class="left-actions">
+                      <button
+                        class="action-text-btn save"
+                        (click)="updateStatus()"
+                        [disabled]="isLoading()"
+                      >
+                        @if (!isLoading()) {
+                          <span>Save</span>
+                        }
+                        @if (isLoading()) {
+                          <span class="spinner small"></span>
+                        }
+                      </button>
+                      <button
+                        class="action-text-btn cancel"
+                        (click)="cancelEdit($event)"
+                        [disabled]="isLoading()"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                    <button
+                      class="action-icon-btn trash"
+                      title="Delete"
+                      (click)="confirmingDelete.set(true)"
+                      [disabled]="isLoading()"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path
+                          d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                        ></path>
+                      </svg>
+                    </button>
+                  }
+                  @if (confirmingDelete()) {
+                    <div class="left-actions">
+                      <span class="confirm-text">Delete?</span>
+                    </div>
+                    <div class="right-actions">
+                      <button
+                        class="action-text-btn cancel"
+                        (click)="confirmingDelete.set(false)"
+                        [disabled]="isLoading()"
+                      >
+                        No
+                      </button>
+                      <button
+                        class="action-text-btn delete-confirm"
+                        (click)="deleteApp(app, $event)"
+                        [disabled]="isLoading()"
+                      >
+                        @if (!isLoading()) {
+                          <span>Yes, Delete</span>
+                        }
+                        @if (isLoading()) {
+                          <span class="spinner small"></span>
+                        }
+                      </button>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- Empty state when no apps at all -->
+  @if (!isLoading() && allApplications().length === 0 && !error()) {
+    <div class="empty-state-full">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="36"
+        height="36"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+      </svg>
+      <h3>No applications found.</h3>
+      <p>Start tracking your first application.</p>
+      <a routerLink="/new" class="empty-cta">+ Add Application</a>
+    </div>
+  }
+</div>

@@ -1,0 +1,305 @@
+<div class="form-container">
+  <form [formGroup]="applicationForm" (ngSubmit)="onSubmit()" class="candidex-form">
+    <!-- Section: Job Info -->
+    <div class="form-section">
+      <div class="section-label">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+        </svg>
+        Job Info
+      </div>
+
+      <div class="form-group">
+        <label for="company">Company <span class="required">*</span></label>
+        <input
+          type="text"
+          id="company"
+          formControlName="company"
+          placeholder="e.g. Google, Stripe"
+          [class.invalid]="
+            applicationForm.get('company')?.invalid && applicationForm.get('company')?.touched
+          "
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="role">Role <span class="required">*</span></label>
+        <input
+          type="text"
+          id="role"
+          formControlName="role"
+          placeholder="e.g. Senior Frontend Engineer"
+          [class.invalid]="
+            applicationForm.get('role')?.invalid && applicationForm.get('role')?.touched
+          "
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Platform <span class="required">*</span></label>
+        <div class="custom-select" [class.open]="platformOpen" (click)="togglePlatform($event)">
+          <div class="custom-select-trigger">
+            <span>{{ applicationForm.get('platform')?.value }}</span>
+            <svg width="12" height="7" viewBox="0 0 12 7" fill="none">
+              <path
+                d="M1 1L6 6L11 1"
+                stroke="#6B7280"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+          <div class="custom-options">
+            @for (p of platforms; track p) {
+              <div
+                class="custom-option"
+                [class.selected]="applicationForm.get('platform')?.value === p"
+                (click)="selectPlatform(p, $event)"
+              >
+                {{ p }}
+              </div>
+            }
+          </div>
+        </div>
+        @if (showCustomPlatform) {
+          <input
+            type="text"
+            formControlName="custom_platform"
+            placeholder="Enter platform name..."
+            class="custom-platform-input"
+            [class.invalid]="
+              applicationForm.get('custom_platform')?.invalid &&
+              applicationForm.get('custom_platform')?.touched
+            "
+          />
+        }
+      </div>
+    </div>
+
+    <!-- Section: Location & Setup -->
+    <div class="form-section">
+      <div class="section-label">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+        Location & Setup
+      </div>
+
+      <div class="form-row">
+        <div class="form-group half-width">
+          <label>Country <span class="required">*</span></label>
+          <div class="custom-select" [class.open]="countryOpen" (click)="toggleCountry($event)">
+            <div class="custom-select-trigger">
+              <span>{{ applicationForm.get('country')?.value }}</span>
+              <svg width="12" height="7" viewBox="0 0 12 7" fill="none">
+                <path
+                  d="M1 1L6 6L11 1"
+                  stroke="#6B7280"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <div class="custom-options">
+              @for (c of countries; track c) {
+                <div
+                  class="custom-option"
+                  [class.selected]="applicationForm.get('country')?.value === c"
+                  (click)="selectCountry(c, $event)"
+                >
+                  {{ c }}
+                </div>
+              }
+            </div>
+          </div>
+          @if (showCustomCountry) {
+            <input
+              type="text"
+              formControlName="custom_country"
+              placeholder="Enter country..."
+              class="custom-platform-input"
+              [class.invalid]="
+                applicationForm.get('custom_country')?.invalid &&
+                applicationForm.get('custom_country')?.touched
+              "
+            />
+          }
+        </div>
+
+        <div class="form-group half-width">
+          <label>Work Type <span class="required">*</span></label>
+          <div class="custom-select" [class.open]="workTypeOpen" (click)="toggleWorkType($event)">
+            <div class="custom-select-trigger">
+              <span>{{ applicationForm.get('work_type')?.value }}</span>
+              <svg width="12" height="7" viewBox="0 0 12 7" fill="none">
+                <path
+                  d="M1 1L6 6L11 1"
+                  stroke="#6B7280"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <div class="custom-options">
+              @for (w of workTypes; track w) {
+                <div
+                  class="custom-option"
+                  [class.selected]="applicationForm.get('work_type')?.value === w"
+                  (click)="selectWorkType(w, $event)"
+                >
+                  {{ w }}
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: Links -->
+    <div class="form-section">
+      <div class="section-label">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+        </svg>
+        Links
+      </div>
+
+      <div class="form-group">
+        <label for="job_link">Job Posting</label>
+        <input type="url" id="job_link" formControlName="job_link" placeholder="https://..." />
+      </div>
+
+      <div class="form-group">
+        <label for="company_link">Company Page</label>
+        <input
+          type="url"
+          id="company_link"
+          formControlName="company_link"
+          placeholder="https://..."
+        />
+      </div>
+    </div>
+
+    <!-- Section: Status -->
+    <div class="form-section">
+      <div class="section-label">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        Status
+      </div>
+
+      <div class="form-row">
+        <div class="form-group half-width">
+          <label for="date_applied">Date Applied <span class="required">*</span></label>
+          <input type="date" id="date_applied" formControlName="date_applied" />
+        </div>
+
+        <div class="form-group half-width">
+          <label>Status <span class="required">*</span></label>
+          <div class="custom-select" [class.open]="statusOpen" (click)="toggleStatus($event)">
+            <div class="custom-select-trigger">
+              <span>{{ applicationForm.get('status')?.value }}</span>
+              <svg width="12" height="7" viewBox="0 0 12 7" fill="none">
+                <path
+                  d="M1 1L6 6L11 1"
+                  stroke="#6B7280"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <div class="custom-options">
+              @for (s of statuses; track s) {
+                <div
+                  class="custom-option"
+                  [class.selected]="applicationForm.get('status')?.value === s"
+                  (click)="selectStatus(s, $event)"
+                >
+                  {{ s }}
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="notes">Notes</label>
+        <textarea
+          id="notes"
+          formControlName="notes"
+          rows="2"
+          placeholder="Any extra details..."
+        ></textarea>
+      </div>
+    </div>
+
+    <button type="submit" class="submit-btn" [disabled]="applicationForm.invalid || isSubmitting()">
+      @if (!isSubmitting()) {
+        <span>Save to Sheets</span>
+      }
+      @if (isSubmitting()) {
+        <span class="spinner"></span>
+      }
+    </button>
+
+    @if (successMessage()) {
+      <div class="alert success">{{ successMessage() }}</div>
+    }
+    @if (errorMessage()) {
+      <div class="alert error">{{ errorMessage() }}</div>
+    }
+  </form>
+</div>

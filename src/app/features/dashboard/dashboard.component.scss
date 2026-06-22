@@ -1,0 +1,452 @@
+.dashboard-container {
+  padding: 1.25rem;
+  color: var(--text-main);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  
+  .spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+}
+
+.alert.error {
+  background-color: #fef2f2;
+  color: #991b1b;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  border-left: 4px solid #ef4444;
+  white-space: normal;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+/* Empty State */
+.empty-state-full {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--text-muted);
+
+  svg { margin-bottom: 1rem; opacity: 0.4; }
+
+  h3 {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 0.25rem;
+  }
+
+  p {
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .empty-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.625rem 1.25rem;
+    background: var(--primary);
+    color: white;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s;
+
+    &:hover { background: var(--primary-hover); }
+  }
+}
+
+/* Metrics Row */
+.metrics-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.metric-block {
+  padding: 1rem;
+  border-radius: 12px;
+  background: var(--bg-main);
+  display: flex;
+  flex-direction: column;
+
+  .metric-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .metric-unit {
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
+
+  .metric-label {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+    font-weight: 500;
+  }
+
+  .metric-sub {
+    font-size: 0.75rem;
+    color: var(--primary);
+    font-weight: 500;
+    margin-top: 0.375rem;
+
+    &.muted {
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+  }
+
+  &.primary .metric-value {
+    color: var(--primary);
+  }
+
+  &.success {
+    .metric-value {
+      color: #10b981; // emerald-500
+    }
+  }
+
+  &.full-width {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 0.875rem 1rem;
+
+    .metric-group {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+    
+    .metric-value {
+      font-size: 1.5rem;
+    }
+
+    .metric-label {
+      margin-top: 0;
+    }
+
+    .metric-sub {
+      margin-top: 0;
+    }
+  }
+}
+/* Platform Tags */
+.platform-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: -0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.platform-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-main);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  
+  svg {
+    color: var(--primary-color);
+    opacity: 0.8;
+  }
+  
+  .tag-count {
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-left: 0.125rem;
+  }
+}
+
+/* Stats Grid for Countries and Work Type */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.stats-card {
+  &:last-child {
+    justify-self: end;
+  }
+
+  .stats-title {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.625rem;
+
+    svg {
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+  }
+}
+
+/* Inline stats (Countries / Work Type) */
+.inline-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.inline-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  color: var(--text-main);
+
+  .inline-count {
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+}
+
+.inline-stat-more {
+  font-size: 0.75rem;
+  color: var(--primary-color);
+  font-weight: 500;
+  opacity: 0.8;
+  margin-top: 0.125rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+/* Status Breakdown */
+.status-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 1.25rem;
+
+  &.compact {
+    margin-bottom: 0;
+  }
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0;
+  border-bottom: 1px solid #f1f5f9;
+
+  &:last-child { border-bottom: none; }
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  &.applied { background: #818CF8; }
+  &.interview { background: #F59E0B; }
+  &.offer { background: #10B981; }
+  &.rejected { background: #EF4444; }
+  &.remote { background: #10B981; }
+  &.hybrid { background: #F59E0B; }
+  &.onsite { background: #6366F1; }
+}
+
+.status-name {
+  font-size: 0.875rem;
+  color: var(--text-main);
+  flex: 1;
+}
+
+.status-count {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-main);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Next Interview */
+.next-interview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: #FEF3C7;
+  border-radius: 10px;
+  margin-bottom: 1.25rem;
+
+  .interview-label {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #92400E;
+  }
+
+  .interview-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .interview-company {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #92400E;
+  }
+
+  .interview-date {
+    font-size: 0.75rem;
+    color: #B45309;
+  }
+}
+
+/* Divider */
+.section-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin-bottom: 1rem;
+}
+
+/* Recent Section */
+.recent-section {
+  h3 {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* Compact List */
+.compact-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.compact-item {
+  padding: 0.625rem 0;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s;
+
+  &:last-child { border-bottom: none; }
+
+  .compact-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.125rem;
+
+    .compact-role {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 65%;
+    }
+  }
+
+  .compact-sub {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+
+    .dot { opacity: 0.5; }
+  }
+}
+
+.badge {
+  font-size: 0.6875rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &[data-status="Applied"] { background: #E0E7FF; color: #4338CA; }
+  &[data-status="Interview"] { background: #FEF3C7; color: #B45309; }
+  &[data-status="Offer"] { background: #D1FAE5; color: #047857; }
+  &[data-status="Rejected"] { background: #FEE2E2; color: #B91C1C; }
+  &[data-status="Withdrawn"] { background: #F3F4F6; color: #4B5563; }
+}
+
+/* Quick Add */
+.quick-add-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border: 1px dashed var(--border-color);
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--primary);
+    border-color: var(--primary);
+    background: rgba(79, 70, 229, 0.03);
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}

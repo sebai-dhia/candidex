@@ -1,0 +1,261 @@
+<div class="dashboard-container">
+  @if (isLoading()) {
+    <div class="loading-state">
+      <span class="spinner"></span>
+      <p>Loading your data...</p>
+    </div>
+  }
+
+  @if (error()) {
+    <div class="alert error">
+      {{ error() }}
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!isLoading() && !error() && totalApplications() === 0) {
+    <div class="empty-state-full">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="40"
+        height="40"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+      </svg>
+      <h3>No applications yet</h3>
+      <p>Start tracking your job search</p>
+      <a routerLink="/new" class="empty-cta">Add First Application</a>
+    </div>
+  }
+
+  @if (!isLoading() && !error() && totalApplications() > 0) {
+    <div class="dashboard-content">
+      <!-- Metrics Row: 2 cards -->
+      <div class="metrics-row">
+        <div class="metric-block primary">
+          <span class="metric-value">{{ totalApplications() }}</span>
+          <span class="metric-label">Applications</span>
+          @if (thisWeekCount() > 0) {
+            <span class="metric-sub">+{{ thisWeekCount() }} this week</span>
+          }
+        </div>
+        <div class="metric-block">
+          <span class="metric-value">{{ responseRate() }}<span class="metric-unit">%</span></span>
+          <span class="metric-label">Response Rate</span>
+          <span class="metric-sub muted"
+            >{{ respondedCount() }} from {{ totalApplications() }} apps</span
+          >
+        </div>
+        <div class="metric-block full-width success">
+          <div class="metric-group">
+            <span class="metric-value">{{ successRate() }}<span class="metric-unit">%</span></span>
+            <span class="metric-label">Success Rate</span>
+          </div>
+          <span class="metric-sub muted">{{ successLabel() }}</span>
+        </div>
+      </div>
+      <!-- Top Platforms Tags -->
+      @if (topPlatforms().length > 0) {
+        <div class="platform-tags">
+          @for (platform of topPlatforms(); track platform) {
+            <div class="platform-tag">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                <polyline points="2 17 12 22 22 17"></polyline>
+                <polyline points="2 12 12 17 22 12"></polyline>
+              </svg>
+              <span>{{ platform.name }}</span>
+              <span class="tag-count">{{ platform.count }}</span>
+            </div>
+          }
+        </div>
+      }
+      <!-- Status Breakdown -->
+      <div class="status-breakdown">
+        <div class="status-row">
+          <span class="status-dot applied"></span>
+          <span class="status-name">Applied</span>
+          <span class="status-count">{{ statusCounts().applied }}</span>
+        </div>
+        <div class="status-row">
+          <span class="status-dot interview"></span>
+          <span class="status-name">Interview</span>
+          <span class="status-count">{{ statusCounts().interview }}</span>
+        </div>
+        <div class="status-row">
+          <span class="status-dot offer"></span>
+          <span class="status-name">Offer</span>
+          <span class="status-count">{{ statusCounts().offer }}</span>
+        </div>
+        <div class="status-row">
+          <span class="status-dot rejected"></span>
+          <span class="status-name">Rejected</span>
+          <span class="status-count">{{ statusCounts().rejected }}</span>
+        </div>
+      </div>
+      <!-- Next Interview -->
+      @if (nextInterview()) {
+        <div class="next-interview">
+          <div class="interview-label">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            Next Interview
+          </div>
+          <div class="interview-info">
+            <span class="interview-company">{{ nextInterview()?.company }}</span>
+            <span class="interview-date">{{
+              getDaysUntil(nextInterview()?.interview_date || '')
+            }}</span>
+          </div>
+        </div>
+      }
+      <!-- Divider -->
+      <div class="section-divider"></div>
+      <div class="stats-grid">
+        <!-- Countries -->
+        <div class="stats-card">
+          <h3 class="stats-title">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path
+                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+              ></path>
+            </svg>
+            Countries
+          </h3>
+          <div class="inline-stats">
+            @for (country of topCountries(); track country) {
+              <div class="inline-stat-item">
+                {{ country.label }} <span class="inline-count">({{ country.count }})</span>
+              </div>
+            }
+            @if (hiddenCountryCount() > 0) {
+              <div class="inline-stat-more" (click)="toggleCountries()">
+                {{ showAllCountries() ? 'Show less' : '+' + hiddenCountryCount() + ' more' }}
+              </div>
+            }
+          </div>
+        </div>
+        <!-- Work Type -->
+        <div class="stats-card">
+          <h3 class="stats-title">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+            Work Type
+          </h3>
+          <div class="inline-stats">
+            <div class="inline-stat-item">
+              <span class="status-dot remote"></span> Remote
+              <span class="inline-count">({{ workTypeCounts().remote }})</span>
+            </div>
+            <div class="inline-stat-item">
+              <span class="status-dot hybrid"></span> Hybrid
+              <span class="inline-count">({{ workTypeCounts().hybrid }})</span>
+            </div>
+            <div class="inline-stat-item">
+              <span class="status-dot onsite"></span> On-site
+              <span class="inline-count">({{ workTypeCounts().onsite }})</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Divider -->
+      <div class="section-divider"></div>
+      <!-- Recent Applications -->
+      <div class="recent-section">
+        <h3>Recent</h3>
+        <div class="compact-list">
+          @for (app of recentApplications(); track app) {
+            <div class="compact-item">
+              <div class="compact-main">
+                <span class="compact-role">{{ app.role }}</span>
+                <span class="badge" [attr.data-status]="app.status">{{ app.status }}</span>
+              </div>
+              <div class="compact-sub">
+                <span>{{ app.company }}</span>
+                <span class="dot">·</span>
+                <span>{{ formatDate(app.date_applied) }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+      <!-- Quick Add CTA -->
+      <a routerLink="/new" class="quick-add-btn">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Add New
+      </a>
+    </div>
+  }
+</div>
