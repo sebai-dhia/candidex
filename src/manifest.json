@@ -2,6 +2,7 @@
   "manifest_version": 3,
   "name": "Candidex",
   "version": "1.0.0",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzml9BEmqkyF1mj5vH+5lrehhlPLiZvMZv+57rVqAWdXFu1Rf8x71jl2u3h6+tvhiKT8gOKad1xMjWJ/c7ctpGX+XTlH1Adb13tJeZXahBv/TChGtML8qQrpLbqCgl+J3S1aWYFHTuD4ZESh2lHFR37PEasPA5Mxj2ZWWyioxVp1vFiQOL1YSjpCpHffsre2hx/QymFZlkwmZFgTGGc1STD12B18N224F3SkD1eZbOeoUX6hPCpfz3URVqJax9AuWT8CtqopaN6kGhYOCI7ysdYydI8IAwwEa12+uqqmrrB9kmMnFlZLI9D6SeJO8dKWnjLqFI7BhXgIiYiyWp9xqxwIDAQAB",
   "icons": {
     "16": "candidex_logo.png",
     "48": "candidex_logo.png",

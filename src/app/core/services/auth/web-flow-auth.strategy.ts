@@ -6,7 +6,7 @@ import { AuthStrategy } from './auth.strategy';
  * bypassing the need for a browser-level Google profile.
  */
 export class WebFlowAuthStrategy implements AuthStrategy {
-  private readonly clientId = '737956559797-qkjchps7rc3o9avme3bk1n8fiukbmibr.apps.googleusercontent.com';
+  private readonly clientId = '737956559797-8g3krms69sqnvteq4kbub11hfb6qfuro.apps.googleusercontent.com';
   private readonly scope = encodeURIComponent('https://www.googleapis.com/auth/drive.file');
 
   requestToken(interactive: boolean): Promise<string> {
