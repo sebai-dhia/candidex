@@ -269,7 +269,10 @@ export class Dashboard implements OnInit {
   async loadData() {
     try {
       this.isLoading.set(true);
-      const rows = await this.sheets.getRows();
+      
+      console.log('[Dashboard] Starting loadData...');
+      const rows = await this.sheets.getRows(true);
+      console.log('[Dashboard] Raw rows received:', rows.length, rows);
 
       const apps: ApplicationRow[] = rows
         .map((r) => ({
@@ -288,9 +291,10 @@ export class Dashboard implements OnInit {
         }))
         .filter((a) => a.id);
 
+      console.log('[Dashboard] Parsed apps after filter:', apps.length, apps);
       this.allApps.set(apps);
     } catch (err: any) {
-      console.error('Failed to load dashboard data:', err);
+      console.error('[Dashboard] Failed to load dashboard data:', err);
       this.error.set('Failed to load data. Please make sure Google Sheets is connected.');
     } finally {
       this.isLoading.set(false);

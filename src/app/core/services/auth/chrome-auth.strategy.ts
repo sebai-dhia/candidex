@@ -8,10 +8,17 @@ import { AuthStrategy } from './auth.strategy';
 export class ChromeAuthStrategy implements AuthStrategy {
   requestToken(interactive: boolean): Promise<string> {
     return new Promise((resolve, reject) => {
-      chrome.identity.getAuthToken({ interactive }, (token: any) => {
+      chrome.identity.getAuthToken({ interactive }, (result: any) => {
         if (chrome.runtime.lastError) {
           reject(chrome.runtime.lastError.message);
-        } else if (token) {
+          return;
+        }
+
+        // Manifest V3 returns a GetAuthTokenResult object { token: string }
+        // Older versions return a plain string
+        const token = typeof result === 'string' ? result : result?.token;
+
+        if (token) {
           resolve(token);
         } else {
           reject('No token returned from Chrome Identity.');

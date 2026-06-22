@@ -30,45 +30,100 @@ export class GoogleSheets {
   async getSpreadsheetId(): Promise<string> {
     if (this.spreadsheetId) return this.spreadsheetId;
 
-    // Check local storage for an existing spreadsheet ID
-    return new Promise((resolve, reject) => {
-      chrome.storage.local.get(['candidexSpreadsheetId'], async (result: { [key: string]: any }) => {
-        if (result['candidexSpreadsheetId']) {
-          this.spreadsheetId = result['candidexSpreadsheetId'];
-          resolve(this.spreadsheetId!);
-        } else {
-          // If not found, create a new one
-          try {
-            const token = await this.auth.getToken();
-            const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-
-            const createRes: any = await firstValueFrom(
-              this.http.post('https://sheets.googleapis.com/v4/spreadsheets', {
-                properties: { title: 'Candidex - Job Applications' },
-                sheets: [
-                  {
-                    properties: { title: 'Applications' }
-                  }
-                ]
-              }, { headers })
-            );
-
-            this.spreadsheetId = createRes.spreadsheetId;
-
-            // Add header row to match PROJECT.md exactly
-            await this.appendRow(['id', 'role', 'company', 'platform', 'job_link', 'company_link', 'date_applied', 'status', 'interview_date', 'notes', 'country', 'work_type']);
-
-            // Save the ID so we don't recreate it
-            chrome.storage.local.set({ candidexSpreadsheetId: this.spreadsheetId });
-            resolve(this.spreadsheetId!);
-          } catch (error: any) {
-            console.error('Failed to create spreadsheet:', error);
-            const msg = error?.error?.error?.message || error?.message || JSON.stringify(error);
-            reject(new Error(`Failed to create spreadsheet: ${msg}`));
-          }
-        }
+    // Step 1: Check local storage for an existing spreadsheet ID
+    const stored = await new Promise<string | null>((resolve) => {
+      chrome.storage.local.get(['candidexSpreadsheetId'], (result: { [key: string]: any }) => {
+        resolve(result['candidexSpreadsheetId'] || null);
       });
     });
+
+    if (stored) {
+      this.spreadsheetId = stored;
+      console.log('[Sheets] Using stored spreadsheet ID:', stored);
+      return stored;
+    }
+
+    // Step 2: Search Google Drive for an existing "Candidex - Job Applications" spreadsheet
+    try {
+      const token = await this.auth.getToken();
+      const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+
+      const found = await this.findExistingSpreadsheet(headers);
+      if (found) {
+        this.spreadsheetId = found;
+        chrome.storage.local.set({ candidexSpreadsheetId: found });
+        console.log('[Sheets] Found existing spreadsheet on Drive:', found);
+        return found;
+      }
+
+      // Step 3: No existing spreadsheet found — create a new one
+      console.log('[Sheets] No existing spreadsheet found, creating new one...');
+      const createRes: any = await firstValueFrom(
+        this.http.post('https://sheets.googleapis.com/v4/spreadsheets', {
+          properties: { title: 'Candidex - Job Applications' },
+          sheets: [{ properties: { title: 'Applications' } }]
+        }, { headers })
+      );
+
+      this.spreadsheetId = createRes.spreadsheetId;
+
+      // Add header row
+      await this.appendRow(['id', 'role', 'company', 'platform', 'job_link', 'company_link', 'date_applied', 'status', 'interview_date', 'notes', 'country', 'work_type']);
+
+      chrome.storage.local.set({ candidexSpreadsheetId: this.spreadsheetId });
+      console.log('[Sheets] Created new spreadsheet:', this.spreadsheetId);
+      return this.spreadsheetId!;
+    } catch (error: any) {
+      console.error('[Sheets] Failed to get spreadsheet:', error);
+      const msg = error?.error?.error?.message || error?.message || JSON.stringify(error);
+      throw new Error(`Failed to get spreadsheet: ${msg}`);
+    }
+  }
+
+  /**
+   * Search Google Drive for existing "Candidex - Job Applications" spreadsheets.
+   * If multiple are found, pick the one with the most data rows.
+   */
+  private async findExistingSpreadsheet(headers: HttpHeaders): Promise<string | null> {
+    try {
+      const query = encodeURIComponent("name='Candidex - Job Applications' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false");
+      const driveRes: any = await firstValueFrom(
+        this.http.get(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id,name)`, { headers })
+      );
+
+      const files = driveRes.files || [];
+      console.log(`[Sheets] Found ${files.length} existing spreadsheet(s) on Drive`);
+
+      if (files.length === 0) return null;
+      if (files.length === 1) return files[0].id;
+
+      // Multiple found — pick the one with the most data rows
+      let bestId = files[0].id;
+      let bestCount = 0;
+
+      for (const file of files) {
+        try {
+          const res: any = await firstValueFrom(
+            this.http.get(`https://sheets.googleapis.com/v4/spreadsheets/${file.id}/values/Applications!A:A`, { headers })
+          );
+          const rowCount = res.values ? res.values.length - 1 : 0; // minus header
+          console.log(`[Sheets] Spreadsheet ${file.id} has ${rowCount} data rows`);
+          if (rowCount > bestCount) {
+            bestCount = rowCount;
+            bestId = file.id;
+          }
+        } catch {
+          // Skip spreadsheets we can't read
+          console.warn(`[Sheets] Could not read spreadsheet ${file.id}, skipping`);
+        }
+      }
+
+      console.log(`[Sheets] Selected spreadsheet with most data: ${bestId} (${bestCount} rows)`);
+      return bestId;
+    } catch (error) {
+      console.warn('[Sheets] Drive search failed, will create new spreadsheet:', error);
+      return null;
+    }
   }
 
   async appendRow(values: string[]): Promise<any> {
@@ -195,12 +250,17 @@ export class GoogleSheets {
 
       // Cache TTL: 5 minutes
       if (cached && cached.timestamp && (Date.now() - cached.timestamp < 5 * 60 * 1000)) {
+        console.log('[Sheets] Returning cached rows:', cached.data.length);
         return cached.data;
       }
     }
 
     const id = await this.getSpreadsheetId();
+    console.log('[Sheets] Spreadsheet ID:', id);
+    
     const token = await this.auth.getToken();
+    console.log('[Sheets] Token received:', token ? `${token.substring(0, 10)}...` : 'NULL');
+    
     const headers = new HttpHeaders({ 
       Authorization: `Bearer ${token}`,
       'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -212,7 +272,9 @@ export class GoogleSheets {
       this.http.get(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/Applications!A:L`, { headers })
     );
 
+    console.log('[Sheets] API response:', JSON.stringify(res).substring(0, 200));
     const rows = res.values ? res.values.slice(1) : [];
+    console.log('[Sheets] Rows after slicing header:', rows.length);
 
     // Save to cache
     chrome.storage.local.set({
