@@ -1,46 +1,71 @@
 # Candidex
 
-A Chrome extension that helps job seekers track applications and match responses — powered by your own Google Sheet.
+An open-source browser extension for tracking job applications without giving your data to another hiring platform.
 
-## What it does
+Candidex opens as a slide-out panel on top of the page you are browsing, lets you save applications in seconds, and keeps everything in your own Google Sheet.
 
-Candidex gives you a slide-out panel in Chrome with three views:
+![Candidex in use on a job search page](public/app_in_use.png)
 
-- **Dashboard** — see your total applications, breakdown by platform, and recent entries at a glance.
-- **Apply** — log a new job application in seconds without leaving the page you're on.
-- **Track responses** — search your existing applications by company or role, then update the status (Interview, Rejected, Offer, etc.) when you hear back.
+## Why Candidex?
 
-All your data lives in a Google Sheet in **your own Google Drive**. There is no backend server and no developer-owned database — Candidex is just a client that reads and writes to your Sheet.
+Job searching gets messy fast. You apply from LinkedIn, company career pages, job boards, newsletters, and random tabs you swear you will remember later.
 
-## Authentication
+Candidex gives you one lightweight place to track it all:
 
-Candidex uses Chrome's built-in [`chrome.identity`](https://developer.chrome.com/docs/extensions/reference/api/identity) API to obtain an OAuth 2.0 token from Google.
+- Log applications without leaving the job page.
+- See your application stats at a glance.
+- Search old applications when a company finally replies.
+- Update statuses like Applied, Interview, Offer, Rejected, or Withdrawn.
+- Keep ownership of your data in your own Google Drive.
 
-- The **`client_id`** in `src/manifest.json` is a public identifier — it tells Google which app is requesting access. It is not a secret and is safe to publish.
-- There is **no `client_secret`** anywhere in this project. Chrome extensions use the "installed application" OAuth flow which does not require one.
-- The only OAuth scope requested is **`drive.file`** — this limits access to files that the extension itself creates. Candidex cannot read or modify any other file in your Drive.
-- Tokens are obtained at runtime and cached in memory. They are never written to source files or committed to the repository.
+No backend. No hosted database. No account on a third-party job tracker.
 
-## Tech stack
+## Features
 
-| Layer | Technology |
-| ----- | ---------- |
-| Framework | Angular 22 (zoneless, standalone components, signals) |
-| Extension | Chrome Manifest V3 |
-| Storage | Google Sheets API v4 (user's own account) |
-| Styling | Tailwind CSS 3 + custom SCSS |
-| Icons | Lucide Angular |
-| Typography | Inter, Plus Jakarta Sans |
+- **Slide-out panel** - Use Candidex directly on top of job search pages.
+- **Dashboard** - View totals, response rate, success rate, platforms, countries, work types, and recent applications.
+- **New application form** - Save company, role, platform, links, country, work type, date, status, and notes.
+- **Response tracking** - Search by company or role, then update status and interview date.
+- **Google Sheets storage** - Your applications live in a Sheet created in your own Google Drive.
+- **Open source** - The project is inspectable, forkable, and contribution-friendly.
 
-## Getting started
+## Browser Support
+
+Candidex is built as a Chromium Manifest V3 extension.
+
+| Browser | Status |
+| --- | --- |
+| Opera | Primary target |
+| Chrome | Expected to work, Chromium-based |
+| Edge / Brave / Vivaldi | Planned validation |
+| Firefox | Future investigation |
+
+Opera is the first browser target. Support for more browsers will be improved as the extension matures and contributors test more environments.
+
+## Privacy
+
+Candidex is built around a simple rule: your job search data should belong to you.
+
+- Your applications are stored in your own Google Sheet.
+- Candidex does not run a backend server.
+- Candidex does not collect analytics or telemetry.
+- Candidex does not use cookies or tracking pixels.
+- Google OAuth runs through the browser extension identity flow.
+- The OAuth `client_id` in `src/manifest.json` is public by design; there is no `client_secret`.
+
+Read the full policy in `docs/privacy-policy.md`.
+
+## Install From Source
+
+Packaged store releases are not available yet. For now, you can install Candidex from source.
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) 20+
+- Node.js 20+
 - npm 10+
-- Google Chrome
+- Opera, Chrome, or another Chromium-based browser
 
-### Install & build
+### Build
 
 ```bash
 git clone https://github.com/sebai-dhia/candidex.git
@@ -49,56 +74,89 @@ npm install
 npm run build
 ```
 
-### Load the extension locally
+### Load in Opera
 
-1. Open `chrome://extensions` in Chrome.
-2. Enable **Developer mode** (toggle in the top-right corner).
-3. Click **Load unpacked** and select the `dist/candidex/browser` folder.
-4. Click the Candidex icon in your toolbar to open the panel.
+1. Open `opera://extensions`.
+2. Enable **Developer mode**.
+3. Click **Load unpacked**.
+4. Select `dist/candidex/browser`.
+5. Pin or open Candidex from the browser toolbar.
+
+### Load in Chrome or Other Chromium Browsers
+
+1. Open your browser's extensions page, such as `chrome://extensions`.
+2. Enable **Developer mode**.
+3. Click **Load unpacked**.
+4. Select `dist/candidex/browser`.
+
+## For Contributors
+
+Candidex is a small Angular extension project. Contributions are welcome, especially around browser compatibility, privacy-safe UX improvements, accessibility, and extension packaging.
 
 ### Development
 
 ```bash
-npm run watch          # rebuild on file changes
+npm run watch
 ```
 
-After each rebuild, go to `chrome://extensions` and click the refresh icon on the Candidex card.
+After each rebuild, refresh the unpacked extension from your browser's extensions page.
 
-## Project structure
+### Scripts
 
+```bash
+npm run start     # Start Angular dev server
+npm run build     # Build extension bundle
+npm run watch     # Rebuild on file changes
+npm run package   # Build and create extension zip
 ```
+
+### Tech Stack
+
+| Layer | Technology |
+| --- | --- |
+| Framework | Angular 22, signals, zoneless change detection |
+| Extension | Chromium Manifest V3 |
+| Storage | Google Sheets API v4 |
+| Auth | Browser identity API + Google OAuth |
+| Styling | Tailwind CSS 3 + SCSS |
+| Icons | Lucide Angular |
+| Typography | Inter, Plus Jakarta Sans |
+
+### Project Structure
+
+```txt
 src/
-├── manifest.json              # Chrome extension manifest (MV3)
-├── background.js              # Service worker
-├── content.js                 # Content script (slide-out panel injection)
-├── app/
-│   ├── app.ts                 # Root component (auth gate + navigation)
-│   ├── core/services/
-│   │   ├── auth.ts            # Chrome identity OAuth wrapper
-│   │   └── google-sheets.ts   # Google Sheets API client
-│   └── features/
-│       ├── dashboard/         # Dashboard view
-│       ├── application/       # "Apply" form view
-│       └── tracking/          # Response tracking view
-└── styles.scss                # Global styles
+|-- manifest.json              # Extension manifest
+|-- background.js              # Service worker
+|-- content.js                 # Slide-out panel injection
+|-- app/
+|   |-- app.ts                 # Root component
+|   |-- core/
+|   |   |-- constants/         # Shared option and country constants
+|   |   |-- models/            # Shared TypeScript models
+|   |   |-- services/          # Auth and Google Sheets services
+|   |   `-- utils/             # Shared mapping helpers
+|   `-- features/
+|       |-- application/       # New application form
+|       |-- dashboard/         # Dashboard view
+|       `-- tracking/          # Response tracking view
+`-- styles.scss                # Global styles
 ```
 
-## Security
+## Security Notes
 
-- **No secrets in source.** The only credential-related value is the OAuth `client_id`, which is public by design.
-- **Minimal permissions.** The extension requests only `scripting`, `identity`, `storage`, and `activeTab`.
-- **CSP enforced.** The manifest sets a strict Content Security Policy (`script-src 'self'; object-src 'self'`).
-- **No remote code.** All JavaScript runs from the extension bundle — no external script loading.
+- No source secrets are required.
+- The extension requests only the permissions needed for auth, storage, active tab access, and UI injection.
+- JavaScript runs from the extension bundle; no remote code is loaded.
+- Application data stays in the user's Google account.
 
-## Contributing
+## Roadmap
 
-1. Fork the repository.
-2. Create a feature branch (`git checkout -b feature/my-feature`).
-3. Commit your changes (`git commit -m "Add my feature"`).
-4. Push to the branch (`git push origin feature/my-feature`).
-5. Open a Pull Request.
-
-Please keep PRs focused on a single change. For larger features, open an issue first to discuss the approach.
+- Improve packaged release flow.
+- Validate more Chromium-based browsers.
+- Investigate Firefox support.
+- Improve accessibility and keyboard navigation.
+- Add optional browser-store screenshots and documentation.
 
 ## License
 
