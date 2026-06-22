@@ -2,18 +2,28 @@ import { Component, inject, OnInit, HostListener, signal, ChangeDetectionStrateg
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
 import { GoogleSheets } from '../../core/services/google-sheets';
+import {
+  APPLICATION_COUNTRIES,
+  APPLICATION_PLATFORMS,
+  APPLICATION_STATUSES,
+  CUSTOM_OPTION,
+  DEFAULT_APPLICATION_VALUES,
+  WORK_TYPES,
+} from '../../core/constants/application-options.constants';
+
+type DropdownStateKey = 'platformOpen' | 'statusOpen' | 'countryOpen' | 'workTypeOpen';
+type CustomOptionsStorageKey = 'customPlatforms' | 'customCountries';
 
 @Component({
   selector: 'app-application',
-  standalone: true,
   imports: [ReactiveFormsModule],
   templateUrl: './application.component.html',
   styleUrl: './application.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Application implements OnInit {
-  private fb = inject(FormBuilder);
-  private sheets = inject(GoogleSheets);
+  private readonly fb = inject(FormBuilder);
+  private readonly sheets = inject(GoogleSheets);
 
   applicationForm!: FormGroup;
   isSubmitting = signal(false);
@@ -21,23 +31,10 @@ export class Application implements OnInit {
   errorMessage = signal('');
 
   // Controlled lists
-  platforms = ['LinkedIn', 'Indeed', 'Glassdoor', 'Company Site', 'Other'];
-  statuses = ['Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'];
-  countries = [
-    'Tunisia',
-    'France',
-    'Germany',
-    'UAE',
-    'Saudi Arabia',
-    'Qatar',
-    'Canada',
-    'USA',
-    'Morocco',
-    'UK',
-    'Australia',
-    'Other',
-  ];
-  workTypes = ['On-site', 'Hybrid', 'Remote'];
+  platforms: string[] = [...APPLICATION_PLATFORMS];
+  statuses: string[] = [...APPLICATION_STATUSES];
+  countries: string[] = [...APPLICATION_COUNTRIES];
+  workTypes: string[] = [...WORK_TYPES];
   showCustomPlatform = false;
   showCustomCountry = false;
 
@@ -46,6 +43,9 @@ export class Application implements OnInit {
   statusOpen = false;
   countryOpen = false;
   workTypeOpen = false;
+
+  private readonly customPlatformStorageKey = 'customPlatforms';
+  private readonly customCountryStorageKey = 'customCountries';
 
   // Close dropdowns when clicking outside
   @HostListener('document:click')
@@ -57,55 +57,48 @@ export class Application implements OnInit {
   }
 
   togglePlatform(event: Event) {
-    event.stopPropagation();
-    const wasOpen = this.platformOpen;
-    this.closeAllDropdowns();
-    this.platformOpen = !wasOpen;
+    this.toggleDropdown('platformOpen', event);
   }
 
   selectPlatform(value: string, event: Event) {
-    event.stopPropagation();
-    this.applicationForm.get('platform')!.setValue(value);
-    this.platformOpen = false;
+    this.selectOption('platform', value, 'platformOpen', event);
   }
 
   toggleStatus(event: Event) {
-    event.stopPropagation();
-    const wasOpen = this.statusOpen;
-    this.closeAllDropdowns();
-    this.statusOpen = !wasOpen;
+    this.toggleDropdown('statusOpen', event);
   }
 
   selectStatus(value: string, event: Event) {
-    event.stopPropagation();
-    this.applicationForm.get('status')!.setValue(value);
-    this.statusOpen = false;
+    this.selectOption('status', value, 'statusOpen', event);
   }
 
   toggleCountry(event: Event) {
-    event.stopPropagation();
-    const wasOpen = this.countryOpen;
-    this.closeAllDropdowns();
-    this.countryOpen = !wasOpen;
+    this.toggleDropdown('countryOpen', event);
   }
 
   selectCountry(value: string, event: Event) {
-    event.stopPropagation();
-    this.applicationForm.get('country')!.setValue(value);
-    this.countryOpen = false;
+    this.selectOption('country', value, 'countryOpen', event);
   }
 
   toggleWorkType(event: Event) {
-    event.stopPropagation();
-    const wasOpen = this.workTypeOpen;
-    this.closeAllDropdowns();
-    this.workTypeOpen = !wasOpen;
+    this.toggleDropdown('workTypeOpen', event);
   }
 
   selectWorkType(value: string, event: Event) {
+    this.selectOption('work_type', value, 'workTypeOpen', event);
+  }
+
+  private toggleDropdown(dropdown: DropdownStateKey, event: Event) {
     event.stopPropagation();
-    this.applicationForm.get('work_type')!.setValue(value);
-    this.workTypeOpen = false;
+    const wasOpen = this[dropdown];
+    this.closeAllDropdowns();
+    this[dropdown] = !wasOpen;
+  }
+
+  private selectOption(controlName: string, value: string, dropdown: DropdownStateKey, event: Event) {
+    event.stopPropagation();
+    this.applicationForm.get(controlName)!.setValue(value);
+    this[dropdown] = false;
   }
 
   private closeAllDropdowns() {
@@ -116,45 +109,28 @@ export class Application implements OnInit {
   }
 
   ngOnInit() {
-    const today = new Date().toISOString().split('T')[0];
+    const defaultValues = this.getDefaultFormValues();
 
     this.applicationForm = this.fb.group({
-      role: ['', Validators.required],
-      company: ['', Validators.required],
-      platform: ['LinkedIn', Validators.required],
-      custom_platform: [''], // Only used when platform === 'Other'
-      job_link: [''], // Optional per PROJECT.md
-      company_link: [''], // Optional per PROJECT.md
-      country: ['Tunisia', Validators.required],
-      custom_country: [''], // Only used when country === 'Other'
-      work_type: ['Remote', Validators.required],
-      date_applied: [today, Validators.required],
-      status: ['Applied', Validators.required],
-      notes: [''], // Optional per PROJECT.md
+      role: [defaultValues.role, Validators.required],
+      company: [defaultValues.company, Validators.required],
+      platform: [defaultValues.platform, Validators.required],
+      custom_platform: [defaultValues.custom_platform],
+      job_link: [defaultValues.job_link],
+      company_link: [defaultValues.company_link],
+      country: [defaultValues.country, Validators.required],
+      custom_country: [defaultValues.custom_country],
+      work_type: [defaultValues.work_type, Validators.required],
+      date_applied: [defaultValues.date_applied, Validators.required],
+      status: [defaultValues.status, Validators.required],
+      notes: [defaultValues.notes],
     });
 
-    // Watch platform changes to show/hide custom input
-    this.applicationForm.get('platform')!.valueChanges.subscribe((val: string) => {
-      this.showCustomPlatform = val === 'Other';
-      if (val === 'Other') {
-        this.applicationForm.get('custom_platform')!.setValidators(Validators.required);
-      } else {
-        this.applicationForm.get('custom_platform')!.clearValidators();
-        this.applicationForm.get('custom_platform')!.setValue('');
-      }
-      this.applicationForm.get('custom_platform')!.updateValueAndValidity();
+    this.watchCustomOption('platform', 'custom_platform', (visible) => {
+      this.showCustomPlatform = visible;
     });
-
-    // Watch country changes to show/hide custom input
-    this.applicationForm.get('country')!.valueChanges.subscribe((val: string) => {
-      this.showCustomCountry = val === 'Other';
-      if (val === 'Other') {
-        this.applicationForm.get('custom_country')!.setValidators(Validators.required);
-      } else {
-        this.applicationForm.get('custom_country')!.clearValidators();
-        this.applicationForm.get('custom_country')!.setValue('');
-      }
-      this.applicationForm.get('custom_country')!.updateValueAndValidity();
+    this.watchCustomOption('country', 'custom_country', (visible) => {
+      this.showCustomCountry = visible;
     });
 
     this.loadCustomPlatforms();
@@ -162,79 +138,118 @@ export class Application implements OnInit {
     this.detectUserCountry();
   }
 
+  private getDefaultFormValues() {
+    return {
+      role: '',
+      company: '',
+      platform: DEFAULT_APPLICATION_VALUES.PLATFORM,
+      custom_platform: '',
+      job_link: '',
+      company_link: '',
+      country: DEFAULT_APPLICATION_VALUES.COUNTRY,
+      custom_country: '',
+      work_type: DEFAULT_APPLICATION_VALUES.WORK_TYPE,
+      date_applied: this.getDateInputValue(),
+      status: DEFAULT_APPLICATION_VALUES.STATUS,
+      notes: '',
+    };
+  }
+
+  private getDateInputValue(): string {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  private watchCustomOption(
+    sourceControlName: string,
+    customControlName: string,
+    setVisibility: (visible: boolean) => void,
+  ) {
+    this.applicationForm.get(sourceControlName)!.valueChanges.subscribe((value: string) => {
+      const customControl = this.applicationForm.get(customControlName)!;
+      const isCustomOption = value === CUSTOM_OPTION;
+
+      setVisibility(isCustomOption);
+
+      if (isCustomOption) {
+        customControl.setValidators(Validators.required);
+      } else {
+        customControl.clearValidators();
+        customControl.setValue('');
+      }
+
+      customControl.updateValueAndValidity();
+    });
+  }
+
   loadCustomPlatforms() {
-    if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.local.get(['customPlatforms'], (result: any) => {
-        if (result['customPlatforms'] && Array.isArray(result['customPlatforms'])) {
-          const customPlatforms = result['customPlatforms'] as string[];
-          const basePlatforms = this.platforms.filter((p) => p !== 'Other');
-
-          // Only add platforms that aren't already in the list
-          const newPlatforms = customPlatforms.filter((cp) => !basePlatforms.includes(cp));
-
-          if (newPlatforms.length > 0) {
-            this.platforms = [...basePlatforms, ...newPlatforms, 'Other'];
-          }
-        }
-      });
-    }
+    this.loadCustomOptions(
+      this.customPlatformStorageKey,
+      () => this.platforms,
+      (options) => {
+        this.platforms = options;
+      },
+    );
   }
 
   saveCustomPlatform(platformName: string) {
-    if (!platformName) return;
-    const cleanName = platformName.trim();
-
-    // Check if it already exists in our current platform list (case-insensitive)
-    const exists = this.platforms.some((p) => p.toLowerCase() === cleanName.toLowerCase());
-    if (exists) return;
-
-    if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.local.get(['customPlatforms'], (result: any) => {
-        const customPlatforms = (result['customPlatforms'] as string[]) || [];
-        // Only save if we don't already have it in storage
-        if (!customPlatforms.some((p: string) => p.toLowerCase() === cleanName.toLowerCase())) {
-          customPlatforms.push(cleanName);
-          chrome.storage.local.set({ customPlatforms: customPlatforms });
-        }
-      });
-    }
+    this.saveCustomOption(this.customPlatformStorageKey, platformName, this.platforms);
   }
 
   loadCustomCountries() {
+    this.loadCustomOptions(
+      this.customCountryStorageKey,
+      () => this.countries,
+      (options) => {
+        this.countries = options;
+      },
+    );
+  }
+
+  saveCustomCountry(countryName: string) {
+    this.saveCustomOption(this.customCountryStorageKey, countryName, this.countries);
+  }
+
+  private loadCustomOptions(
+    storageKey: CustomOptionsStorageKey,
+    getOptions: () => string[],
+    setOptions: (options: string[]) => void,
+  ) {
     if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.local.get(['customCountries'], (result: any) => {
-        if (result['customCountries'] && Array.isArray(result['customCountries'])) {
-          const customCountries = result['customCountries'] as string[];
-          const baseCountries = this.countries.filter((c) => c !== 'Other');
+      chrome.storage.local.get([storageKey], (result: any) => {
+        const customOptions = result[storageKey] as string[] | undefined;
+        if (!Array.isArray(customOptions)) return;
 
-          const newCountries = customCountries.filter(
-            (cc) => !baseCountries.some((bc) => bc.toLowerCase() === cc.toLowerCase()),
-          );
+        const baseOptions = getOptions().filter((option) => option !== CUSTOM_OPTION);
+        const newOptions = customOptions.filter(
+          (option) => !baseOptions.some((base) => this.sameOption(base, option)),
+        );
 
-          if (newCountries.length > 0) {
-            this.countries = [...baseCountries, ...newCountries, 'Other'];
-          }
+        if (newOptions.length > 0) {
+          setOptions([...baseOptions, ...newOptions, CUSTOM_OPTION]);
         }
       });
     }
   }
 
-  saveCustomCountry(countryName: string) {
-    if (!countryName) return;
-    const cleanName = countryName.trim();
+  private saveCustomOption(
+    storageKey: CustomOptionsStorageKey,
+    optionName: string,
+    currentOptions: string[],
+  ) {
+    const cleanName = optionName.trim();
+    if (!cleanName || currentOptions.some((option) => this.sameOption(option, cleanName))) return;
+    if (typeof chrome === 'undefined' || !chrome.storage) return;
 
-    const exists = this.countries.some((c) => c.toLowerCase() === cleanName.toLowerCase());
-    if (exists) return;
+    chrome.storage.local.get([storageKey], (result: any) => {
+      const customOptions = (result[storageKey] as string[]) || [];
+      if (customOptions.some((option) => this.sameOption(option, cleanName))) return;
 
-    if (typeof chrome !== 'undefined' && chrome.storage) {
-      chrome.storage.local.get(['customCountries'], (result: any) => {
-        const customCountries = (result['customCountries'] as string[]) || [];
-        if (!customCountries.some((c: string) => c.toLowerCase() === cleanName.toLowerCase())) {
-          customCountries.push(cleanName);
-          chrome.storage.local.set({ customCountries: customCountries });
-        }
-      });
-    }
+      chrome.storage.local.set({ [storageKey]: [...customOptions, cleanName] });
+    });
+  }
+
+  private sameOption(firstOption: string, secondOption: string): boolean {
+    return firstOption.toLowerCase() === secondOption.toLowerCase();
   }
 
   async detectUserCountry() {
@@ -245,9 +260,9 @@ export class Application implements OnInit {
         if (data && data.country_name) {
           const userCountry = data.country_name;
           const otherCountries = this.countries.filter(
-            (c) => c.toLowerCase() !== userCountry.toLowerCase() && c !== 'Other',
+            (c) => c.toLowerCase() !== userCountry.toLowerCase() && c !== CUSTOM_OPTION,
           );
-          this.countries = [userCountry, ...otherCountries, 'Other'];
+          this.countries = [userCountry, ...otherCountries, CUSTOM_OPTION];
 
           // Only update the form value if the user hasn't explicitly changed it yet
           if (!this.applicationForm.get('country')?.dirty) {
@@ -270,20 +285,17 @@ export class Application implements OnInit {
     try {
       const v = this.applicationForm.value;
 
-      // Generate a simple unique ID (timestamp-based)
-      const id = Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
+      const id = this.createApplicationId();
 
-      // Resolve platform: use custom value when 'Other' is selected
-      const platform = v.platform === 'Other' ? v.custom_platform : v.platform;
+      const platform = this.resolveCustomOptionValue(v.platform, v.custom_platform);
 
-      if (v.platform === 'Other' && v.custom_platform) {
+      if (v.platform === CUSTOM_OPTION && v.custom_platform) {
         this.saveCustomPlatform(v.custom_platform);
       }
 
-      // Resolve country: use custom value when 'Other' is selected
-      const country = v.country === 'Other' ? v.custom_country : v.country;
+      const country = this.resolveCustomOptionValue(v.country, v.custom_country);
 
-      if (v.country === 'Other' && v.custom_country) {
+      if (v.country === CUSTOM_OPTION && v.custom_country) {
         this.saveCustomCountry(v.custom_country);
       }
 
@@ -306,20 +318,7 @@ export class Application implements OnInit {
       await this.sheets.appendRow(rowData);
 
       this.successMessage.set('Application saved successfully!');
-      this.applicationForm.reset({
-        role: '',
-        company: '',
-        platform: 'LinkedIn',
-        custom_platform: '',
-        job_link: '',
-        company_link: '',
-        country: 'Tunisia',
-        custom_country: '',
-        work_type: 'Remote',
-        date_applied: new Date().toISOString().split('T')[0],
-        status: 'Applied',
-        notes: '',
-      });
+      this.applicationForm.reset(this.getDefaultFormValues());
 
       setTimeout(() => this.successMessage.set(''), 3000);
     } catch (error: any) {
@@ -328,5 +327,13 @@ export class Application implements OnInit {
     } finally {
       this.isSubmitting.set(false);
     }
+  }
+
+  private createApplicationId(): string {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2, 6);
+  }
+
+  private resolveCustomOptionValue(selectedValue: string, customValue: string): string {
+    return selectedValue === CUSTOM_OPTION ? customValue : selectedValue;
   }
 }

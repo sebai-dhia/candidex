@@ -2,11 +2,19 @@ import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } 
 
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { GoogleSheets, ApplicationRow } from '../../core/services/google-sheets';
+import { GoogleSheets } from '../../core/services/google-sheets';
+import { ApplicationRow } from '../../core/models/application-row.model';
+import {
+  APPLICATION_FILTER_OPTIONS,
+  APPLICATION_STATUSES,
+  APPLICATION_STATUS,
+} from '../../core/constants/application-options.constants';
+import { mapSheetRowsToApplications } from '../../core/utils/application-row.utils';
+
+const { APPLIED, INTERVIEW } = APPLICATION_STATUS;
 
 @Component({
   selector: 'app-tracking',
-  standalone: true,
   imports: [FormsModule, RouterModule],
   templateUrl: './tracking.component.html',
   styleUrl: './tracking.component.scss',
@@ -69,8 +77,8 @@ export class Tracking implements OnInit {
     return apps;
   });
 
-  statuses = ['Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'];
-  filterOptions = ['All', 'Applied', 'Interview', 'Offer', 'Rejected', 'Withdrawn'];
+  statuses = [...APPLICATION_STATUSES];
+  filterOptions = [...APPLICATION_FILTER_OPTIONS];
 
   ngOnInit() {
     this.loadData();
@@ -81,20 +89,7 @@ export class Tracking implements OnInit {
       this.isLoading.set(true);
       const rows = await this.sheets.getRows();
 
-      const apps: ApplicationRow[] = rows
-        .map((r) => ({
-          id: r[0] || '',
-          role: r[1] || '',
-          company: r[2] || '',
-          platform: r[3] || '',
-          job_link: r[4] || '',
-          company_link: r[5] || '',
-          date_applied: r[6] || '',
-          status: r[7] || '',
-          interview_date: r[8] || '',
-          notes: r[9] || '',
-        }))
-        .filter((a) => a.id);
+      const apps = mapSheetRowsToApplications(rows);
 
       this.allApplications.set(apps);
     } catch (err: any) {
@@ -107,7 +102,7 @@ export class Tracking implements OnInit {
 
   selectApp(app: ApplicationRow) {
     this.selectedApp.set(app);
-    this.newStatus.set(app.status || 'Applied');
+    this.newStatus.set(app.status || APPLIED);
     this.newInterviewDate.set(app.interview_date || '');
     this.successMessage.set('');
     this.error.set('');
@@ -160,7 +155,7 @@ export class Tracking implements OnInit {
         status: this.newStatus(),
       };
 
-      if (this.newStatus() === 'Interview') {
+      if (this.newStatus() === INTERVIEW) {
         updates.interview_date = this.newInterviewDate();
       }
 

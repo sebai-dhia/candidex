@@ -2,21 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Auth } from './auth';
 import { firstValueFrom } from 'rxjs';
+import { ApplicationRow } from '../models/application-row.model';
+import { APPLICATION_SHEET_HEADERS, mergeApplicationRow } from '../utils/application-row.utils';
 
-export interface ApplicationRow {
-  id: string;
-  role: string;
-  company: string;
-  platform: string;
-  job_link: string;
-  company_link: string;
-  date_applied: string;
-  status: string;
-  interview_date: string;
-  notes: string;
-  country?: string;
-  work_type?: string;
-}
+export type { ApplicationRow } from '../models/application-row.model';
 
 @Injectable({
   providedIn: 'root'
@@ -68,7 +57,7 @@ export class GoogleSheets {
       this.spreadsheetId = createRes.spreadsheetId;
 
       // Add header row
-      await this.appendRow(['id', 'role', 'company', 'platform', 'job_link', 'company_link', 'date_applied', 'status', 'interview_date', 'notes', 'country', 'work_type']);
+      await this.appendRow([...APPLICATION_SHEET_HEADERS]);
 
       chrome.storage.local.set({ candidexSpreadsheetId: this.spreadsheetId });
       console.log('[Sheets] Created new spreadsheet:', this.spreadsheetId);
@@ -168,22 +157,7 @@ export class GoogleSheets {
       throw new Error(`Application with id ${id} not found`);
     }
 
-    const existingRow = allRows[rowIndex];
-    // Fill in the existing data with the updates
-    const updatedRow = [
-      existingRow[0] || '', // id
-      updates.role !== undefined ? updates.role : (existingRow[1] || ''),
-      updates.company !== undefined ? updates.company : (existingRow[2] || ''),
-      updates.platform !== undefined ? updates.platform : (existingRow[3] || ''),
-      updates.job_link !== undefined ? updates.job_link : (existingRow[4] || ''),
-      updates.company_link !== undefined ? updates.company_link : (existingRow[5] || ''),
-      updates.date_applied !== undefined ? updates.date_applied : (existingRow[6] || ''),
-      updates.status !== undefined ? updates.status : (existingRow[7] || ''),
-      updates.interview_date !== undefined ? updates.interview_date : (existingRow[8] || ''),
-      updates.notes !== undefined ? updates.notes : (existingRow[9] || ''),
-      updates.country !== undefined ? updates.country : (existingRow[10] || ''),
-      updates.work_type !== undefined ? updates.work_type : (existingRow[11] || ''),
-    ];
+    const updatedRow = mergeApplicationRow(allRows[rowIndex], updates);
 
     // +1 because sheet rows are 1-based index (e.g. A1, A2)
     const range = `Applications!A${rowIndex + 1}:L${rowIndex + 1}`;

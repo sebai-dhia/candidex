@@ -1,11 +1,17 @@
 import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 
 import { RouterModule } from '@angular/router';
-import { GoogleSheets, ApplicationRow } from '../../core/services/google-sheets';
+import { GoogleSheets } from '../../core/services/google-sheets';
+import { ApplicationRow } from '../../core/models/application-row.model';
+import { APPLICATION_STATUS, WORK_TYPE } from '../../core/constants/application-options.constants';
+import { NORMALIZED_COUNTRY_CODES } from '../../core/constants/country-codes.constants';
+import { mapSheetRowsToApplications } from '../../core/utils/application-row.utils';
+
+const { APPLIED, INTERVIEW, OFFER, REJECTED, WITHDRAWN } = APPLICATION_STATUS;
+const { REMOTE, HYBRID, ON_SITE } = WORK_TYPE;
 
 @Component({
   selector: 'app-dashboard',
-  standalone: true,
   imports: [RouterModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
@@ -26,17 +32,20 @@ export class Dashboard implements OnInit {
   statusCounts = computed(() => {
     const apps = this.allApps();
     return {
-      applied: apps.filter((a) => a.status === 'Applied').length,
-      interview: apps.filter((a) => a.status === 'Interview').length,
-      offer: apps.filter((a) => a.status === 'Offer').length,
-      rejected: apps.filter((a) => a.status === 'Rejected').length,
-      withdrawn: apps.filter((a) => a.status === 'Withdrawn').length,
+      applied: apps.filter((a) => a.status === APPLIED).length,
+      interview: apps.filter((a) => a.status === INTERVIEW).length,
+      offer: apps.filter((a) => a.status === OFFER).length,
+      rejected: apps.filter((a) => a.status === REJECTED).length,
+      withdrawn: apps.filter((a) => a.status === WITHDRAWN).length,
     };
   });
 
   respondedCount = computed(() => {
     return this.allApps().filter(
-      (a) => a.status === 'Interview' || a.status === 'Offer' || a.status === 'Rejected',
+      (a) =>
+        a.status === INTERVIEW ||
+        a.status === OFFER ||
+        a.status === REJECTED,
     ).length;
   });
 
@@ -51,7 +60,7 @@ export class Dashboard implements OnInit {
   });
 
   successCount = computed(() => {
-    return this.allApps().filter((a) => a.status === 'Interview' || a.status === 'Offer').length;
+    return this.allApps().filter((a) => a.status === INTERVIEW || a.status === OFFER).length;
   });
 
   successRate = computed(() => {
@@ -77,7 +86,7 @@ export class Dashboard implements OnInit {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const interviews = this.allApps()
-      .filter((a) => a.status === 'Interview' && a.interview_date)
+      .filter((a) => a.status === INTERVIEW && a.interview_date)
       .map((a) => ({ ...a, _date: new Date(a.interview_date!) }))
       .filter((a) => a._date >= today)
       .sort((a, b) => a._date.getTime() - b._date.getTime());
@@ -93,103 +102,11 @@ export class Dashboard implements OnInit {
   workTypeCounts = computed(() => {
     const apps = this.allApps();
     return {
-      remote: apps.filter((a) => a.work_type === 'Remote').length,
-      hybrid: apps.filter((a) => a.work_type === 'Hybrid').length,
-      onsite: apps.filter((a) => a.work_type === 'On-site').length,
+      remote: apps.filter((a) => a.work_type === REMOTE).length,
+      hybrid: apps.filter((a) => a.work_type === HYBRID).length,
+      onsite: apps.filter((a) => a.work_type === ON_SITE).length,
     };
   });
-
-  /** ISO 3166-1 alpha-2 codes for country name → flag emoji conversion */
-  private countryCodes: Record<string, string> = {
-    // North Africa & Middle East
-    Tunisia: 'TN',
-    Morocco: 'MA',
-    Algeria: 'DZ',
-    Egypt: 'EG',
-    Libya: 'LY',
-    UAE: 'AE',
-    'Saudi Arabia': 'SA',
-    Qatar: 'QA',
-    Kuwait: 'KW',
-    Bahrain: 'BH',
-    Oman: 'OM',
-    Jordan: 'JO',
-    Lebanon: 'LB',
-    Iraq: 'IQ',
-    Turkey: 'TR',
-    // Europe
-    France: 'FR',
-    Germany: 'DE',
-    UK: 'GB',
-    'United Kingdom': 'GB',
-    Spain: 'ES',
-    Italy: 'IT',
-    Portugal: 'PT',
-    Netherlands: 'NL',
-    Belgium: 'BE',
-    Switzerland: 'CH',
-    Austria: 'AT',
-    Sweden: 'SE',
-    Norway: 'NO',
-    Denmark: 'DK',
-    Finland: 'FI',
-    Ireland: 'IE',
-    Poland: 'PL',
-    'Czech Republic': 'CZ',
-    Romania: 'RO',
-    Greece: 'GR',
-    Hungary: 'HU',
-    Croatia: 'HR',
-    Bulgaria: 'BG',
-    Slovakia: 'SK',
-    Slovenia: 'SI',
-    Lithuania: 'LT',
-    Latvia: 'LV',
-    Estonia: 'EE',
-    Luxembourg: 'LU',
-    Malta: 'MT',
-    Iceland: 'IS',
-    Serbia: 'RS',
-    Ukraine: 'UA',
-    Russia: 'RU',
-    // Americas
-    USA: 'US',
-    'United States': 'US',
-    Canada: 'CA',
-    Mexico: 'MX',
-    Brazil: 'BR',
-    Argentina: 'AR',
-    Chile: 'CL',
-    Colombia: 'CO',
-    Peru: 'PE',
-    // Asia & Pacific
-    China: 'CN',
-    Japan: 'JP',
-    'South Korea': 'KR',
-    India: 'IN',
-    Pakistan: 'PK',
-    Singapore: 'SG',
-    Malaysia: 'MY',
-    Indonesia: 'ID',
-    Thailand: 'TH',
-    Vietnam: 'VN',
-    Philippines: 'PH',
-    Taiwan: 'TW',
-    'Hong Kong': 'HK',
-    Bangladesh: 'BD',
-    // Oceania
-    Australia: 'AU',
-    'New Zealand': 'NZ',
-    // Africa (Sub-Saharan)
-    'South Africa': 'ZA',
-    Nigeria: 'NG',
-    Kenya: 'KE',
-    Ghana: 'GH',
-    Ethiopia: 'ET',
-    Tanzania: 'TZ',
-    Senegal: 'SN',
-    'Ivory Coast': 'CI',
-  };
 
   /** Convert a 2-letter ISO code to a flag emoji using Unicode regional indicators */
   private codeToFlag(code: string): string {
@@ -201,8 +118,7 @@ export class Dashboard implements OnInit {
   /** Get flag emoji for a country name — falls back to pushpin for unknown countries */
   private getFlag(country: string): string {
     const normalizedCountry = country.trim().toLowerCase();
-    const key = Object.keys(this.countryCodes).find((k) => k.toLowerCase() === normalizedCountry);
-    const code = key ? this.countryCodes[key] : null;
+    const code = NORMALIZED_COUNTRY_CODES[normalizedCountry];
     return code ? this.codeToFlag(code) : '📍';
   }
 
@@ -274,22 +190,7 @@ export class Dashboard implements OnInit {
       const rows = await this.sheets.getRows(true);
       console.log('[Dashboard] Raw rows received:', rows.length, rows);
 
-      const apps: ApplicationRow[] = rows
-        .map((r) => ({
-          id: r[0] || '',
-          role: r[1] || '',
-          company: r[2] || '',
-          platform: r[3] || '',
-          job_link: r[4] || '',
-          company_link: r[5] || '',
-          date_applied: r[6] || '',
-          status: r[7] || '',
-          interview_date: r[8] || '',
-          notes: r[9] || '',
-          country: r[10] || '',
-          work_type: r[11] || '',
-        }))
-        .filter((a) => a.id);
+      const apps = mapSheetRowsToApplications(rows);
 
       console.log('[Dashboard] Parsed apps after filter:', apps.length, apps);
       this.allApps.set(apps);
