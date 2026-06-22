@@ -1,4 +1,7 @@
 import { Injectable, signal } from '@angular/core';
+import { AuthStrategy } from './auth/auth.strategy';
+import { ChromeAuthStrategy } from './auth/chrome-auth.strategy';
+import { WebFlowAuthStrategy } from './auth/web-flow-auth.strategy';
 
 @Injectable({
   providedIn: 'root'
@@ -9,16 +12,43 @@ export class Auth {
 
   /** Cached token for the current session */
   private cachedToken: string | null = null;
+  private strategy: AuthStrategy;
 
   constructor() {
+    this.strategy = this.determineStrategy();
+    
     // On service init, silently check if we already have a cached token
     this.silentCheck();
+  }
+
+  /** Detect browser and return the optimal auth strategy */
+  private determineStrategy(): AuthStrategy {
+    const ua = navigator.userAgent;
+    
+    // Chromium-based browsers all include "Chrome/" in the user agent,
+    // so we must check that it's Chrome AND NOT one of the derivatives.
+    const isOpera = ua.includes('OPR/') || ua.includes('Opera/');
+    const isEdge = ua.includes('Edg/');
+    const isVivaldi = ua.includes('Vivaldi/');
+    // @ts-ignore - Brave hides its UA, but exposes a brave object on navigator
+    const isBrave = navigator.brave !== undefined;
+
+    const isPureChrome = ua.includes('Chrome/') && !isOpera && !isEdge && !isVivaldi && !isBrave;
+
+    if (isPureChrome) {
+      console.log('[Auth] Pure Google Chrome detected -> Using Native Chrome Strategy');
+      return new ChromeAuthStrategy();
+    }
+    
+    // Universal fallback for Opera, Edge, Brave, Vivaldi, and future browsers
+    console.log('[Auth] Non-Chrome browser detected -> Using Universal Web Flow Strategy');
+    return new WebFlowAuthStrategy();
   }
 
   /** Try to get a token without showing any popup */
   private async silentCheck() {
     try {
-      const token = await this.requestToken(false);
+      const token = await this.strategy.requestToken(false);
       this.cachedToken = token;
       this.isConnected.set(true);
     } catch {
@@ -29,7 +59,7 @@ export class Auth {
 
   /** Show the Google sign-in popup (called once from the Connect screen) */
   async connect(): Promise<void> {
-    const token = await this.requestToken(true);
+    const token = await this.strategy.requestToken(true);
     this.cachedToken = token;
     this.isConnected.set(true);
   }
@@ -40,7 +70,7 @@ export class Auth {
 
     // Try silent refresh first
     try {
-      const token = await this.requestToken(false);
+      const token = await this.strategy.requestToken(false);
       this.cachedToken = token;
       return token;
     } catch {
@@ -48,20 +78,5 @@ export class Auth {
       this.isConnected.set(false);
       throw new Error('Session expired. Please reconnect.');
     }
-  }
-
-  /** Low-level Chrome identity call */
-  private requestToken(interactive: boolean): Promise<string> {
-    return new Promise((resolve, reject) => {
-      chrome.identity.getAuthToken({ interactive }, (token: any) => {
-        if (chrome.runtime.lastError) {
-          reject(chrome.runtime.lastError.message);
-        } else if (token) {
-          resolve(token);
-        } else {
-          reject('No token returned');
-        }
-      });
-    });
   }
 }
