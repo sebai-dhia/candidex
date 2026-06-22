@@ -1,4 +1,4 @@
-# Candidex
+# <img src="public/candidex_logo.png" alt="Candidex logo" width="36" align="left" /> Candidex
 
 An open-source browser extension for tracking job applications without giving your data to another hiring platform.
 
