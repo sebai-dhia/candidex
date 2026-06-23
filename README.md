@@ -4,7 +4,7 @@ An open-source browser extension for tracking job applications without giving yo
 
 Candidex opens as a slide-out panel on top of the page you are browsing, lets you save applications in seconds, and keeps everything in your own Google Sheet.
 
-![Candidex in use on a job search page](public/app_in_use.png)
+![Candidex in use on a job search page](public/promotional.png)
 
 ## Why Candidex?
 
