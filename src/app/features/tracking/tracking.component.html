@@ -1,8 +1,12 @@
-<div class="tracking-container">
+<div class="tracking-container" [attr.data-locale]="uiLocale()">
+  @if (isRefreshing() && !isLoading() && allApplications().length > 0) {
+    <p class="refreshing-badge" role="status">{{ t('tracking.refreshing') }}</p>
+  }
+
   @if (isLoading() && allApplications().length === 0) {
     <div class="loading-state">
       <span class="spinner"></span>
-      <p>Loading your data...</p>
+      <p>{{ t('tracking.loading') }}</p>
     </div>
   }
 
@@ -22,8 +26,8 @@
     <div class="tracking-content">
       <!-- Header: Title and Count -->
       <div class="tracking-header">
-        <h2>Response Tracking</h2>
-        <span class="count">{{ allApplications().length }} Applications</span>
+        <h2>{{ t('tracking.title') }}</h2>
+        <span class="count">{{ t('tracking.applicationsCount', { count: allApplications().length }) }}</span>
       </div>
       <!-- Toolbar: Search + Filters -->
       @if (!selectedApp()) {
@@ -48,7 +52,7 @@
               type="text"
               [ngModel]="searchQuery()"
               (ngModelChange)="searchQuery.set($event)"
-              placeholder="Search..."
+              [placeholder]="t('tracking.search')"
             />
           </div>
           <!-- Controls: Filter Dropdown + Sort Toggle -->
@@ -63,7 +67,7 @@
                 [class.focused]="mainFilterDropdownOpen()"
                 (click)="mainFilterDropdownOpen.set(!mainFilterDropdownOpen())"
               >
-                <span class="filter-label">{{ activeFilter() }}</span>
+                <span class="filter-label">{{ filterLabel(activeFilter()) }}</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="12"
@@ -86,7 +90,7 @@
                       [class.selected]="option === activeFilter()"
                       (click)="activeFilter.set(option); mainFilterDropdownOpen.set(false)"
                     >
-                      {{ option }}
+                      {{ filterLabel(option) }}
                       @if (option === activeFilter()) {
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -110,7 +114,7 @@
             <button
               class="sort-toggle"
               (click)="toggleSort()"
-              [title]="sortOrder() === 'desc' ? 'Newest first' : 'Oldest first'"
+              [appTooltip]="sortOrder() === 'desc' ? t('tracking.newestFirst') : t('tracking.oldestFirst')"
             >
               @if (sortOrder() === 'desc') {
                 <svg
@@ -158,23 +162,30 @@
         @if (filteredApplications().length === 0) {
           <div class="empty-state">
             @if (searchQuery()) {
-              No matches found for "{{ searchQuery() }}"
+              {{ t('tracking.noMatches', { query: searchQuery() }) }}
+            } @else if (activeFilter() !== 'All') {
+              {{ t('tracking.noFiltered', { status: filterLabel(activeFilter()) }) }}
             } @else {
-              No {{ activeFilter() !== 'All' ? activeFilter() : '' }} applications.
+              {{ t('tracking.noApplications') }}
             }
           </div>
         }
-        @for (app of filteredApplications(); track app) {
+        @for (app of filteredApplications(); track app.id) {
           <div
             class="compact-row"
+            [attr.data-app-id]="app.id"
             [class.editing]="selectedApp()?.id === app.id"
-            (click)="selectedApp()?.id !== app.id ? selectApp(app) : null"
+            [class.row-focus]="highlightedAppId() === app.id"
+            (click)="selectedApp()?.id !== app.id ? selectApp(app) : $event.stopPropagation()"
           >
             <!-- View Mode (compact row) -->
             @if (selectedApp()?.id !== app.id) {
               <div class="row-main">
-                <div class="role-wrapper">
-                  <span class="row-role">{{ app.role }}</span>
+                <div class="role-wrapper" dir="auto">
+                  <span class="row-role" dir="auto">{{ app.role }}</span>
+                  @if (highlightedAppId() === app.id) {
+                    <span class="found-chip">{{ t('tracking.found') }}</span>
+                  }
                   @if (app.job_link) {
                     <a
                       [href]="app.job_link"
@@ -200,10 +211,10 @@
                     </a>
                   }
                 </div>
-                <span class="badge" [attr.data-status]="app.status">{{ app.status }}</span>
+                <span class="badge" [attr.data-status]="app.status">{{ statusLabel(app.status) }}</span>
               </div>
-              <div class="row-sub">
-                <span>{{ app.company }}</span>
+              <div class="row-sub" dir="auto">
+                <span dir="auto">{{ app.company }}</span>
                 <span class="dot">·</span>
                 <span>{{ formatDate(app.date_applied) }}</span>
               </div>
@@ -212,10 +223,8 @@
             @if (selectedApp()?.id === app.id) {
               <div class="editor-minimal">
                 <div class="editor-label">
-                  <div class="role-wrapper">
-                    <span
-                      >{{ app.role }} <span class="label-muted">at {{ app.company }}</span></span
-                    >
+                  <div class="role-wrapper" dir="auto">
+                    <span class="editor-role" dir="auto">{{ app.role }}</span>
                     @if (app.job_link) {
                       <a
                         [href]="app.job_link"
@@ -241,6 +250,9 @@
                       </a>
                     }
                   </div>
+                  <div class="label-muted editor-company" dir="auto">
+                    {{ t('tracking.atCompany', { company: app.company }) }}
+                  </div>
                 </div>
                 <div class="editor-row">
                   <!-- Custom Select -->
@@ -251,9 +263,10 @@
                     <div
                       class="minimal-input custom-select-display"
                       [class.focused]="statusDropdownOpen()"
-                      (click)="statusDropdownOpen.set(!statusDropdownOpen())"
+                      [class.disabled]="isSaving()"
+                      (click)="!isSaving() && statusDropdownOpen.set(!statusDropdownOpen())"
                     >
-                      {{ newStatus() }}
+                      {{ statusLabel(newStatus()) }}
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"
@@ -266,7 +279,7 @@
                         <polyline points="6 9 12 15 18 9"></polyline>
                       </svg>
                     </div>
-                    @if (statusDropdownOpen()) {
+                    @if (statusDropdownOpen() && !isSaving()) {
                       <div class="custom-select-menu">
                         @for (s of statuses; track s) {
                           <div
@@ -274,7 +287,7 @@
                             [class.selected]="s === newStatus()"
                             (click)="newStatus.set(s); statusDropdownOpen.set(false)"
                           >
-                            {{ s }}
+                            {{ statusLabel(s) }}
                             @if (s === newStatus()) {
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -297,8 +310,10 @@
                   @if (newStatus() === 'Interview') {
                     <input
                       type="date"
+                      dir="ltr"
                       [ngModel]="newInterviewDate()"
                       (ngModelChange)="newInterviewDate.set($event)"
+                      [disabled]="isSaving()"
                       class="minimal-input"
                     />
                   }
@@ -308,29 +323,32 @@
                     <div class="left-actions">
                       <button
                         class="action-text-btn save"
+                        [class.is-dirty]="hasChanges()"
+                        [class.is-saving]="isSaving()"
+                        [disabled]="!hasChanges() || isSaving()"
                         (click)="updateStatus()"
-                        [disabled]="isLoading()"
+                        [attr.aria-busy]="isSaving()"
                       >
-                        @if (!isLoading()) {
-                          <span>Save</span>
-                        }
-                        @if (isLoading()) {
-                          <span class="spinner small"></span>
+                        @if (isSaving()) {
+                          <span class="spinner small" aria-hidden="true"></span>
+                          <span>{{ t('common.saving') }}</span>
+                        } @else {
+                          <span>{{ t('common.save') }}</span>
                         }
                       </button>
                       <button
                         class="action-text-btn cancel"
                         (click)="cancelEdit($event)"
-                        [disabled]="isLoading()"
+                        [disabled]="isSaving()"
                       >
-                        Cancel
+                        {{ t('common.cancel') }}
                       </button>
                     </div>
                     <button
                       class="action-icon-btn trash"
-                      title="Delete"
+                      [appTooltip]="t('common.delete')"
                       (click)="confirmingDelete.set(true)"
-                      [disabled]="isLoading()"
+                      [disabled]="isSaving()"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -352,27 +370,27 @@
                   }
                   @if (confirmingDelete()) {
                     <div class="left-actions">
-                      <span class="confirm-text">Delete?</span>
+                      <span class="confirm-text">{{ t('tracking.deleteConfirm') }}</span>
                     </div>
                     <div class="right-actions">
                       <button
                         class="action-text-btn cancel"
                         (click)="confirmingDelete.set(false)"
-                        [disabled]="isLoading()"
+                        [disabled]="isSaving()"
                       >
-                        No
+                        {{ t('common.no') }}
                       </button>
                       <button
                         class="action-text-btn delete-confirm"
+                        [class.is-saving]="isSaving()"
                         (click)="deleteApp(app, $event)"
-                        [disabled]="isLoading()"
+                        [disabled]="isSaving()"
+                        [attr.aria-busy]="isSaving()"
                       >
-                        @if (!isLoading()) {
-                          <span>Yes, Delete</span>
+                        @if (isSaving()) {
+                          <span class="spinner small" aria-hidden="true"></span>
                         }
-                        @if (isLoading()) {
-                          <span class="spinner small"></span>
-                        }
+                        <span>{{ t('tracking.yesDelete') }}</span>
                       </button>
                     </div>
                   }
@@ -401,9 +419,9 @@
       >
         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
       </svg>
-      <h3>No applications found.</h3>
-      <p>Start tracking your first application.</p>
-      <a routerLink="/new" class="empty-cta">+ Add Application</a>
+      <h3>{{ t('tracking.emptyTitle') }}</h3>
+      <p>{{ t('tracking.emptyBody') }}</p>
+      <a routerLink="/new" class="empty-cta">{{ t('tracking.addApplication') }}</a>
     </div>
   }
 </div>
