@@ -51,3 +51,272 @@
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
 }
+
+/* Shared light tooltips (appTooltip directive) — replaces native OS title tips */
+.cx-tooltip {
+  position: fixed;
+  z-index: 9999;
+  max-width: min(240px, calc(100vw - 16px));
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: 0.01em;
+  text-align: center;
+  box-shadow:
+    0 4px 6px -1px rgb(15 23 42 / 0.08),
+    0 2px 4px -2px rgb(15 23 42 / 0.06);
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+}
+
+.cx-tooltip[data-placement='bottom'] {
+  transform: translateY(2px);
+}
+
+.cx-tooltip[data-placement='top'] {
+  transform: translateY(-2px);
+}
+
+.cx-tooltip.cx-tooltip--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Shared tracking UI (keeps component style budget under 10kB) */
+.tracking-container .alert {
+  position: fixed;
+  inset-inline: 1rem;
+  bottom: 1rem;
+  z-index: 1000;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.4;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+  animation: tracking-fade-in 0.3s ease-out;
+  overflow-wrap: anywhere;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.tracking-container .alert.error {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.tracking-container .alert.success {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.tracking-container .empty-state {
+  padding: 2rem 0;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.tracking-container .empty-state-full {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--text-muted);
+}
+
+.tracking-container .empty-state-full svg {
+  margin-bottom: 1rem;
+  opacity: 0.4;
+}
+
+.tracking-container .empty-state-full h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 0.25rem;
+}
+
+.tracking-container .empty-state-full p {
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.tracking-container .empty-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.tracking-container .empty-cta:hover {
+  background: rgba(79, 70, 229, 0.05);
+}
+
+.tracking-container .badge[data-status='Applied'] {
+  background: #e0e7ff;
+  color: #4338ca;
+}
+
+.tracking-container .badge[data-status='Interview'] {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.tracking-container .badge[data-status='Offer'] {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.tracking-container .badge[data-status='Rejected'] {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.tracking-container .badge[data-status='Withdrawn'] {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.tracking-container .editor-actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tracking-container .editor-actions-row .left-actions,
+.tracking-container .editor-actions-row .right-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tracking-container .action-text-btn {
+  background: transparent;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, opacity 0.2s;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+}
+
+.tracking-container .action-text-btn:disabled {
+  cursor: not-allowed;
+}
+
+.tracking-container .action-text-btn.save {
+  min-width: 8rem;
+  color: #818cf8;
+  background: #e0e7ff;
+}
+
+.tracking-container .action-text-btn.save.is-dirty:not(.is-saving) {
+  color: #fff;
+  background: var(--primary);
+}
+
+.tracking-container .action-text-btn.save.is-dirty:not(.is-saving):hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.tracking-container .action-text-btn.save.is-saving {
+  color: #fff;
+  background: var(--primary);
+  opacity: 0.85;
+  cursor: wait;
+}
+
+.tracking-container .action-text-btn.save:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.tracking-container .action-text-btn.cancel {
+  color: var(--text-muted);
+}
+
+.tracking-container .action-text-btn.cancel:hover:not(:disabled) {
+  color: var(--text-main);
+  background: var(--bg-main);
+}
+
+.tracking-container .action-text-btn.delete-confirm {
+  color: #fff;
+  background: var(--danger);
+  min-width: 5.5rem;
+}
+
+.tracking-container .action-text-btn.delete-confirm:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.tracking-container .action-text-btn.delete-confirm.is-saving {
+  opacity: 0.85;
+  cursor: wait;
+}
+
+.tracking-container .confirm-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--danger);
+}
+
+.tracking-container .action-icon-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 0.375rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, background 0.2s;
+}
+
+.tracking-container .action-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tracking-container .action-icon-btn.trash:hover:not(:disabled) {
+  color: var(--danger);
+  background: #fef2f2;
+}
+
+@keyframes tracking-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

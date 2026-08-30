@@ -8,6 +8,26 @@
       name="description"
       content="Candidex is an open-source browser extension for tracking job applications from any job page, with data stored in your own Google Sheet."
     />
+    <meta property="og:title" content="Candidex | Open-source job application tracker" />
+    <meta
+      property="og:description"
+      content="Track job applications from the page you're on. Your data stays in your own Google Sheet."
+    />
+    <meta
+      property="og:image"
+      content="https://raw.githubusercontent.com/sebai-dhia/candidex/main/landing/images/promotional.png"
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Candidex | Open-source job application tracker" />
+    <meta
+      name="twitter:description"
+      content="Track job applications from the page you're on. Your data stays in your own Google Sheet."
+    />
+    <meta
+      name="twitter:image"
+      content="https://raw.githubusercontent.com/sebai-dhia/candidex/main/landing/images/promotional.png"
+    />
     <meta name="google-site-verification" content="PjyanBhnrUuhd9ybRA9MK6nTFEbYz6dCgZNiqjxpQKY" />
     <style>
       :root {
@@ -30,7 +50,7 @@
       body {
         margin: 0;
         background:
-          radial-gradient(circle at top left, rgba(98, 85, 246, 0.16), transparent 34rem),
+          radial-gradient(circle at top left, rgba(98, 85, 246, 0.12), transparent 34rem),
           linear-gradient(180deg, #ffffff 0%, #f7f9fd 100%);
         color: var(--ink);
         font-family:
@@ -42,6 +62,29 @@
         color: inherit;
       }
 
+      a:focus-visible,
+      button:focus-visible {
+        outline: 2px solid var(--brand);
+        outline-offset: 2px;
+      }
+
+      .skip-link {
+        position: absolute;
+        left: -9999px;
+        top: 0;
+        z-index: 100;
+        padding: 0.75rem 1rem;
+        background: var(--brand);
+        color: white;
+        text-decoration: none;
+        font-weight: 700;
+      }
+
+      .skip-link:focus {
+        left: 1rem;
+        top: 1rem;
+      }
+
       .page {
         width: min(1440px, calc(100% - 112px));
         margin: 0 auto;
@@ -51,6 +94,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+        gap: 16px;
         padding: 28px 0;
       }
 
@@ -62,6 +106,7 @@
         letter-spacing: -0.04em;
         text-decoration: none;
         font-size: 1.25rem;
+        flex-shrink: 0;
       }
 
       .brand img {
@@ -86,17 +131,35 @@
         color: var(--ink);
       }
 
+      .nav-toggle {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 44px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.9);
+        cursor: pointer;
+        color: var(--ink);
+      }
+
+      .nav-toggle svg {
+        width: 22px;
+        height: 22px;
+      }
+
       .hero {
         display: grid;
-        grid-template-columns: minmax(450px, 0.8fr) minmax(520px, 1.2fr);
-        gap: 64px;
+        grid-template-columns: minmax(320px, 0.85fr) minmax(400px, 1.15fr);
+        gap: 48px;
         align-items: center;
         min-height: calc(100dvh - 96px);
-        padding: 38px 0 82px;
+        padding: 24px 0 72px;
       }
 
       .hero-copy {
-        max-width: 620px;
+        max-width: 560px;
       }
 
       .eyebrow {
@@ -114,25 +177,25 @@
       }
 
       h1 {
-        max-width: 600px;
+        max-width: 11ch;
         margin: 24px 0 20px;
-        font-size: clamp(3.2rem, 5vw, 4.8rem);
-        line-height: 1;
-        letter-spacing: -0.07em;
+        font-size: clamp(2.5rem, 4.5vw, 4rem);
+        line-height: 1.02;
+        letter-spacing: -0.06em;
       }
 
       .lead {
-        max-width: 560px;
+        max-width: 42ch;
         margin: 0;
         color: var(--muted);
-        font-size: clamp(1.05rem, 1.55vw, 1.18rem);
+        font-size: clamp(1.05rem, 1.55vw, 1.15rem);
       }
 
       .actions {
         display: flex;
         flex-wrap: wrap;
         gap: 14px;
-        margin-top: 34px;
+        margin-top: 28px;
       }
 
       .button {
@@ -144,12 +207,19 @@
         padding: 0 22px;
         font-weight: 800;
         text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
       }
 
       .button.primary {
         background: var(--brand);
         color: white;
-        box-shadow: 0 18px 40px rgba(98, 85, 246, 0.25);
+        box-shadow: 0 18px 40px rgba(98, 85, 246, 0.22);
+      }
+
+      .button.primary:hover {
+        background: var(--brand-strong);
       }
 
       .button.secondary {
@@ -157,117 +227,365 @@
         background: rgba(255, 255, 255, 0.72);
       }
 
+      .button.secondary:hover {
+        border-color: #cbd5e1;
+        background: white;
+      }
+
       .hero-card {
         position: relative;
         justify-self: end;
-        width: min(100%, 680px);
+        width: min(100%, 720px);
         margin: 0;
         border: 1px solid rgba(17, 24, 39, 0.08);
-        border-radius: 34px;
-        padding: 16px;
-        background:
-          linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(245, 247, 255, 0.74)),
-          rgba(255, 255, 255, 0.78);
-        box-shadow: 0 34px 110px rgba(44, 52, 84, 0.16);
+        border-radius: 28px;
+        padding: 14px;
+        background: rgba(255, 255, 255, 0.88);
+        box-shadow: 0 28px 80px rgba(44, 52, 84, 0.14);
       }
 
       .hero-card::before {
         content: "";
         position: absolute;
-        inset: -28px;
+        inset: -20px;
         z-index: -1;
-        border-radius: 48px;
-        background:
-          radial-gradient(circle at 18% 10%, rgba(98, 85, 246, 0.2), transparent 36%),
-          radial-gradient(circle at 82% 78%, rgba(98, 85, 246, 0.14), transparent 34%);
-        filter: blur(24px);
+        border-radius: 40px;
+        background: radial-gradient(circle at 30% 20%, rgba(98, 85, 246, 0.14), transparent 50%);
+        filter: blur(20px);
       }
 
       .hero-card img {
         display: block;
         width: 100%;
-        border-radius: 22px;
+        height: auto;
+        border-radius: 18px;
       }
 
       .section {
-        padding: 70px 0;
+        padding: 88px 0;
       }
 
-      .section-heading {
-        display: flex;
-        justify-content: space-between;
-        gap: 24px;
-        align-items: end;
-        margin-bottom: 26px;
+      /* Wide enough to keep the longest section heading on one line at its
+         44px display size; the paragraph keeps its own reading measure. */
+      .section-intro {
+        max-width: 48rem;
+        margin-bottom: 40px;
       }
 
       h2 {
-        max-width: 620px;
-        margin: 0;
-        font-size: clamp(2rem, 4vw, 3.25rem);
-        line-height: 1;
-        letter-spacing: -0.06em;
+        margin: 0 0 12px;
+        font-size: clamp(1.85rem, 3.5vw, 2.75rem);
+        line-height: 1.05;
+        letter-spacing: -0.05em;
       }
 
-      .section-heading p {
-        max-width: 420px;
+      /* Headings share the intro's 42rem measure, which is sized for body copy.
+         Balancing prevents a single short word dropping to its own line. */
+      h1,
+      h2,
+      h3 {
+        text-wrap: balance;
+      }
+
+      .section-intro p {
         margin: 0;
+        max-width: 58ch;
         color: var(--muted);
+        text-wrap: pretty;
       }
 
-      .feature-grid {
+      .feature-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .feature-copy h3 {
+        margin: 0 0 8px;
+        font-size: 1.35rem;
+        letter-spacing: -0.02em;
+      }
+
+      .feature-copy p {
+        margin: 0 0 12px;
+        max-width: 68ch;
+        color: var(--muted);
+        text-wrap: pretty;
+      }
+
+      /* Weight and ink colour lift key phrases out of the muted body without
+         the underline reading as a link. */
+      .feature-copy p strong {
+        color: var(--ink);
+        font-weight: 600;
+      }
+
+      .feature-highlight {
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: 32px;
+        background: rgba(255, 255, 255, 0.88);
+      }
+
+      .feature-highlight .feature-copy {
+        margin-bottom: 24px;
+      }
+
+      .stat-strip {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 16px;
+        margin-top: 24px;
       }
 
-      .feature {
+      .stat-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+        border-radius: 16px;
+        background: var(--paper);
         border: 1px solid var(--line);
-        border-radius: 24px;
-        padding: 24px;
-        background: rgba(255, 255, 255, 0.78);
       }
 
-      .feature strong {
+      .stat-item svg {
+        flex-shrink: 0;
+        color: var(--brand);
+        margin-top: 2px;
+      }
+
+      .stat-item strong {
         display: block;
-        margin-bottom: 8px;
-        font-size: 1.05rem;
+        font-size: 0.95rem;
+        margin-bottom: 2px;
       }
 
-      .feature p {
-        margin: 0;
+      .stat-item span {
+        font-size: 0.85rem;
         color: var(--muted);
       }
 
-      .privacy {
+      .feature-duo {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 18px;
+        gap: 24px;
       }
 
-      .privacy-panel {
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 30px;
-        padding: 32px;
+      .feature-mini {
+        border: 1px solid var(--line);
+        border-radius: 24px;
+        padding: 24px;
+        background: rgba(255, 255, 255, 0.88);
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .feature-mini h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        letter-spacing: -0.02em;
+      }
+
+      .feature-mini p {
+        margin: 0;
+        max-width: 68ch;
+        color: var(--muted);
+        font-size: 0.95rem;
+        text-wrap: pretty;
+      }
+
+      .feature-mini-link {
+        color: var(--brand-strong);
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      .feature-mini-link:hover {
+        text-decoration: underline;
+      }
+
+      /* The two source screenshots have different proportions, so frame both
+         to one shape and bottom-align them to read as a matched pair. */
+      .feature-mini .detail-figure {
+        margin-top: auto;
+      }
+
+      .feature-mini .detail-figure img {
+        aspect-ratio: 3 / 2;
+        object-fit: cover;
+        object-position: center top;
+      }
+
+      .detail-figure {
+        margin: 0;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 12px 36px rgba(15, 23, 42, 0.07);
+      }
+
+      .detail-figure img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .capture-band {
+        border: 1px solid var(--line);
+        border-radius: 32px;
+        padding: 40px 36px;
+        background: var(--paper);
+      }
+
+      .capture-steps {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 48px 32px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .capture-step {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .capture-step::before {
+        content: attr(data-step);
+        margin-bottom: 12px;
+        color: var(--brand-strong);
+        font-size: 0.74rem;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .capture-step-copy {
+        margin-bottom: 22px;
+      }
+
+      .capture-step-copy h3 {
+        margin: 0 0 8px;
+        font-size: 1.2rem;
+        letter-spacing: -0.02em;
+      }
+
+      .capture-step-copy p {
+        margin: 0 0 8px;
+        max-width: 46ch;
+        color: var(--muted);
+        text-wrap: pretty;
+      }
+
+      .capture-caption {
+        margin: 0;
+        font-size: 0.82rem;
+        color: #94a3b8;
+      }
+
+      /* Rule sits directly above each screenshot; margin-top keeps rules
+         aligned across a row even when the copy above differs in length. */
+      .capture-figure {
+        position: relative;
+        margin: auto 0 0;
+        padding-top: 22px;
+        border-top: 1px solid rgba(15, 23, 42, 0.14);
+      }
+
+      .capture-figure::before {
+        content: "";
+        position: absolute;
+        top: -2px;
+        left: 0;
+        width: 64px;
+        height: 3px;
+        border-radius: 2px;
+        background: var(--brand);
+      }
+
+      .capture-figure img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        box-shadow: 0 18px 38px -20px rgba(43, 35, 128, 0.38);
+      }
+
+      .capture-step-featured .capture-figure {
+        border-top-color: rgba(98, 85, 246, 0.32);
+      }
+
+      .capture-step-featured .capture-figure::before {
+        width: 96px;
+        background: var(--brand-strong);
+      }
+
+      .capture-step-featured .capture-figure img {
+        border-color: rgba(98, 85, 246, 0.22);
+        box-shadow: 0 22px 46px -20px rgba(98, 85, 246, 0.5);
+      }
+
+      .privacy-block {
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        padding: 32px 36px;
         background: #101622;
         color: white;
       }
 
-      .privacy-panel p,
-      .privacy-panel li {
+      .privacy-block h2 {
+        color: white;
+      }
+
+      .privacy-block p {
+        color: #cbd5e1;
+        margin: 0 0 16px;
+      }
+
+      .privacy-list {
+        margin: 0 0 24px;
+        padding-left: 1.25rem;
         color: #cbd5e1;
       }
 
-      .privacy-panel ul {
-        padding-left: 18px;
-        margin: 18px 0 0;
+      .privacy-list li {
+        margin-bottom: 8px;
+      }
+
+      .privacy-block .button.secondary {
+        color: white;
+        background: transparent;
+        border-color: rgba(255, 255, 255, 0.45);
+      }
+
+      .privacy-block .button.secondary:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.75);
       }
 
       .install {
         border: 1px solid var(--line);
-        border-radius: 30px;
+        border-radius: 28px;
         padding: 34px;
         background: var(--panel);
+      }
+
+      .install-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 32px;
+        align-items: start;
+      }
+
+      .install-requirements {
+        margin: 12px 0 0;
+        font-size: 0.9rem;
+        color: var(--muted);
       }
 
       .install ol {
@@ -276,8 +594,18 @@
         color: var(--muted);
       }
 
+      .install ol li {
+        margin-bottom: 8px;
+      }
+
+      .install-note {
+        margin: 16px 0 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
       .code {
-        margin: 18px 0;
+        margin: 0;
         overflow-x: auto;
         border-radius: 18px;
         padding: 18px;
@@ -285,6 +613,7 @@
         color: #dbeafe;
         font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
         font-size: 0.9rem;
+        line-height: 1.6;
       }
 
       .footer {
@@ -296,137 +625,459 @@
         border-top: 1px solid var(--line);
       }
 
+      .footer a {
+        color: var(--brand-strong);
+        font-weight: 600;
+        text-decoration: none;
+      }
+
+      .footer a:hover {
+        text-decoration: underline;
+      }
+
+      html.reveal-ready .reveal-item {
+        opacity: 0;
+        transform: translateY(18px);
+        transition:
+          opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+          transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+        transition-delay: calc(var(--index, 0) * 80ms);
+      }
+
+      html.reveal-ready .reveal-item.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html.reveal-ready .reveal-item {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+      }
+
       @media (max-width: 880px) {
         .page {
           width: min(100% - 32px, 680px);
         }
 
+        .section {
+          padding: 56px 0;
+        }
+
+        .nav-toggle {
+          display: inline-flex;
+        }
+
+        .nav-links {
+          display: none;
+          position: absolute;
+          top: 72px;
+          right: 16px;
+          left: 16px;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 0;
+          padding: 8px;
+          border: 1px solid var(--line);
+          border-radius: 16px;
+          background: white;
+          box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+        }
+
+        .nav-links.is-open {
+          display: flex;
+        }
+
+        .nav-links a {
+          padding: 12px 14px;
+          border-radius: 10px;
+        }
+
+        .nav-links a:hover {
+          background: var(--soft);
+        }
+
+        .nav {
+          position: relative;
+        }
+
         .hero,
-        .privacy {
+        .feature-duo,
+        .capture-steps,
+        .install-grid,
+        .stat-strip {
           grid-template-columns: 1fr;
         }
 
         .hero {
           min-height: auto;
-          padding: 34px 0 60px;
+          padding: 20px 0 48px;
         }
 
         .hero-card {
           justify-self: start;
         }
 
-        .feature-grid {
-          grid-template-columns: 1fr;
+        .capture-band {
+          padding: 28px 20px;
         }
 
-        .section-heading,
+        .capture-steps {
+          gap: 36px;
+        }
+
+        .capture-figure {
+          margin-top: 0;
+        }
+
         .footer {
-          display: block;
-        }
-
-        .nav-links {
-          display: none;
+          flex-direction: column;
         }
       }
     </style>
   </head>
   <body>
-    <main class="page">
+    <a class="skip-link" href="#main">Skip to content</a>
+    <main class="page" id="main">
       <nav class="nav" aria-label="Main navigation">
         <a class="brand" href="./" aria-label="Candidex home">
-          <img src="public/candidex_logo.png" alt="" />
+          <img src="public/candidex_logo.png" alt="Candidex" width="40" height="40" />
           <span>Candidex</span>
         </a>
-        <div class="nav-links">
+        <button
+          type="button"
+          class="nav-toggle"
+          aria-expanded="false"
+          aria-controls="site-nav"
+          aria-label="Open menu"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16" />
+          </svg>
+        </button>
+        <div class="nav-links" id="site-nav">
           <a href="#features">Features</a>
+          <a href="#ai-capture">AI Capture</a>
           <a href="#privacy">Privacy</a>
           <a href="#install">Install</a>
-          <a href="https://github.com/sebai-dhia/candidex">GitHub</a>
+          <a href="https://github.com/sebai-dhia/candidex" rel="noopener noreferrer">GitHub</a>
         </div>
       </nav>
 
       <section class="hero">
         <div class="hero-copy">
-          <span class="eyebrow">Opera-first, open-source extension</span>
+          <span class="eyebrow">Open-source extension for Chromium browsers</span>
           <h1>Track jobs from the page you're on.</h1>
           <p class="lead">
             Save applications to your own Google Sheet, then find and update them when replies arrive.
           </p>
           <div class="actions">
             <a class="button primary" href="#install">Install from source</a>
-            <a class="button secondary" href="https://github.com/sebai-dhia/candidex">
+            <a
+              class="button secondary"
+              href="https://github.com/sebai-dhia/candidex"
+              rel="noopener noreferrer"
+            >
               View on GitHub
             </a>
           </div>
         </div>
         <figure class="hero-card">
-          <img src="public/promotional.jpg" alt="Candidex dashboard panel open beside job results" />
+          <img
+            src="landing/images/promotional.png"
+            alt="Candidex dashboard showing application totals, response rate, and upcoming interviews beside a job search page"
+            width="1536"
+            height="1024"
+            fetchpriority="high"
+          />
         </figure>
       </section>
 
       <section class="section" id="features">
-        <div class="section-heading">
+        <div class="section-intro">
           <h2>A small tracker for a messy job search.</h2>
           <p>
-            Designed for real application flow: save quickly, review clearly, and update responses
-            without handing your data to another platform.
+            Save quickly on the page you're browsing, review your pipeline in the dashboard, and
+            update statuses when recruiters reply.
           </p>
         </div>
-        <div class="feature-grid">
-          <article class="feature">
-            <strong>Slide-out workflow</strong>
-            <p>Open Candidex over job boards, career pages, and search results without context switching.</p>
+        <div class="feature-rows">
+          <article class="feature-highlight reveal-item" style="--index: 0">
+            <div class="feature-copy">
+              <h3>One dashboard for the whole search</h3>
+              <p>
+                Every application you save rolls up into <strong>three numbers</strong> that tell you
+                whether the search is working, alongside a breakdown by status, platform, and
+                upcoming interview. Everything syncs to a Google Sheet in your Drive.
+              </p>
+            </div>
+            <div class="stat-strip">
+              <div class="stat-item">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <rect x="2" y="7" width="20" height="14" rx="2" />
+                  <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                </svg>
+                <div>
+                  <strong>Applications</strong>
+                  <span>Total volume and weekly pace</span>
+                </div>
+              </div>
+              <div class="stat-item">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                </svg>
+                <div>
+                  <strong>Response rate</strong>
+                  <span>How often employers reply</span>
+                </div>
+              </div>
+              <div class="stat-item">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+                  <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+                  <path d="M4 22h16" />
+                  <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20 7 22" />
+                  <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20 17 22" />
+                  <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
+                </svg>
+                <div>
+                  <strong>Success rate</strong>
+                  <span>Offers and positive outcomes</span>
+                </div>
+              </div>
+            </div>
           </article>
-          <article class="feature">
-            <strong>Application dashboard</strong>
-            <p>Track totals, response rate, success rate, platforms, countries, work types, and recent entries.</p>
-          </article>
-          <article class="feature">
-            <strong>Response tracking</strong>
-            <p>Search by company or role, then update status and interview dates when replies arrive.</p>
-          </article>
+
+          <div class="feature-duo">
+            <article class="feature-mini reveal-item" style="--index: 1">
+              <h3>Manual fill application</h3>
+              <p>
+                Open the panel over any job page and type the details straight into the New App form:
+                company, role, platform, country, work type, and the posting link.
+              </p>
+              <figure class="detail-figure">
+                <img
+                  src="landing/images/manual_fill.png"
+                  alt="Candidex New App form open beside a LinkedIn job listing, with fields for company, role, platform, country, and work type"
+                  width="973"
+                  height="892"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+            </article>
+            <article class="feature-mini reveal-item" style="--index: 2">
+              <h3>AI Quick Capture</h3>
+              <p>
+                Prefer not to type? Draw a box around the posting and let your AI provider fill the
+                same form. You review every field before anything is saved.
+              </p>
+              <a class="feature-mini-link" href="#ai-capture">See how it works</a>
+              <figure class="detail-figure">
+                <img
+                  src="landing/images/ai-capture-03-review.png"
+                  alt="Candidex review card showing job title, company, location, and work type filled in by AI with confidence badges"
+                  width="1501"
+                  height="907"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+            </article>
+          </div>
         </div>
       </section>
 
-      <section class="section privacy" id="privacy">
-        <article class="privacy-panel">
-          <h2>Your data stays yours.</h2>
-          <p>
-            Candidex has no backend server and no hosted database. Your applications are written to a
-            Google Sheet in your own Drive.
-          </p>
-        </article>
-        <article class="privacy-panel">
-          <strong>Privacy defaults</strong>
-          <ul>
-            <li>No analytics or telemetry.</li>
-            <li>No cookies or tracking pixels.</li>
-            <li>No client secret in source code.</li>
-            <li>OAuth through the browser identity flow.</li>
-          </ul>
-        </article>
-      </section>
-
-      <section class="section" id="install">
-        <div class="section-heading">
-          <h2>Install from source.</h2>
-          <p>Packaged store releases are not available yet. Opera is the primary target today.</p>
-        </div>
-        <div class="install">
-          <div class="code">git clone https://github.com/sebai-dhia/candidex.git<br />cd candidex<br />npm install<br />npm run build</div>
-          <ol>
-            <li>Open <code>opera://extensions</code>.</li>
-            <li>Enable <strong>Developer mode</strong>.</li>
-            <li>Choose <strong>Load unpacked</strong>.</li>
-            <li>Select <code>dist/candidex/browser</code>.</li>
+      <section class="section" id="ai-capture">
+        <div class="capture-band">
+          <div class="section-intro">
+            <h2>How AI capture works</h2>
+            <p>
+              Draw a box around a job posting, review what was extracted, then save to your Sheet. You
+              stay in control at every step.
+            </p>
+          </div>
+          <ol class="capture-steps">
+            <li class="capture-step reveal-item" data-step="STEP 01" style="--index: 0">
+              <div class="capture-step-copy">
+                <h3>Select job details</h3>
+                <p>Draw a region around the posting on the page you're viewing.</p>
+                <p class="capture-caption">Background page shown for context only.</p>
+              </div>
+              <figure class="capture-figure">
+                <img
+                  src="landing/images/ai-capture-01-select.png"
+                  alt="Candidex capture overlay with a selection box around a job posting and Extract Info button"
+                  width="1395"
+                  height="651"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+            </li>
+            <li class="capture-step reveal-item" data-step="STEP 02" style="--index: 1">
+              <div class="capture-step-copy">
+                <h3>Extract fields with AI</h3>
+                <p>Your configured provider reads the selected text and returns structured fields.</p>
+                <p class="capture-caption">Processing happens over HTTPS to the provider you choose.</p>
+              </div>
+              <figure class="capture-figure">
+                <img
+                  src="landing/images/ai-capture-02-process.png"
+                  alt="Candidex processing overlay while AI extracts job information"
+                  width="1395"
+                  height="682"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+            </li>
+            <li class="capture-step capture-step-featured reveal-item" data-step="STEP 03" style="--index: 2">
+              <div class="capture-step-copy">
+                <h3>Review before saving</h3>
+                <p>Edit role, company, location, and work type with confidence hints before you commit.</p>
+                <p class="capture-caption">Nothing is saved until you confirm.</p>
+              </div>
+              <figure class="capture-figure">
+                <img
+                  src="landing/images/ai-capture-03-review.png"
+                  alt="Candidex review card with extracted job fields, confidence badges, and Save to Candidex button"
+                  width="1397"
+                  height="847"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+            </li>
+            <li class="capture-step reveal-item" data-step="STEP 04" style="--index: 3">
+              <div class="capture-step-copy">
+                <h3>Saved to your Sheet</h3>
+                <p>Confirmed applications are written to your Google Sheet like any manual entry.</p>
+                <p class="capture-caption">Same storage model as the rest of Candidex.</p>
+              </div>
+              <figure class="capture-figure">
+                <img
+                  src="landing/images/ai-capture-04-saved.png"
+                  alt="Candidex success confirmation after an AI capture is saved"
+                  width="1407"
+                  height="841"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </figure>
+            </li>
           </ol>
         </div>
       </section>
 
+      <section class="section" id="privacy">
+        <div class="privacy-block">
+          <h2>Your data stays yours.</h2>
+          <p>
+            Candidex has no backend server and no hosted database. Applications live in a Google
+            Sheet you own.
+          </p>
+          <ul class="privacy-list">
+            <li>No analytics, telemetry, cookies, or tracking pixels.</li>
+            <li>
+              AI capture sends only the text you select to <strong>your</strong> configured provider.
+            </li>
+            <li>
+              API keys stay in browser storage on your device. Use session-only mode on shared
+              computers.
+            </li>
+            <li>OAuth uses the browser identity flow. No client secret in the source code.</li>
+          </ul>
+          <a class="button secondary" href="docs/privacy-policy.html">Read full privacy policy</a>
+        </div>
+      </section>
+
+      <section class="section" id="install">
+        <div class="section-intro">
+          <h2>Install from source.</h2>
+          <p>
+            Packaged store releases are not available yet. Candidex runs in Chrome, Opera, Edge,
+            and Brave.
+          </p>
+        </div>
+        <div class="install">
+          <div class="install-grid">
+            <div>
+              <div class="code">
+                git clone https://github.com/sebai-dhia/candidex.git<br />
+                cd candidex<br />
+                npm install<br />
+                npm run build
+              </div>
+              <p class="install-requirements">Requires Node.js 20+ and npm 10+.</p>
+            </div>
+            <div>
+              <ol>
+                <li>Open <code>chrome://extensions</code>.</li>
+                <li>Enable <strong>Developer mode</strong>.</li>
+                <li>Choose <strong>Load unpacked</strong>.</li>
+                <li>Select <code>dist/candidex/browser</code>.</li>
+              </ol>
+              <p class="install-note">
+                On Opera, use <code>opera://extensions</code> instead. After install, connect Google
+                Sheets in setup. For AI capture, open Connections and add your personal AI provider.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <footer class="footer">
-        <span>MIT licensed. Built for Opera first, with broader browser support planned.</span>
+        <span>MIT licensed. Works in Chrome, Opera, Edge, and Brave.</span>
         <a href="docs/privacy-policy.html">Privacy policy</a>
       </footer>
     </main>
+    <script>
+      (function () {
+        var toggle = document.querySelector(".nav-toggle");
+        var nav = document.getElementById("site-nav");
+        if (toggle && nav) {
+          toggle.addEventListener("click", function () {
+            var open = nav.classList.toggle("is-open");
+            toggle.setAttribute("aria-expanded", open ? "true" : "false");
+            toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+          });
+
+          nav.querySelectorAll("a").forEach(function (link) {
+            link.addEventListener("click", function () {
+              nav.classList.remove("is-open");
+              toggle.setAttribute("aria-expanded", "false");
+              toggle.setAttribute("aria-label", "Open menu");
+            });
+          });
+        }
+
+        var prefersReduced =
+          window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        var revealItems = document.querySelectorAll(".reveal-item");
+
+        if (!prefersReduced && revealItems.length && "IntersectionObserver" in window) {
+          document.documentElement.classList.add("reveal-ready");
+
+          var observer = new IntersectionObserver(
+            function (entries) {
+              entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add("is-visible");
+                  observer.unobserve(entry.target);
+                }
+              });
+            },
+            { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
+          );
+
+          revealItems.forEach(function (item) {
+            observer.observe(item);
+          });
+        }
+      })();
+    </script>
   </body>
 </html>
