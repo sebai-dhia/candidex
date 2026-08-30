@@ -52,7 +52,7 @@ Candidex is built around a simple rule: your job search data should belong to yo
 - Candidex does not collect analytics or telemetry.
 - Candidex does not use cookies or tracking pixels.
 - Google OAuth runs through the browser extension identity flow.
-- The OAuth `client_id` in `src/manifest.json` is public by design; there is no `client_secret`.
+- OAuth client IDs are not stored in git. Production builds read them from a local `.env` file and bake them into the ZIP. There is no `client_secret`.
 
 Read the full policy in `docs/privacy-policy.md`.
 
@@ -72,8 +72,18 @@ Packaged store releases are not available yet. For now, you can install Candidex
 git clone https://github.com/sebai-dhia/candidex.git
 cd candidex
 npm install
+copy .env.example .env   # then put your own Google OAuth client IDs in .env
 npm run build
 ```
+
+On macOS/Linux use `cp .env.example .env` instead of `copy`.
+
+Google sign-in only works after you create your own OAuth clients in Google Cloud Console and paste them into `.env`:
+
+- `CANDIDEX_CHROME_OAUTH_CLIENT_ID` — Chrome Extension client (used by `chrome.identity.getAuthToken`)
+- `CANDIDEX_WEB_FLOW_OAUTH_CLIENT_ID` — Web application client (Opera, Edge, Brave, Vivaldi)
+
+The official Chrome Web Store ZIP is built the same way: put the production IDs in `.env`, then `npm run package`. `.env` is gitignored and is not uploaded to Google — only the baked-in IDs inside `candidex.zip`.
 
 ### Load the Extension
 
@@ -106,7 +116,7 @@ npm run build:extension # Build background.js and content.js only
 npm run watch          # Rebuild Angular app on file changes
 npm run watch:extension # Rebuild extension scripts on file changes
 npm test               # Run unit tests
-npm run package        # Build and create extension zip
+npm run package        # Build store ZIP (requires OAuth IDs in .env)
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full development workflow.

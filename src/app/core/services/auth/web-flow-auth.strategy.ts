@@ -1,3 +1,4 @@
+import { CANDIDEX_WEB_FLOW_OAUTH_CLIENT_ID } from '../../config/oauth-clients';
 import { AuthStrategy } from './auth.strategy';
 
 /**
@@ -6,10 +7,16 @@ import { AuthStrategy } from './auth.strategy';
  * bypassing the need for a browser-level Google profile.
  */
 export class WebFlowAuthStrategy implements AuthStrategy {
-  private readonly clientId = '737956559797-8g3krms69sqnvteq4kbub11hfb6qfuro.apps.googleusercontent.com';
+  private readonly clientId = CANDIDEX_WEB_FLOW_OAUTH_CLIENT_ID;
   private readonly scope = encodeURIComponent('https://www.googleapis.com/auth/drive.file');
 
   requestToken(interactive: boolean): Promise<string> {
+    if (!this.clientId) {
+      return Promise.reject(
+        new Error('Missing CANDIDEX_WEB_FLOW_OAUTH_CLIENT_ID. Copy .env.example to .env and rebuild.')
+      )
+    }
+
     return new Promise((resolve, reject) => {
       const redirectUri = chrome.identity.getRedirectURL();
       let authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${this.clientId}&response_type=token&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${this.scope}`;

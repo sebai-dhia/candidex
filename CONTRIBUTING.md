@@ -15,7 +15,10 @@ Thanks for helping improve Candidex. This project has two build surfaces:
 
 ```bash
 npm install
+copy .env.example .env
 ```
+
+On macOS/Linux: `cp .env.example .env`. Fill in your own Google OAuth client IDs if you need to test sign-in. Leave them empty for UI/unit-test work. Never commit `.env`.
 
 ## Development
 
@@ -25,7 +28,7 @@ npm install
 npm run build
 ```
 
-This builds extension scripts into `.generated/extension/` first, then the Angular app copies them (plus static assets from `public/`) into `dist/candidex/browser/` along with `manifest.json`.
+This builds extension scripts into `.generated/extension/` first, then the Angular app copies them (plus static assets from `public/`) into `dist/candidex/browser/` along with a generated `manifest.json` (OAuth client ID injected from `.env`).
 
 Do **not** run `ng build` alone — it will copy a manifest that references `background.js` without generating that file first.
 
@@ -74,3 +77,4 @@ Runs Vitest unit tests for pure helpers in the Angular and extension layers.
 
 - Ensure `npm run build` and `npm test` pass locally before opening a PR.
 - CI runs the same build and test steps on pull requests to `main`.
+- Do not commit `.env` or `oauth-clients.generated.ts`. Store ZIP builds (`npm run package`) read OAuth IDs from `.env` on your machine.

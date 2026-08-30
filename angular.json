@@ -55,7 +55,10 @@
                 "glob": "*.{js,map}",
                 "input": ".generated/extension"
               },
-              "src/manifest.json"
+              {
+                "glob": "manifest.json",
+                "input": ".generated"
+              }
             ],
             "styles": [
               "src/styles.scss"

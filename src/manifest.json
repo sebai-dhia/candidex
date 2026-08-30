@@ -28,7 +28,7 @@
     "https://api.openai.com/*"
   ],
   "oauth2": {
-    "client_id": "737956559797-qkjchps7rc3o9avme3bk1n8fiukbmibr.apps.googleusercontent.com",
+    "client_id": "",
     "scopes": ["https://www.googleapis.com/auth/drive.file"]
   },
   "background": {

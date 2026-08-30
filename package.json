@@ -4,7 +4,13 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "prepare:oauth": "node scripts/prepare-oauth.mjs",
     "build:extension": "node scripts/build-extension.mjs",
+    "prestart": "node scripts/prepare-oauth.mjs",
+    "prebuild": "node scripts/prepare-oauth.mjs",
+    "prewatch": "node scripts/prepare-oauth.mjs",
+    "pretest": "node scripts/prepare-oauth.mjs",
+    "pretypecheck": "node scripts/prepare-oauth.mjs",
     "build": "npm run build:extension && ng build",
     "watch": "npm run build:extension && ng build --watch --configuration development",
     "watch:extension": "node scripts/build-extension.mjs --watch",
@@ -15,7 +21,7 @@
     "assets": "node scripts/generate-store-assets.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "package": "npm run build && npm run package:verify && node scripts/zip.js"
+    "package": "node scripts/prepare-oauth.mjs --require && npm run build:extension && ng build && npm run package:verify && node scripts/zip.js"
   },
   "private": true,
   "engines": {

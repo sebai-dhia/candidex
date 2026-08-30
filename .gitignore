@@ -42,6 +42,7 @@ artifacts/
 secrets.*
 *.pem
 *.key
+src/app/core/config/oauth-clients.generated.ts
 
 # Extension build packages
 *.zip
