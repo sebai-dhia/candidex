@@ -33,9 +33,20 @@ try {
     throw new Error('Built main.js is missing the web-flow OAuth client ID. Rebuild with `npm run package`.');
   }
 
+  // CWS rejects "key" on first upload. Keep it in src/ for unpacked ID stability.
+  const storeManifest = { ...manifest };
+  delete storeManifest.key;
+
   const zip = new AdmZip();
   zip.addLocalFolder(sourceDir);
+  zip.updateFile('manifest.json', Buffer.from(`${JSON.stringify(storeManifest, null, 2)}\n`));
   zip.writeZip(outputFile);
+
+  const packed = JSON.parse(new AdmZip(outputFile).readAsText('manifest.json'));
+  if (Object.prototype.hasOwnProperty.call(packed, 'key')) {
+    throw new Error('Store ZIP still contains manifest.key; CWS will reject the upload.');
+  }
+
   console.log(`✅ Successfully created ${outputFile}`);
 } catch (e) {
   console.error('❌ Failed to create zip file:', e.message || e);
