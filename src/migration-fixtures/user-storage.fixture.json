@@ -1,0 +1,15 @@
+{
+  "candidexSpreadsheetId": "sheet-fixture-001",
+  "candidexSetupStatus": "complete",
+  "candidexLocale": "en",
+  "aiEngineConfig": {
+    "providerId": "groq",
+    "apiKey": "gsk_test_fixture_key_not_real",
+    "connectedAt": 1750000000000,
+    "healthStatus": "healthy",
+    "consecutiveFailures": 0,
+    "resolvedModels": ["openai/gpt-oss-120b"],
+    "modelsResolvedAt": 1750000000000,
+    "modelsSource": "catalog"
+  }
+}

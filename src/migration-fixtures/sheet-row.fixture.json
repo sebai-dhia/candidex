@@ -1,0 +1,31 @@
+{
+  "headers": [
+    "id",
+    "role",
+    "company",
+    "platform",
+    "job_link",
+    "company_link",
+    "date_applied",
+    "status",
+    "interview_date",
+    "notes",
+    "country",
+    "work_type"
+  ],
+  "sampleRow": [
+    "m1fixture",
+    "QA Senior",
+    "SATELIANCE",
+    "LinkedIn",
+    "https://www.linkedin.com/jobs/view/123",
+    "",
+    "2026-08-20",
+    "Applied",
+    "",
+    "Migrated user fixture",
+    "Tunisia",
+    "On-site"
+  ],
+  "routes": ["/", "/dashboard", "/new", "/track"]
+}
