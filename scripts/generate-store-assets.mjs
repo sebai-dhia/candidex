@@ -38,11 +38,11 @@ function guardExisting(outputs) {
   const existing = outputs.filter((f) => fs.existsSync(f));
   if (existing.length === 0) return;
   if (force) return;
-  console.error('Output already exists (use --force to overwrite):');
+  console.log('Store assets already present (use --force to regenerate):');
   for (const file of existing) {
-    console.error(`  - ${path.relative(root, file)}`);
+    console.log(`  - ${path.relative(root, file)}`);
   }
-  process.exit(1);
+  process.exit(0);
 }
 
 assertSourceExists(LOGO);
