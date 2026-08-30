@@ -2,7 +2,7 @@
   @if (isLoading()) {
     <div class="loading-state">
       <span class="spinner"></span>
-      <p>Loading your data...</p>
+      <p>{{ t('dashboard.loading') }}</p>
     </div>
   }
 
@@ -32,9 +32,9 @@
         <line x1="16" y1="17" x2="8" y2="17"></line>
         <polyline points="10 9 9 9 8 9"></polyline>
       </svg>
-      <h3>No applications yet</h3>
-      <p>Start tracking your job search</p>
-      <a routerLink="/new" class="empty-cta">Add First Application</a>
+      <h3>{{ t('dashboard.emptyTitle') }}</h3>
+      <p>{{ t('dashboard.emptyBody') }}</p>
+      <a routerLink="/new" class="empty-cta">{{ t('dashboard.emptyCta') }}</a>
     </div>
   }
 
@@ -44,22 +44,22 @@
       <div class="metrics-row">
         <div class="metric-block primary">
           <span class="metric-value">{{ totalApplications() }}</span>
-          <span class="metric-label">Applications</span>
+          <span class="metric-label">{{ t('dashboard.applications') }}</span>
           @if (thisWeekCount() > 0) {
-            <span class="metric-sub">+{{ thisWeekCount() }} this week</span>
+            <span class="metric-sub">{{ t('dashboard.thisWeek', { count: thisWeekCount() }) }}</span>
           }
         </div>
         <div class="metric-block">
           <span class="metric-value">{{ responseRate() }}<span class="metric-unit">%</span></span>
-          <span class="metric-label">Response Rate</span>
-          <span class="metric-sub muted"
-            >{{ respondedCount() }} from {{ totalApplications() }} apps</span
-          >
+          <span class="metric-label">{{ t('dashboard.responseRate') }}</span>
+          <span class="metric-sub muted">
+            {{ t('dashboard.fromApps', { count: respondedCount(), total: totalApplications() }) }}
+          </span>
         </div>
         <div class="metric-block full-width success">
           <div class="metric-group">
             <span class="metric-value">{{ successRate() }}<span class="metric-unit">%</span></span>
-            <span class="metric-label">Success Rate</span>
+            <span class="metric-label">{{ t('dashboard.successRate') }}</span>
           </div>
           <span class="metric-sub muted">{{ successLabel() }}</span>
         </div>
@@ -90,59 +90,86 @@
           }
         </div>
       }
-      <!-- Status Breakdown -->
-      <div class="status-breakdown">
-        <div class="status-row">
-          <span class="status-dot applied"></span>
-          <span class="status-name">Applied</span>
-          <span class="status-count">{{ statusCounts().applied }}</span>
-        </div>
-        <div class="status-row">
-          <span class="status-dot interview"></span>
-          <span class="status-name">Interview</span>
-          <span class="status-count">{{ statusCounts().interview }}</span>
-        </div>
-        <div class="status-row">
-          <span class="status-dot offer"></span>
-          <span class="status-name">Offer</span>
-          <span class="status-count">{{ statusCounts().offer }}</span>
-        </div>
-        <div class="status-row">
-          <span class="status-dot rejected"></span>
-          <span class="status-name">Rejected</span>
-          <span class="status-count">{{ statusCounts().rejected }}</span>
-        </div>
-      </div>
-      <!-- Next Interview -->
-      @if (nextInterview()) {
-        <div class="next-interview">
-          <div class="interview-label">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
-            </svg>
-            Next Interview
+      <!-- Status & Interview Row -->
+      <div class="status-interview-row" [class.has-interview]="upcomingInterviews().length > 0">
+        <!-- Status Breakdown -->
+        <div class="status-breakdown">
+          <div class="status-row">
+            <span class="status-dot applied"></span>
+            <span class="status-name">{{ t('status.applied') }}</span>
+            <span class="status-count">{{ statusCounts().applied }}</span>
           </div>
-          <div class="interview-info">
-            <span class="interview-company">{{ nextInterview()?.company }}</span>
-            <span class="interview-date">{{
-              getDaysUntil(nextInterview()?.interview_date || '')
-            }}</span>
+          <div class="status-row">
+            <span class="status-dot interview"></span>
+            <span class="status-name">{{ t('status.interview') }}</span>
+            <span class="status-count">{{ statusCounts().interview }}</span>
           </div>
+          <div class="status-row">
+            <span class="status-dot offer"></span>
+            <span class="status-name">{{ t('status.offer') }}</span>
+            <span class="status-count">{{ statusCounts().offer }}</span>
+          </div>
+          <div class="status-row">
+            <span class="status-dot rejected"></span>
+            <span class="status-name">{{ t('status.rejected') }}</span>
+            <span class="status-count">{{ statusCounts().rejected }}</span>
+          </div>
+        </div>
+
+      <!-- Next Interview (carousel for multiple) -->
+      @if (upcomingInterviews().length > 0) {
+        <div class="next-interview" [attr.data-urgency]="interviewUrgency()">
+          <div class="interview-head">
+            <div class="interview-label">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              {{ interviewCardLabel() }}
+            </div>
+            @if (activeInterview()?.id) {
+              <button
+                type="button"
+                class="interview-view-btn"
+                (click)="viewInterviewInTrack()"
+                [appTooltip]="t('form.viewExisting')"
+                tooltipPlacement="bottom"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M7 17L17 7" />
+                  <path d="M9 7h8v8" />
+                </svg>
+              </button>
+            }
+          </div>
+
+          <!-- Interview card body -->
+          <div class="interview-body-vertical">
+            <div class="interview-company">{{ activeInterview()?.company }}</div>
+            <div class="interview-date">{{ getDaysUntil(activeInterview()?.interview_date || '') }}</div>
+          </div>
+
+          <!-- Bottom nav: only shown when > 1 interview -->
+          @if (upcomingInterviews().length > 1) {
+            <div class="interview-nav-bottom" dir="ltr">
+              <button class="nav-btn" (click)="prevInterview()" [attr.aria-label]="t('dashboard.prevInterview')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+              </button>
+              <span class="nav-pos">{{ activeInterviewIndex() + 1 }}/{{ upcomingInterviews().length }}</span>
+              <button class="nav-btn" (click)="nextInterviewSlide()" [attr.aria-label]="t('dashboard.nextInterview')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            </div>
+          }
         </div>
       }
+      </div>
       <!-- Divider -->
       <div class="section-divider"></div>
       <div class="stats-grid">
@@ -166,17 +193,17 @@
                 d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
               ></path>
             </svg>
-            Countries
+            {{ t('dashboard.countries') }}
           </h3>
           <div class="inline-stats">
-            @for (country of topCountries(); track country) {
+            @for (country of topCountries(); track country.code) {
               <div class="inline-stat-item">
                 {{ country.label }} <span class="inline-count">({{ country.count }})</span>
               </div>
             }
             @if (hiddenCountryCount() > 0) {
               <div class="inline-stat-more" (click)="toggleCountries()">
-                {{ showAllCountries() ? 'Show less' : '+' + hiddenCountryCount() + ' more' }}
+                {{ showAllCountries() ? t('dashboard.showLess') : t('dashboard.showMore', { count: hiddenCountryCount() }) }}
               </div>
             }
           </div>
@@ -199,19 +226,19 @@
               <line x1="8" y1="21" x2="16" y2="21"></line>
               <line x1="12" y1="17" x2="12" y2="21"></line>
             </svg>
-            Work Type
+            {{ t('dashboard.workType') }}
           </h3>
           <div class="inline-stats">
             <div class="inline-stat-item">
-              <span class="status-dot remote"></span> Remote
+              <span class="status-dot remote"></span> {{ t('workType.remote') }}
               <span class="inline-count">({{ workTypeCounts().remote }})</span>
             </div>
             <div class="inline-stat-item">
-              <span class="status-dot hybrid"></span> Hybrid
+              <span class="status-dot hybrid"></span> {{ t('workType.hybrid') }}
               <span class="inline-count">({{ workTypeCounts().hybrid }})</span>
             </div>
             <div class="inline-stat-item">
-              <span class="status-dot onsite"></span> On-site
+              <span class="status-dot onsite"></span> {{ t('workType.onsite') }}
               <span class="inline-count">({{ workTypeCounts().onsite }})</span>
             </div>
           </div>
@@ -221,16 +248,16 @@
       <div class="section-divider"></div>
       <!-- Recent Applications -->
       <div class="recent-section">
-        <h3>Recent</h3>
+        <h3>{{ t('dashboard.recent') }}</h3>
         <div class="compact-list">
           @for (app of recentApplications(); track app) {
             <div class="compact-item">
               <div class="compact-main">
-                <span class="compact-role">{{ app.role }}</span>
-                <span class="badge" [attr.data-status]="app.status">{{ app.status }}</span>
+                <span class="compact-role" dir="auto">{{ app.role }}</span>
+                <span class="badge" [attr.data-status]="app.status">{{ statusLabel(app.status) }}</span>
               </div>
               <div class="compact-sub">
-                <span>{{ app.company }}</span>
+                <span dir="auto">{{ app.company }}</span>
                 <span class="dot">·</span>
                 <span>{{ formatDate(app.date_applied) }}</span>
               </div>
@@ -254,7 +281,7 @@
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
-        Add New
+        {{ t('dashboard.addNew') }}
       </a>
     </div>
   }
