@@ -1,4 +1,4 @@
-<div class="form-container">
+<div class="form-container" [attr.data-locale]="uiLocale()">
   <form [formGroup]="applicationForm" (ngSubmit)="onSubmit()" class="candidex-form">
     <!-- Section: Job Info -->
     <div class="form-section">
@@ -17,16 +17,16 @@
           <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
           <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
         </svg>
-        Job Info
+        {{ t('form.jobInfo') }}
       </div>
 
       <div class="form-group">
-        <label for="company">Company <span class="required">*</span></label>
+        <label for="company">{{ t('form.company') }} <span class="required">*</span></label>
         <input
           type="text"
           id="company"
           formControlName="company"
-          placeholder="e.g. Google, Stripe"
+          [placeholder]="t('form.companyPlaceholder')"
           [class.invalid]="
             applicationForm.get('company')?.invalid && applicationForm.get('company')?.touched
           "
@@ -34,12 +34,12 @@
       </div>
 
       <div class="form-group">
-        <label for="role">Role <span class="required">*</span></label>
+        <label for="role">{{ t('form.role') }} <span class="required">*</span></label>
         <input
           type="text"
           id="role"
           formControlName="role"
-          placeholder="e.g. Senior Frontend Engineer"
+          [placeholder]="t('form.rolePlaceholder')"
           [class.invalid]="
             applicationForm.get('role')?.invalid && applicationForm.get('role')?.touched
           "
@@ -47,10 +47,10 @@
       </div>
 
       <div class="form-group">
-        <label>Platform <span class="required">*</span></label>
+        <label>{{ t('form.platform') }} <span class="required">*</span></label>
         <div class="custom-select" [class.open]="platformOpen" (click)="togglePlatform($event)">
           <div class="custom-select-trigger">
-            <span>{{ applicationForm.get('platform')?.value }}</span>
+            <span>{{ platformLabel(applicationForm.get('platform')?.value) }}</span>
             <svg width="12" height="7" viewBox="0 0 12 7" fill="none">
               <path
                 d="M1 1L6 6L11 1"
@@ -68,7 +68,7 @@
                 [class.selected]="applicationForm.get('platform')?.value === p"
                 (click)="selectPlatform(p, $event)"
               >
-                {{ p }}
+                {{ platformLabel(p) }}
               </div>
             }
           </div>
@@ -77,7 +77,7 @@
           <input
             type="text"
             formControlName="custom_platform"
-            placeholder="Enter platform name..."
+            [placeholder]="t('form.platformCustomPlaceholder')"
             class="custom-platform-input"
             [class.invalid]="
               applicationForm.get('custom_platform')?.invalid &&
@@ -105,15 +105,15 @@
           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
           <circle cx="12" cy="10" r="3"></circle>
         </svg>
-        Location & Setup
+        {{ t('form.locationSetup') }}
       </div>
 
       <div class="form-row">
         <div class="form-group half-width">
-          <label>Country <span class="required">*</span></label>
+          <label>{{ t('form.country') }} <span class="required">*</span></label>
           <div class="custom-select" [class.open]="countryOpen" (click)="toggleCountry($event)">
             <div class="custom-select-trigger">
-              <span>{{ applicationForm.get('country')?.value }}</span>
+              <span>{{ countryLabel(applicationForm.get('country')?.value) }}</span>
               <svg width="12" height="7" viewBox="0 0 12 7" fill="none">
                 <path
                   d="M1 1L6 6L11 1"
@@ -131,7 +131,7 @@
                   [class.selected]="applicationForm.get('country')?.value === c"
                   (click)="selectCountry(c, $event)"
                 >
-                  {{ c }}
+                  {{ countryLabel(c) }}
                 </div>
               }
             </div>
@@ -140,7 +140,7 @@
             <input
               type="text"
               formControlName="custom_country"
-              placeholder="Enter country..."
+              [placeholder]="t('form.countryCustomPlaceholder')"
               class="custom-platform-input"
               [class.invalid]="
                 applicationForm.get('custom_country')?.invalid &&
@@ -151,10 +151,10 @@
         </div>
 
         <div class="form-group half-width">
-          <label>Work Type <span class="required">*</span></label>
+          <label>{{ t('form.workType') }} <span class="required">*</span></label>
           <div class="custom-select" [class.open]="workTypeOpen" (click)="toggleWorkType($event)">
             <div class="custom-select-trigger">
-              <span>{{ applicationForm.get('work_type')?.value }}</span>
+              <span>{{ workTypeLabel(applicationForm.get('work_type')?.value) }}</span>
               <svg width="12" height="7" viewBox="0 0 12 7" fill="none">
                 <path
                   d="M1 1L6 6L11 1"
@@ -172,7 +172,7 @@
                   [class.selected]="applicationForm.get('work_type')?.value === w"
                   (click)="selectWorkType(w, $event)"
                 >
-                  {{ w }}
+                  {{ workTypeLabel(w) }}
                 </div>
               }
             </div>
@@ -198,21 +198,28 @@
           <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
           <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
         </svg>
-        Links
+        {{ t('form.links') }}
       </div>
 
       <div class="form-group">
-        <label for="job_link">Job Posting</label>
-        <input type="url" id="job_link" formControlName="job_link" placeholder="https://..." />
+        <label for="job_link">{{ t('form.jobPosting') }}</label>
+        <input
+          type="url"
+          id="job_link"
+          formControlName="job_link"
+          dir="ltr"
+          [placeholder]="t('form.urlPlaceholder')"
+        />
       </div>
 
       <div class="form-group">
-        <label for="company_link">Company Page</label>
+        <label for="company_link">{{ t('form.companyPage') }}</label>
         <input
           type="url"
           id="company_link"
           formControlName="company_link"
-          placeholder="https://..."
+          dir="ltr"
+          [placeholder]="t('form.urlPlaceholder')"
         />
       </div>
     </div>
@@ -236,20 +243,20 @@
           <line x1="8" y1="2" x2="8" y2="6"></line>
           <line x1="3" y1="10" x2="21" y2="10"></line>
         </svg>
-        Status
+        {{ t('form.statusSection') }}
       </div>
 
       <div class="form-row">
         <div class="form-group half-width">
-          <label for="date_applied">Date Applied <span class="required">*</span></label>
-          <input type="date" id="date_applied" formControlName="date_applied" />
+          <label for="date_applied">{{ t('form.dateApplied') }} <span class="required">*</span></label>
+          <input type="date" id="date_applied" formControlName="date_applied" dir="ltr" />
         </div>
 
         <div class="form-group half-width">
-          <label>Status <span class="required">*</span></label>
+          <label>{{ t('form.status') }} <span class="required">*</span></label>
           <div class="custom-select" [class.open]="statusOpen" (click)="toggleStatus($event)">
             <div class="custom-select-trigger">
-              <span>{{ applicationForm.get('status')?.value }}</span>
+              <span>{{ statusLabel(applicationForm.get('status')?.value) }}</span>
               <svg width="12" height="7" viewBox="0 0 12 7" fill="none">
                 <path
                   d="M1 1L6 6L11 1"
@@ -267,7 +274,7 @@
                   [class.selected]="applicationForm.get('status')?.value === s"
                   (click)="selectStatus(s, $event)"
                 >
-                  {{ s }}
+                  {{ statusLabel(s) }}
                 </div>
               }
             </div>
@@ -275,20 +282,29 @@
         </div>
       </div>
 
+      @if (showInterviewDate) {
+        <div class="form-row">
+          <div class="form-group half-width">
+            <label for="interview_date">{{ t('form.interviewDate') }}</label>
+            <input type="date" id="interview_date" formControlName="interview_date" dir="ltr" />
+          </div>
+        </div>
+      }
+
       <div class="form-group">
-        <label for="notes">Notes</label>
+        <label for="notes">{{ t('form.notes') }}</label>
         <textarea
           id="notes"
           formControlName="notes"
           rows="2"
-          placeholder="Any extra details..."
+          [placeholder]="t('form.notesPlaceholder')"
         ></textarea>
       </div>
     </div>
 
     <button type="submit" class="submit-btn" [disabled]="applicationForm.invalid || isSubmitting()">
       @if (!isSubmitting()) {
-        <span>Save to Sheets</span>
+        <span>{{ t('form.save') }}</span>
       }
       @if (isSubmitting()) {
         <span class="spinner"></span>
@@ -296,10 +312,40 @@
     </button>
 
     @if (successMessage()) {
-      <div class="alert success">{{ successMessage() }}</div>
+      <div class="alert success" role="status">{{ successMessage() }}</div>
+    }
+    @if (duplicateMatch(); as dup) {
+      <div class="alert warning" role="alert" [attr.dir]="uiLocale() === 'ar' ? 'rtl' : null">
+        <p>
+          {{
+            t('form.duplicateWarning', {
+              role: isolateBidi(dup.role),
+              company: isolateBidi(dup.company),
+            })
+          }}
+        </p>
+        @if (formatDuplicateDate(dup.date_applied); as appliedOn) {
+          <p class="alert-date">
+            {{ t('form.duplicateAppliedOn', { date: isolateBidi(appliedOn) }) }}
+          </p>
+        }
+        <div class="alert-actions">
+          <button type="button" class="alert-btn" (click)="viewExisting()">
+            {{ t('form.viewExisting') }}
+          </button>
+          <button
+            type="button"
+            class="alert-btn alert-btn-primary"
+            [disabled]="isSubmitting()"
+            (click)="saveAnyway()"
+          >
+            {{ t('form.saveAnyway') }}
+          </button>
+        </div>
+      </div>
     }
     @if (errorMessage()) {
-      <div class="alert error">{{ errorMessage() }}</div>
+      <div class="alert error" role="alert">{{ errorMessage() }}</div>
     }
   </form>
 </div>
