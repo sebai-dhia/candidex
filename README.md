@@ -27,7 +27,7 @@ No backend. No hosted database. No account on a third-party job tracker.
 - **New application form** - Save company, role, platform, links, country, work type, date, status, and notes.
 - **Response tracking** - Search by company or role, then update status and interview date.
 - **Google Sheets storage** - Your applications live in a Sheet created in your own Google Drive.
-- **Open source** - The project is inspectable, forkable, and contribution-friendly.
+- **Open source** - The source is public on GitHub so you can inspect how it works.
 
 ## Browser Support
 
@@ -40,7 +40,7 @@ Candidex is built as a Chromium Manifest V3 extension.
 | Edge / Brave / Vivaldi | Supported, lightly tested |
 | Firefox | Future investigation |
 
-Google sign-in adapts to the browser: Chrome uses the native `chrome.identity.getAuthToken` flow, while Opera, Edge, Brave, and Vivaldi fall back to `launchWebAuthFlow`. Both paths are implemented and shipped. Coverage on the less-tested browsers will improve as contributors report results.
+Google sign-in adapts to the browser: Chrome uses the native `chrome.identity.getAuthToken` flow, while Opera, Edge, Brave, and Vivaldi fall back to `launchWebAuthFlow`. Both paths are implemented and shipped.
 
 ## Privacy
 
@@ -93,11 +93,7 @@ The official Chrome Web Store ZIP is built the same way: put the production IDs 
 4. Select `dist/candidex/browser`.
 5. Pin or open Candidex from the browser toolbar.
 
-## For Contributors
-
-Candidex is a small Angular extension project. Contributions are welcome, especially around browser compatibility, privacy-safe UX improvements, accessibility, and extension packaging.
-
-### Development
+## Development
 
 ```bash
 npm run watch
@@ -118,8 +114,6 @@ npm run watch:extension # Rebuild extension scripts on file changes
 npm test               # Run unit tests
 npm run package        # Build store ZIP (requires OAuth IDs in .env)
 ```
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the full development workflow.
 
 ### Tech Stack
 
