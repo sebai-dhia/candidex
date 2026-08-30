@@ -4,7 +4,7 @@ An open-source browser extension for tracking job applications without giving yo
 
 Candidex opens as a slide-out panel on top of the page you are browsing, lets you save applications in seconds, and keeps everything in your own Google Sheet.
 
-![Candidex in use on a job search page](public/promotional.jpg)
+![Candidex in use on a job search page](landing/images/promotional.png)
 
 ## Why Candidex?
 
@@ -35,18 +35,19 @@ Candidex is built as a Chromium Manifest V3 extension.
 
 | Browser | Status |
 | --- | --- |
-| Opera | Primary target |
-| Chrome | Expected to work, Chromium-based |
-| Edge / Brave / Vivaldi | Planned validation |
+| Chrome | Supported |
+| Opera | Supported |
+| Edge / Brave / Vivaldi | Supported, lightly tested |
 | Firefox | Future investigation |
 
-Opera is the first browser target. Support for more browsers will be improved as the extension matures and contributors test more environments.
+Google sign-in adapts to the browser: Chrome uses the native `chrome.identity.getAuthToken` flow, while Opera, Edge, Brave, and Vivaldi fall back to `launchWebAuthFlow`. Both paths are implemented and shipped. Coverage on the less-tested browsers will improve as contributors report results.
 
 ## Privacy
 
 Candidex is built around a simple rule: your job search data should belong to you.
 
-- Your applications are stored in your own Google Sheet.
+- Your applications are stored in your own Google Sheet (same Google account can access them from another browser).
+- AI API keys stay on the browser where you connect them — never in Sheets. Optional session-only mode clears the key when the browser closes.
 - Candidex does not run a backend server.
 - Candidex does not collect analytics or telemetry.
 - Candidex does not use cookies or tracking pixels.
@@ -61,9 +62,9 @@ Packaged store releases are not available yet. For now, you can install Candidex
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 22.22.3+ (see `.nvmrc`)
 - npm 10+
-- Opera, Chrome, or another Chromium-based browser
+- Chrome, Opera, or another Chromium-based browser
 
 ### Build
 
@@ -74,20 +75,13 @@ npm install
 npm run build
 ```
 
-### Load in Opera
+### Load the Extension
 
-1. Open `opera://extensions`.
+1. Open your browser's extensions page: `chrome://extensions` in Chrome, Edge, Brave, or Vivaldi, and `opera://extensions` in Opera.
 2. Enable **Developer mode**.
 3. Click **Load unpacked**.
 4. Select `dist/candidex/browser`.
 5. Pin or open Candidex from the browser toolbar.
-
-### Load in Chrome or Other Chromium Browsers
-
-1. Open your browser's extensions page, such as `chrome://extensions`.
-2. Enable **Developer mode**.
-3. Click **Load unpacked**.
-4. Select `dist/candidex/browser`.
 
 ## For Contributors
 
@@ -101,14 +95,21 @@ npm run watch
 
 After each rebuild, refresh the unpacked extension from your browser's extensions page.
 
+When editing files under `src/extension/`, run `npm run build:extension` (or a full `npm run build`) before reloading the extension.
+
 ### Scripts
 
 ```bash
-npm run start     # Start Angular dev server
-npm run build     # Build extension bundle
-npm run watch     # Rebuild on file changes
-npm run package   # Build and create extension zip
+npm run start          # Start Angular dev server
+npm run build          # Build Angular app + extension scripts
+npm run build:extension # Build background.js and content.js only
+npm run watch          # Rebuild Angular app on file changes
+npm run watch:extension # Rebuild extension scripts on file changes
+npm test               # Run unit tests
+npm run package        # Build and create extension zip
 ```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the full development workflow.
 
 ### Tech Stack
 
@@ -127,14 +128,20 @@ npm run package   # Build and create extension zip
 ```txt
 src/
 |-- manifest.json              # Extension manifest
-|-- background.js              # Service worker
-|-- content.js                 # Slide-out panel injection
+|-- extension/                 # Extension scripts (built with esbuild)
+|   |-- background/            # Service worker modules
+|   |-- content/
+|   |   |-- overlay/           # Slide-out iframe panel
+|   |   |-- capture/           # AI region select, review card, styles
+|   |   |-- extraction/        # AI fallback chain
+|   |   `-- messaging/         # Runtime + postMessage bridge
+|   `-- shared/                # Shared prompts and message constants
 |-- app/
 |   |-- app.ts                 # Root component
 |   |-- core/
 |   |   |-- constants/         # Shared option and country constants
-|   |   |-- models/            # Shared TypeScript models
-|   |   |-- services/          # Auth and Google Sheets services
+|   |   |-- repositories/      # Application data access
+|   |   |-- services/          # Auth, Google Sheets, extension bridge, AI capture
 |   |   `-- utils/             # Shared mapping helpers
 |   `-- features/
 |       |-- application/       # New application form
@@ -149,11 +156,13 @@ src/
 - The extension requests only the permissions needed for auth, storage, active tab access, and UI injection.
 - JavaScript runs from the extension bundle; no remote code is loaded.
 - Application data stays in the user's Google account.
+- AI keys and OAuth tokens use browser storage only (`chrome.storage.local` / `chrome.storage.session`), not Google Sheets.
+- For **paid** providers (Claude, OpenAI, DeepSeek): use a **dedicated key** with a **spend limit** in the provider console — not your main production key.
 
 ## Roadmap
 
 - Improve packaged release flow.
-- Validate more Chromium-based browsers.
+- Broaden test coverage on Edge, Brave, and Vivaldi.
 - Investigate Firefox support.
 - Improve accessibility and keyboard navigation.
 - Add optional browser-store screenshots and documentation.
