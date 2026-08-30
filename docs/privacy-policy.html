@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Candidex Privacy Policy</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #111827;
+        --muted: #5f6b7a;
+        --line: #dfe6f0;
+        --brand: #6255f6;
+        --brand-strong: #4738ec;
+        --bg: #f7f9fd;
+      }
+      body {
+        margin: 0;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: var(--bg);
+        line-height: 1.6;
+      }
+      a {
+        color: var(--brand-strong);
+      }
+      a:focus-visible {
+        outline: 2px solid var(--brand);
+        outline-offset: 2px;
+      }
+      .site-header {
+        border-bottom: 1px solid var(--line);
+        background: white;
+      }
+      .site-header-inner {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 1rem 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.65rem;
+        font-weight: 800;
+        text-decoration: none;
+        color: var(--ink);
+        letter-spacing: -0.03em;
+      }
+      .brand img {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+      }
+      .back-link {
+        font-size: 0.92rem;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      main {
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 2.5rem 1.25rem 4rem;
+      }
+      h1,
+      h2 {
+        letter-spacing: -0.02em;
+      }
+      h1 {
+        font-size: 2rem;
+        margin: 0 0 0.35rem;
+      }
+      h2 {
+        font-size: 1.15rem;
+        margin: 2rem 0 0.75rem;
+      }
+      p,
+      li {
+        color: var(--muted);
+      }
+      .meta {
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.92rem;
+        margin: 1rem 0;
+        display: block;
+        overflow-x: auto;
+      }
+      th,
+      td {
+        border: 1px solid var(--line);
+        padding: 0.65rem 0.75rem;
+        text-align: left;
+        vertical-align: top;
+        min-width: 8rem;
+      }
+      th {
+        background: #fff;
+        color: var(--ink);
+      }
+      hr {
+        border: 0;
+        border-top: 1px solid var(--line);
+        margin: 1.5rem 0;
+      }
+      code {
+        font-size: 0.88em;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="site-header-inner">
+        <a class="brand" href="../index.html">
+          <img src="../public/candidex_logo.png" alt="Candidex" width="32" height="32" />
+          <span>Candidex</span>
+        </a>
+        <a class="back-link" href="../index.html">Back to home</a>
+      </div>
+    </header>
+    <main>
+      <h1>Privacy Policy</h1>
+      <p class="meta"><strong>Candidex — Job Application Tracker</strong><br />Last updated: August 28, 2026</p>
+
+      <h2>Summary</h2>
+      <p>
+        Candidex is a browser extension that helps you track job applications using
+        <strong>your own Google Sheet</strong> and, optionally, a
+        <strong>personal AI provider</strong> you connect yourself. Candidex has no
+        backend server of its own. Data stays under your control in your Google
+        account, your chosen AI provider, and local browser storage.
+      </p>
+
+      <hr />
+
+      <h2>What data Candidex accesses</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Purpose</th>
+            <th>Where it's stored / sent</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Google account identity</td>
+            <td>Authenticate via Google OAuth so the extension can read/write your Sheet</td>
+            <td>
+              Chrome <code>identity</code> API; OAuth access tokens are cached in
+              <code>chrome.storage.session</code> for the current browser session
+            </td>
+          </tr>
+          <tr>
+            <td>Google Sheets data</td>
+            <td>Read and write job application entries (role, company, status, etc.)</td>
+            <td>
+              A single Google Sheet in <strong>your</strong> Google Drive — synced via your Google
+              account across devices
+            </td>
+          </tr>
+          <tr>
+            <td>Selected page text / job posting snippets</td>
+            <td>Optional AI-assisted capture to extract role, company, location, and work type</td>
+            <td>
+              Sent only to the <strong>AI provider you configure</strong> (for example Groq,
+              OpenRouter, Gemini, DeepSeek, Anthropic, or OpenAI)
+            </td>
+          </tr>
+          <tr>
+            <td>Provider API keys</td>
+            <td>Authenticate your personal AI Engine</td>
+            <td>
+              <code>chrome.storage.local</code> or <code>chrome.storage.session</code> on your
+              device only — <strong>never</strong> in Google Sheets
+            </td>
+          </tr>
+          <tr>
+            <td>Extension preferences</td>
+            <td>Spreadsheet ID, locale, setup status, cached sheet rows</td>
+            <td><code>chrome.storage.local</code> on your device only (per browser install)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>What data Candidex does NOT access</h2>
+      <ul>
+        <li>We do <strong>not</strong> store API keys in Google Sheets.</li>
+        <li>We do <strong>not</strong> read your full browsing history.</li>
+        <li>
+          We do <strong>not</strong> access Google Drive files other than the Sheet Candidex creates.
+        </li>
+        <li>We do <strong>not</strong> collect analytics, telemetry, or usage metrics.</li>
+        <li>We do <strong>not</strong> use cookies or tracking pixels.</li>
+        <li>We do <strong>not</strong> operate a Candidex cloud database that stores your applications.</li>
+      </ul>
+
+      <h2>Permissions explained</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Permission</th>
+            <th>Why it's needed</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>identity</code></td>
+            <td>Sign in with your Google account to access Google Sheets / Drive file APIs</td>
+          </tr>
+          <tr>
+            <td><code>storage</code></td>
+            <td>Save spreadsheet ID, locale, setup status, and AI Engine settings locally</td>
+          </tr>
+          <tr>
+            <td><code>activeTab</code> / <code>tabs</code></td>
+            <td>Open the slide-out panel and capture context from the active tab</td>
+          </tr>
+          <tr>
+            <td><code>scripting</code></td>
+            <td>Inject the extension UI and capture overlay into the active tab</td>
+          </tr>
+          <tr>
+            <td>Host permissions for AI providers</td>
+            <td>Call the provider APIs <strong>you</strong> enable for extraction / key verification</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>OAuth scope</h2>
+      <p>
+        Candidex requests the <strong><code>drive.file</code></strong> scope only. This limits access
+        to files that Candidex creates or that the user opens with the extension. The extension
+        cannot browse your entire Drive.
+      </p>
+
+      <h2>AI-assisted capture</h2>
+      <p>When you use AI Capture:</p>
+      <ol>
+        <li>You select a region (or allow extraction from page text / structured data).</li>
+        <li>Selected text may be sent to your configured provider over HTTPS.</li>
+        <li>Returned fields are shown in a review card for you to edit before saving.</li>
+        <li>Saving writes to <strong>your</strong> Google Sheet.</li>
+      </ol>
+      <p>
+        If AI fails or is unavailable, Candidex may fall back to local regex / JSON-LD extraction on
+        the page without contacting a provider.
+      </p>
+      <p>
+        You can disconnect your AI provider at any time; that removes the stored API key from
+        extension storage. You can also choose <strong>session-only</strong> key storage when
+        connecting a provider — the key is cleared when you close the browser.
+      </p>
+
+      <h2>Paid API keys (Claude, OpenAI, DeepSeek, etc.)</h2>
+      <p>If you connect a <strong>paid</strong> provider:</p>
+      <ul>
+        <li>Create a <strong>dedicated API key for Candidex</strong> — do not use your main production key.</li>
+        <li>
+          Set a <strong>monthly spend limit</strong> in your provider console (<a
+            href="https://console.anthropic.com/settings/keys"
+            rel="noopener noreferrer"
+            >Anthropic</a
+          >, <a href="https://platform.openai.com/api-keys" rel="noopener noreferrer">OpenAI</a>,
+          etc.).
+        </li>
+        <li>Prefer <strong>session-only</strong> storage on shared or work computers.</li>
+        <li>
+          <strong>Revoke and rotate</strong> the key if you suspect your machine or browser profile
+          was compromised.
+        </li>
+      </ul>
+      <p>
+        Candidex stores keys in your browser only and blocks job websites from reading them, but
+        <strong>cannot guarantee protection</strong> against malware, stolen devices, or anyone with
+        access to your Chrome profile. Provider spend limits are your strongest financial safeguard.
+      </p>
+
+      <h2>Cross-browser and multi-device use</h2>
+      <ul>
+        <li>
+          <strong>Application rows</strong> sync through your Google Sheet when you use the same Google
+          account on another device or browser.
+        </li>
+        <li>
+          <strong>API keys, locale, setup status, and cached sheet rows</strong> stay on each browser
+          install and are not synced by Candidex.
+        </li>
+        <li>
+          <strong>Sign out completely</strong> clears both your Google session and stored AI key on
+          that install.
+        </li>
+      </ul>
+
+      <h2>Data storage &amp; security</h2>
+      <ul>
+        <li><strong>No Candidex backend.</strong> There is no Candidex server that receives your sheet rows or API keys.</li>
+        <li><strong>Google Sheets</strong> traffic uses your OAuth session with Google.</li>
+        <li><strong>AI provider</strong> traffic uses the API key you supply and only goes to that provider.</li>
+        <li>
+          <strong>API keys</strong> are kept in trusted extension contexts only (Angular panel and
+          service worker). Content scripts on web pages cannot read them.
+        </li>
+        <li>
+          <strong>Local storage</strong> holds configuration and short-lived caches; clearing extension
+          data removes them.
+        </li>
+        <li>
+          <strong>Open source.</strong> Source is available at
+          <a href="https://github.com/sebai-dhia/candidex" rel="noopener noreferrer"
+            >github.com/sebai-dhia/candidex</a
+          >.
+        </li>
+      </ul>
+
+      <h2>Third-party services</h2>
+      <p>Depending on which features you use, Candidex may communicate with:</p>
+      <ul>
+        <li><strong>Google Sheets / Drive APIs</strong> (<code>sheets.googleapis.com</code>, <code>googleapis.com</code>)</li>
+        <li>
+          <strong>Your configured AI provider(s)</strong> among the supported catalog (for example
+          <code>api.groq.com</code>, <code>openrouter.ai</code>,
+          <code>generativelanguage.googleapis.com</code>, <code>api.deepseek.com</code>,
+          <code>api.anthropic.com</code>, <code>api.openai.com</code>)
+        </li>
+      </ul>
+      <p>No other analytics or advertising services are contacted by Candidex.</p>
+
+      <h2>Retention &amp; deletion</h2>
+      <ul>
+        <li>Application rows live in your Google Sheet until you delete them (in Candidex or in Sheets).</li>
+        <li>Local extension data can be removed by clearing the extension's storage or uninstalling Candidex.</li>
+        <li>AI providers retain data according to <strong>their</strong> policies; review the provider you choose.</li>
+      </ul>
+
+      <h2>Children's privacy</h2>
+      <p>
+        Candidex is not directed at children under 13 and does not knowingly collect information from
+        children.
+      </p>
+
+      <h2>Changes to this policy</h2>
+      <p>
+        If this policy is updated, the changes will be posted on this page with an updated "Last
+        updated" date.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        If you have questions about this privacy policy, please open an issue on the
+        <a href="https://github.com/sebai-dhia/candidex/issues" rel="noopener noreferrer"
+          >GitHub repository</a
+        >.
+      </p>
+
+      <p><a href="privacy-policy.md">Markdown version</a> · <a href="../index.html">Back to Candidex</a></p>
+    </main>
+  </body>
+</html>
