@@ -46,6 +46,10 @@ secrets.*
 # Extension build packages
 *.zip
 *.crx
+src/**/*.bundle.js
+
+# Generated extension bundles (esbuild → Angular assets)
+.generated/
 
 # System files
 .DS_Store
