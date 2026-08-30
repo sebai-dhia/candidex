@@ -51,9 +51,11 @@
                 "glob": "**/*",
                 "input": "public"
               },
-              "src/manifest.json",
-              "src/background.js",
-              "src/content.js"
+              {
+                "glob": "*.{js,map}",
+                "input": ".generated/extension"
+              },
+              "src/manifest.json"
             ],
             "styles": [
               "src/styles.scss"
