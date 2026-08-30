@@ -6,6 +6,8 @@
   <div
     class="ai-wizard-modal"
     [class.ai-wizard-exiting]="phase() === 'exiting'"
+    [attr.data-locale]="uiLocale()"
+    [attr.dir]="isRtl() ? 'rtl' : 'ltr'"
     (click)="$event.stopPropagation()"
     role="dialog"
     aria-modal="true"
@@ -15,7 +17,7 @@
       class="ai-wizard-close"
       (click)="close()"
       [disabled]="isBusy"
-      aria-label="Close"
+      aria-label="{{ t('nav.close') }}"
     >
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <path d="M18 6L6 18M6 6l12 12" />
@@ -28,7 +30,7 @@
         class="ai-wizard-back"
         (click)="goBack()"
         [disabled]="isBusy"
-        aria-label="Back"
+        aria-label="{{ t('nav.back') }}"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <path d="M15 18l-6-6 6-6" />
@@ -37,11 +39,11 @@
     }
 
     <div class="ai-wizard-header">
-      <h2>Personal AI Engine</h2>
-      <p>{{ headerSubtitle }}</p>
+      <h2>{{ t('setup.aiTitle') }}</h2>
+      <p>{{ headerSubtitle() }}</p>
     </div>
 
-    <div class="ai-wizard-progress" role="tablist" aria-label="Wizard steps">
+    <div class="ai-wizard-progress" role="tablist" [attr.aria-label]="t('ai.stepsAria')">
       <button
         type="button"
         class="ai-wizard-progress-step"
@@ -53,7 +55,7 @@
         (click)="goToStep(1)"
       >
         <span class="ai-wizard-progress-bar" aria-hidden="true"></span>
-        <span class="ai-wizard-progress-label">Choose provider</span>
+        <span class="ai-wizard-progress-label">{{ t('ai.stepChooseProvider') }}</span>
       </button>
       <button
         type="button"
@@ -66,7 +68,7 @@
         (click)="goToStep(2)"
       >
         <span class="ai-wizard-progress-bar" aria-hidden="true"></span>
-        <span class="ai-wizard-progress-label">Enter API key</span>
+        <span class="ai-wizard-progress-label">{{ t('ai.stepEnterKey') }}</span>
       </button>
     </div>
 
@@ -74,8 +76,8 @@
       <div class="ai-wizard-body">
         @if (isProviderDegraded) {
           <div class="ai-wizard-alert-warning" role="status">
-            <span class="ai-wizard-alert-warning-line">Your AI provider returned repeated errors.</span>
-            <span class="ai-wizard-alert-warning-line">Offline extraction until you verify your API key.</span>
+            <span class="ai-wizard-alert-warning-line">{{ t('ai.degradedLine1') }}</span>
+            <span class="ai-wizard-alert-warning-line">{{ t('ai.degradedLine2') }}</span>
           </div>
         }
         @if (step() === 1) {
@@ -92,7 +94,7 @@
                   <span class="ai-provider-icon" aria-hidden="true" [innerHTML]="providerIcon(provider.id)"></span>
                   <span class="ai-provider-name">{{ provider.displayName }}</span>
                   @if (provider.top) {
-                    <span class="ai-badge ai-badge-top">TOP</span>
+                    <span class="ai-badge ai-badge-top">{{ t('ai.badgeTop') }}</span>
                   }
                 </div>
                 <span
@@ -101,7 +103,7 @@
                   [class.ai-badge-billing]="provider.badge === 'free-billing'"
                   [class.ai-badge-paid]="provider.badge === 'paid'"
                 >
-                  {{ badgeLabel(provider.badge) }}
+                  {{ t(badgeI18nKey(provider.badge)) }}
                 </span>
               </button>
             }
@@ -120,15 +122,13 @@
             <section class="ai-step-card">
               <div class="ai-step-card-head">
                 <span class="ai-step-num">1</span>
-                <h3>Get your API Key</h3>
+                <h3>{{ t('ai.getApiKey') }}</h3>
               </div>
               <p>
-                Generate a new API key from your
-                <strong>{{ selectedProvider?.displayName }}</strong>
-                dashboard.
+                {{ t('ai.getApiKeyBody', { provider: selectedProvider?.displayName ?? t('ai.providerFallback') }) }}
               </p>
               <button type="button" class="ai-console-btn" (click)="openConsole()" [disabled]="isBusy">
-                Visit Console Dashboard
+                {{ t('ai.visitConsole') }}
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                   <path d="M15 3h6v6" />
@@ -140,7 +140,7 @@
             <section class="ai-step-card">
               <div class="ai-step-card-head">
                 <span class="ai-step-num">2</span>
-                <h3>Paste your key below</h3>
+                <h3>{{ t('ai.pasteKey') }}</h3>
               </div>
 
               @if (isSelectedProviderPaid) {
@@ -156,7 +156,7 @@
                     <li>
                       {{ t('ai.paidKeySpendLimit') }}
                       <button type="button" class="ai-console-link" (click)="openConsole()" [disabled]="isBusy">
-                        {{ t('ai.paidKeyOpenConsole', { provider: selectedProvider?.displayName ?? 'provider' }) }}
+                        {{ t('ai.paidKeyOpenConsole', { provider: selectedProvider?.displayName ?? t('ai.providerFallback') }) }}
                       </button>
                     </li>
                   </ul>
@@ -169,7 +169,7 @@
                 </svg>
                 <input
                   type="password"
-                  [placeholder]="selectedProvider?.keyPlaceholder || 'API key'"
+                  [placeholder]="selectedProvider?.keyPlaceholder || t('ai.keyPlaceholder')"
                   [ngModel]="apiKey()"
                   (ngModelChange)="apiKey.set($event)"
                   [disabled]="isBusy"
@@ -216,7 +216,7 @@
             [disabled]="!selectedProviderId() || isBusy"
             (click)="goNext()"
           >
-            Next Step
+            {{ t('ai.nextStep') }}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <path d="M9 18l6-6-6-6" />
             </svg>
@@ -231,17 +231,17 @@
           >
             @if (phase() === 'validating') {
               <span class="ai-spinner"></span>
-              Validating…
+              {{ t('ai.validating') }}
             } @else if (phase() === 'success' || phase() === 'exiting') {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <path d="M20 6L9 17l-5-5" />
               </svg>
-              Verified
+              {{ t('ai.verified') }}
             } @else {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
               </svg>
-              Secure Connection
+              {{ t('ai.secureConnection') }}
             }
           </button>
 

@@ -13,7 +13,7 @@ export function startAiCaptureWithConsent() {
     if (prefs.aiConsentGiven) {
       start();
     } else {
-      showConsentPrompt(start);
+      await showConsentPrompt(start);
     }
   });
 }

@@ -111,9 +111,7 @@ export class SetupShellFacade {
    * Confirm and disconnect Personal AI Engine. Returns true if disconnected.
    */
   async confirmDisconnectAiEngine(): Promise<boolean> {
-    const ok = window.confirm(
-      'Disconnect Personal AI Engine? Your API key will be removed from this browser. Google Sheets stays connected.'
-    );
+    const ok = window.confirm(this.locale.t('connections.disconnectAiBody'));
     if (!ok) return false;
 
     await this.aiEngine.disconnect();

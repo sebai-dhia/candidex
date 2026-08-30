@@ -13,8 +13,8 @@ import { FormsModule } from '@angular/forms';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 import { AiEngineAuthService } from '../../core/services/ai/ai-engine-auth.service';
-import { AI_PROVIDER_CATALOG, badgeLabel } from '../../core/services/ai/ai-provider.catalog';
-import { AiProviderId } from '../../core/services/ai/ai-provider.types';
+import { AI_PROVIDER_CATALOG } from '../../core/services/ai/ai-provider.catalog';
+import { AiProviderCatalogEntry, AiProviderId } from '../../core/services/ai/ai-provider.types';
 import { LocaleService } from '../../core/services/i18n/locale.service';
 import { PROVIDER_ICON_SVG } from './provider-icons';
 import { sessionOnlyDefaultForProvider } from './ai-wizard-defaults';
@@ -43,7 +43,9 @@ export class AiEngineWizardComponent {
   private readonly destroyRef = inject(DestroyRef);
 
   readonly catalog = AI_PROVIDER_CATALOG;
-  readonly badgeLabel = badgeLabel;
+  /** Keeps OnPush templates in sync when language changes. */
+  readonly uiLocale = this.locale.locale;
+  readonly isRtl = this.locale.isRtl;
 
   step = signal<1 | 2>(1);
   selectedProviderId = signal<AiProviderId | null>(null);
@@ -72,14 +74,17 @@ export class AiEngineWizardComponent {
     return this.catalog.find((entry) => entry.id === id) ?? null;
   }
 
-  get headerSubtitle(): string {
+  headerSubtitle(): string {
+    this.uiLocale();
     if (this.step() === 2) {
-      return `Configure your ${this.selectedProvider?.displayName ?? 'provider'} connection`;
+      return this.t('ai.headerConfigure', {
+        provider: this.selectedProvider?.displayName ?? this.t('ai.providerFallback'),
+      });
     }
     if (this.mode() === 'manage' && this.aiAuth.isConnected()) {
-      return 'Update your API key or switch provider.';
+      return this.t('ai.headerManage');
     }
-    return 'Link your own API key to bypass shared limits.';
+    return this.t('ai.headerOnboard');
   }
 
   get isBusy(): boolean {
@@ -95,7 +100,14 @@ export class AiEngineWizardComponent {
     return this.selectedProvider?.badge === 'paid';
   }
 
+  badgeI18nKey(badge: AiProviderCatalogEntry['badge']): string {
+    if (badge === 'free') return 'ai.badgeFree';
+    if (badge === 'free-billing') return 'ai.badgeFreeBilling';
+    return 'ai.badgePaid';
+  }
+
   t(key: string, params?: Record<string, string | number>): string {
+    this.uiLocale();
     return this.locale.t(key, params);
   }
 
@@ -119,7 +131,7 @@ export class AiEngineWizardComponent {
   goNext(): void {
     if (this.isBusy) return;
     if (!this.selectedProviderId()) {
-      this.showError('Select a provider to continue.');
+      this.showError(this.t('ai.selectProvider'));
       return;
     }
     this.clearError();
@@ -143,7 +155,7 @@ export class AiEngineWizardComponent {
     }
 
     if (!this.selectedProviderId()) {
-      this.showError('Select a provider to continue.');
+      this.showError(this.t('ai.selectProvider'));
       return;
     }
 
@@ -168,11 +180,11 @@ export class AiEngineWizardComponent {
     const providerId = this.selectedProviderId();
     const key = this.apiKey().trim();
     if (!providerId) {
-      this.showError('Select a provider first.');
+      this.showError(this.t('ai.selectProviderFirst'));
       return;
     }
     if (!key) {
-      this.showError('Paste your API key to continue.');
+      this.showError(this.t('ai.pasteKeyContinue'));
       return;
     }
 
@@ -205,7 +217,7 @@ export class AiEngineWizardComponent {
       this.connected.emit();
     } catch (err: unknown) {
       this.phase.set('form');
-      this.showError(err instanceof Error ? err.message : 'Failed to validate API key');
+      this.showError(err instanceof Error ? err.message : this.t('ai.validateFailed'));
       this.cdr.detectChanges();
     }
   }

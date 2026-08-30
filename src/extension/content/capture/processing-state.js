@@ -1,3 +1,5 @@
+import { tCapture } from '../../shared/i18n/capture-messages.js';
+
 export function resetCaptureProcessingState(shadow, host) {
   if (!host) return;
 
@@ -30,7 +32,7 @@ export function showCaptureProcessingError(shadow, host, message) {
   if (loader) {
     loader.innerHTML = `
       <div style="text-align: center; padding: 0 12px;">
-        <div style="color: #fca5a5; font-weight: 600; margin-bottom: 6px;">Capture failed</div>
+        <div style="color: #fca5a5; font-weight: 600; margin-bottom: 6px;">${tCapture('capture.failed')}</div>
         <div style="color: #e2e8f0; font-size: 0.82rem; line-height: 1.4;">${message}</div>
         <button type="button" id="candidex-capture-retry" style="
           margin-top: 12px;
@@ -42,7 +44,7 @@ export function showCaptureProcessingError(shadow, host, message) {
           font-size: 0.82rem;
           font-weight: 600;
           cursor: pointer;
-        ">Try again</button>
+        ">${tCapture('capture.tryAgain')}</button>
       </div>
     `;
 

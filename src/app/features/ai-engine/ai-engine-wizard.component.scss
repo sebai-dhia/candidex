@@ -74,11 +74,15 @@
 }
 
 .ai-wizard-close {
-  right: 12px;
+  inset-inline-end: 12px;
 }
 
 .ai-wizard-back {
-  left: 12px;
+  inset-inline-start: 12px;
+}
+
+[dir='rtl'] .ai-wizard-back svg {
+  transform: scaleX(-1);
 }
 
 .ai-wizard-header {
@@ -184,7 +188,7 @@
   flex-direction: column;
   gap: 10px;
   overflow-y: auto;
-  padding-right: 2px;
+  padding-inline-end: 2px;
   margin-bottom: 0;
 }
 
@@ -201,7 +205,7 @@
   background: #fff;
   box-shadow: none;
   cursor: pointer;
-  text-align: left;
+  text-align: start;
   transition: border-color 0.15s ease, background 0.15s ease;
 
   &:hover:not(:disabled):not(.selected) {
@@ -567,7 +571,7 @@
   border-radius: 12px;
   background: #fff;
   border: 1px solid #e2e8f0;
-  border-left: 3px solid #f59e0b;
+  border-inline-start: 3px solid #f59e0b;
   font-size: 0.78rem;
   line-height: 1.4;
 
@@ -596,7 +600,7 @@
 
 .ai-paid-key-callout-list {
   margin: 0;
-  padding-left: 1.15rem;
+  padding-inline-start: 1.15rem;
   color: #475569;
 }
 
@@ -606,7 +610,7 @@
 
 .ai-paid-key-callout .ai-console-link {
   display: inline;
-  margin-left: 0.15rem;
+  margin-inline-start: 0.15rem;
   padding: 0;
   border: none;
   background: transparent;

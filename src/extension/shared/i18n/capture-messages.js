@@ -275,6 +275,42 @@ const MESSAGES = {
     ar: 'فشل الاستخراج: {error}',
     zh: '提取失败：{error}'
   },
+  'capture.consentTitle': {
+    en: 'AI Quick Capture',
+    fr: 'Capture IA rapide',
+    ar: 'التقاط ذكي',
+    zh: 'AI 快速捕获'
+  },
+  'capture.consentBody': {
+    en: 'To extract job details, text from the selected area is sent to your configured Personal AI Engine provider. No other page data is shared.',
+    fr: 'Pour extraire les détails du poste, le texte de la zone sélectionnée est envoyé à votre moteur IA personnel. Aucune autre donnée de la page n’est partagée.',
+    ar: 'لاستخراج تفاصيل الوظيفة، يُرسل نص المنطقة المحددة إلى مزود محرك الذكاء الاصطناعي الذي أعددته. لا تتم مشاركة أي بيانات أخرى من الصفحة.',
+    zh: '为提取职位详情，所选区域中的文本会发送到您配置的个人 AI 引擎。不会共享页面上的其他数据。'
+  },
+  'capture.consentCancel': {
+    en: 'Cancel',
+    fr: 'Annuler',
+    ar: 'إلغاء',
+    zh: '取消'
+  },
+  'capture.consentAccept': {
+    en: 'I Understand',
+    fr: 'J’ai compris',
+    ar: 'فهمت',
+    zh: '我知道了'
+  },
+  'capture.failed': {
+    en: 'Capture failed',
+    fr: 'Échec de la capture',
+    ar: 'فشل الالتقاط',
+    zh: '捕获失败'
+  },
+  'capture.tryAgain': {
+    en: 'Try again',
+    fr: 'Réessayer',
+    ar: 'حاول مجددًا',
+    zh: '重试'
+  },
 };
 
 const WORK_TYPE_LABEL_KEYS = {

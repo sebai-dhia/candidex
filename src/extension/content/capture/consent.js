@@ -2,9 +2,12 @@ import { setAiConsentGiven } from '../../shared/storage/content-prefs.js';
 import { CONSENT_OVERLAY_ID } from '../overlay/state.js';
 import { cancelAiCapture, handleCaptureEscape, releaseSidebarFocus } from './capture-lifecycle.js';
 import { isolateCaptureHost } from '../../shared/i18n/capture-locale-ui.js';
+import { loadCaptureLocale, tCapture } from '../../shared/i18n/capture-messages.js';
 
-export function showConsentPrompt(onAccept) {
+export async function showConsentPrompt(onAccept) {
   if (document.getElementById(CONSENT_OVERLAY_ID)) return;
+
+  await loadCaptureLocale();
 
   const overlay = document.createElement('div');
   overlay.id = CONSENT_OVERLAY_ID;
@@ -23,25 +26,26 @@ export function showConsentPrompt(onAccept) {
 
   const dialog = document.createElement('div');
   dialog.style.backgroundColor = 'white';
-  dialog.style.padding = '24px';
-  dialog.style.borderRadius = '12px';
-  dialog.style.maxWidth = '400px';
+  dialog.style.boxSizing = 'border-box';
+  dialog.style.padding = '1.5rem';
+  dialog.style.borderRadius = '0.75rem';
+  dialog.style.width = '45rem';
+  dialog.style.maxWidth = '45rem';
   dialog.style.boxShadow = '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)';
   dialog.style.fontFamily = 'system-ui, -apple-system, sans-serif';
 
   const title = document.createElement('h3');
-  title.innerText = 'AI Quick Capture';
-  title.style.margin = '0 0 12px 0';
-  title.style.fontSize = '1.25rem';
+  title.innerText = tCapture('capture.consentTitle');
+  title.style.margin = '0 0 0.75rem 0';
+  title.style.fontSize = '1.75rem';
   title.style.color = '#0f172a';
 
   const body = document.createElement('p');
-  body.innerText =
-    'To extract job details, text from the selected area is sent to your configured Personal AI Engine provider. No other page data is shared.';
-  body.style.margin = '0 0 24px 0';
+  body.innerText = tCapture('capture.consentBody');
+  body.style.margin = '0 0 1.5rem 0';
   body.style.color = '#475569';
-  body.style.lineHeight = '1.5';
-  body.style.fontSize = '0.95rem';
+  body.style.lineHeight = '1.45';
+  body.style.fontSize = '1.25rem';
 
   const btnContainer = document.createElement('div');
   btnContainer.style.display = 'flex';
@@ -49,7 +53,7 @@ export function showConsentPrompt(onAccept) {
   btnContainer.style.gap = '12px';
 
   const cancelBtn = document.createElement('button');
-  cancelBtn.innerText = 'Cancel';
+  cancelBtn.innerText = tCapture('capture.consentCancel');
   cancelBtn.style.padding = '8px 16px';
   cancelBtn.style.border = '1px solid #cbd5e1';
   cancelBtn.style.backgroundColor = 'white';
@@ -60,7 +64,7 @@ export function showConsentPrompt(onAccept) {
   cancelBtn.onclick = () => cancelAiCapture();
 
   const acceptBtn = document.createElement('button');
-  acceptBtn.innerText = 'I Understand';
+  acceptBtn.innerText = tCapture('capture.consentAccept');
   acceptBtn.style.padding = '8px 16px';
   acceptBtn.style.border = 'none';
   acceptBtn.style.backgroundColor = '#6366f1';
