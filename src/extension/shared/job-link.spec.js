@@ -91,15 +91,63 @@ describe('resolveJobLink', () => {
     ]
   };
 
-  it('returns null outside TanitJobs', () => {
-    expect(resolveJobLink('https://www.linkedin.com/jobs/view/1', offerRoot)).toBeNull();
+  it('resolves LinkedIn search mode with currentJobId parameter', () => {
+    expect(
+      resolveJobLink(
+        'https://www.linkedin.com/jobs/search/?currentJobId=4461592016&geoId=102509662&keywords=AI-Native'
+      )
+    ).toBe('https://www.linkedin.com/jobs/view/4461592016/');
   });
 
-  it('returns null on completed offer page (tab URL is already correct)', () => {
+  it('resolves LinkedIn collections URL with currentJobId parameter', () => {
+    expect(
+      resolveJobLink(
+        'https://www.linkedin.com/jobs/collections/recommended/?currentJobId=4461592016'
+      )
+    ).toBe('https://www.linkedin.com/jobs/view/4461592016/');
+  });
+
+  it('canonicalizes LinkedIn direct view URL with tracking parameters', () => {
+    expect(
+      resolveJobLink(
+        'https://www.linkedin.com/jobs/view/4461592016/?alternateChannel=search&refId=abc&trackingId=xyz'
+      )
+    ).toBe('https://www.linkedin.com/jobs/view/4461592016/');
+  });
+
+  it('resolves LinkedIn search URL by querying DOM anchor when currentJobId is not in URL', () => {
+    const root = {
+      querySelector: (selector) => {
+        if (selector === 'a[href*="/jobs/view/"]') {
+          return {
+            getAttribute: () => '/jobs/view/4461592016/?refId=123'
+          };
+        }
+        return null;
+      }
+    };
+    expect(
+      resolveJobLink('https://www.linkedin.com/jobs/search/?keywords=Developer', root)
+    ).toBe('https://www.linkedin.com/jobs/view/4461592016/');
+  });
+
+  it('resolves Indeed search URL with vjk parameter', () => {
+    expect(
+      resolveJobLink('https://www.indeed.com/jobs?q=developer&l=Remote&vjk=7d4b6ef12a3c')
+    ).toBe('https://www.indeed.com/viewjob?jk=7d4b6ef12a3c');
+  });
+
+  it('resolves Glassdoor job URL with jl parameter', () => {
+    expect(
+      resolveJobLink('https://www.glassdoor.com/Job/jobs.htm?jl=1008923412&pos=101')
+    ).toBe('https://www.glassdoor.com/job-listing?jl=1008923412');
+  });
+
+  it('returns null on TanitJobs completed offer page', () => {
     expect(resolveJobLink(REAL_OFFER, offerRoot)).toBeNull();
   });
 
-  it('resolves CTA on intermediate list/search only', () => {
+  it('resolves TanitJobs CTA on intermediate list/search', () => {
     expect(resolveJobLink(INTERMEDIATE, offerRoot)).toBe(REAL_OFFER);
   });
 });

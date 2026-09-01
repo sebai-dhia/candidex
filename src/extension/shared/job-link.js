@@ -1,10 +1,11 @@
 /**
  * Platform-specific job URL resolution.
  *
- * TanitJobs has two surfaces:
- * - Completed offer page (`/job/{id}/…`) — tab URL is already the real link.
- * - Intermediate list/search (`/jobs/?…`) — address bar is shared; the real
- *   posting is behind the in-page "Voir l'offre complète" link.
+ * Converts search/list intermediate URLs with job IDs into direct canonical job links:
+ * - LinkedIn: /jobs/search/?currentJobId=12345 → https://www.linkedin.com/jobs/view/12345/
+ * - Indeed: /jobs?q=...&vjk=abc123def → https://www.indeed.com/viewjob?jk=abc123def
+ * - Glassdoor: /Job/...jl=12345 → https://www.glassdoor.com/job-listing?jl=12345
+ * - TanitJobs: /jobs/?... with in-page CTA → /job/{id}/{slug}/
  */
 
 const TANIT_OFFER_LINK_RE = /voir(?:e)?\s+(?:l['’]?\s*)?offre\s+compl[eè]te/i;
@@ -96,36 +97,131 @@ export function pickTanitJobsOfferHref(links, baseUrl) {
 }
 
 /**
- * Resolve a canonical job posting URL when the tab URL is the intermediate
- * TanitJobs list/search. Returns null when the tab URL is already fine
- * (completed offer page, or any non-TanitJobs host).
+ * Resolve LinkedIn search or direct URL into a clean canonical job view URL.
+ * e.g. https://www.linkedin.com/jobs/search/?currentJobId=4461592016 → https://www.linkedin.com/jobs/view/4461592016/
+ * @param {URL} parsed
+ * @param {ParentNode | null} [root]
+ * @returns {string | null}
+ */
+function resolveLinkedInJobLink(parsed, root) {
+  const host = parsed.hostname.toLowerCase();
+  if (host !== 'linkedin.com' && !host.endsWith('.linkedin.com')) {
+    return null;
+  }
+
+  // 1. Direct view path: /jobs/view/4461592016/...
+  const viewMatch = parsed.pathname.match(/\/jobs\/view\/(\d+)/i);
+  if (viewMatch) {
+    return `https://www.linkedin.com/jobs/view/${viewMatch[1]}/`;
+  }
+
+  // 2. Query param currentJobId (search mode or collections)
+  const currentJobId = parsed.searchParams.get('currentJobId');
+  if (currentJobId && /^\d+$/.test(currentJobId.trim())) {
+    return `https://www.linkedin.com/jobs/view/${currentJobId.trim()}/`;
+  }
+
+  // 3. Check DOM anchor tags for selected job view links
+  if (root) {
+    const jobLinkAnchor = root.querySelector?.('a[href*="/jobs/view/"]');
+    if (jobLinkAnchor) {
+      const href = jobLinkAnchor.getAttribute('href') || '';
+      const anchorMatch = href.match(/\/jobs\/view\/(\d+)/i);
+      if (anchorMatch) {
+        return `https://www.linkedin.com/jobs/view/${anchorMatch[1]}/`;
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Resolve Indeed search or direct URL into a clean canonical job view URL.
+ * e.g. https://www.indeed.com/jobs?q=...&vjk=7d4b6ef12a3 → https://www.indeed.com/viewjob?jk=7d4b6ef12a3
+ * @param {URL} parsed
+ * @returns {string | null}
+ */
+function resolveIndeedJobLink(parsed) {
+  const host = parsed.hostname.toLowerCase();
+  if (host !== 'indeed.com' && !host.endsWith('.indeed.com')) {
+    return null;
+  }
+
+  const jk =
+    parsed.searchParams.get('vjk') ||
+    parsed.searchParams.get('jk') ||
+    parsed.searchParams.get('vjs');
+  if (jk && /^[a-zA-Z0-9]+$/.test(jk.trim())) {
+    return `https://${parsed.hostname}/viewjob?jk=${jk.trim()}`;
+  }
+
+  return null;
+}
+
+/**
+ * Resolve Glassdoor search or direct URL into a clean canonical job view URL.
+ * e.g. https://www.glassdoor.com/Job/...jl=10089234 → https://www.glassdoor.com/job-listing?jl=10089234
+ * @param {URL} parsed
+ * @returns {string | null}
+ */
+function resolveGlassdoorJobLink(parsed) {
+  const host = parsed.hostname.toLowerCase();
+  if (host !== 'glassdoor.com' && !host.endsWith('.glassdoor.com')) {
+    return null;
+  }
+
+  const jl = parsed.searchParams.get('jl') || parsed.searchParams.get('jobListingId');
+  if (jl && /^\d+$/.test(jl.trim())) {
+    return `https://${parsed.hostname}/job-listing?jl=${jl.trim()}`;
+  }
+
+  return null;
+}
+
+/**
+ * Resolve a canonical direct job posting URL from a page URL.
+ * Works across LinkedIn, Indeed, Glassdoor, and TanitJobs.
+ * Returns null if the URL cannot be resolved or is already canonical.
  *
  * @param {string} pageUrl
  * @param {ParentNode | null | undefined} root
  * @returns {string | null}
  */
 export function resolveJobLink(pageUrl, root = typeof document !== 'undefined' ? document : null) {
-  if (!pageUrl || !root) return null;
+  if (!pageUrl) return null;
 
-  let hostname;
+  let parsed;
   try {
-    hostname = new URL(pageUrl).hostname;
+    parsed = new URL(pageUrl);
   } catch {
     return null;
   }
 
-  if (!isTanitJobsHost(hostname)) return null;
+  // 1. LinkedIn
+  const linkedInLink = resolveLinkedInJobLink(parsed, root);
+  if (linkedInLink) return linkedInLink;
 
-  // Completed offer page — keep tab URL; do not rewrite.
-  if (isTanitJobsJobOfferUrl(pageUrl)) return null;
+  // 2. Indeed
+  const indeedLink = resolveIndeedJobLink(parsed);
+  if (indeedLink) return indeedLink;
 
-  // Intermediate list/search only — pull the real link from the CTA.
-  if (!isTanitJobsIntermediateUrl(pageUrl)) return null;
+  // 3. Glassdoor
+  const glassdoorLink = resolveGlassdoorJobLink(parsed);
+  if (glassdoorLink) return glassdoorLink;
 
-  const links = [...root.querySelectorAll('a[href]')].map((anchor) => ({
-    text: anchor.textContent || '',
-    href: anchor.getAttribute('href')
-  }));
+  // 4. TanitJobs
+  if (isTanitJobsHost(parsed.hostname)) {
+    if (isTanitJobsJobOfferUrl(pageUrl)) return null;
+    if (!isTanitJobsIntermediateUrl(pageUrl)) return null;
 
-  return pickTanitJobsOfferHref(links, pageUrl);
+    const links = [...(root?.querySelectorAll?.('a[href]') || [])].map((anchor) => ({
+      text: anchor.textContent || '',
+      href: anchor.getAttribute('href')
+    }));
+
+    return pickTanitJobsOfferHref(links, pageUrl);
+  }
+
+  return null;
 }
