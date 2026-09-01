@@ -66,6 +66,8 @@ export class ApplicationRepository {
     return this.applications();
   }
 
+  private readonly inFlightSaves = new Set<string>();
+
   async createApplication(input: CreateApplicationInput, options: CreateApplicationOptions = {}): Promise<void> {
     const application: ApplicationRow = {
       id: input.id || this.createApplicationId(),
@@ -82,22 +84,36 @@ export class ApplicationRepository {
       work_type: input.work_type || ''
     };
 
-    if (!options.allowDuplicate) {
-      const existing = await this.listApplications();
-      const duplicate = findDuplicateApplication(existing, application);
-      if (duplicate) {
-        throw new DuplicateApplicationError(duplicate);
-      }
+    const inFlightKey = `${application.role.toLowerCase().trim()}|${application.company.toLowerCase().trim()}`;
+    if (!options.allowDuplicate && this.inFlightSaves.has(inFlightKey)) {
+      console.warn('[Applications] Duplicate creation already in-flight:', inFlightKey);
+      return;
     }
 
-    await this.sheets.appendRow(mapApplicationToSheetRow(application));
-    this.applications.update((list) =>
-      list.some((row) => row.id === application.id) ? list : [application, ...list]
-    );
-    this.hydrated.set(true);
+    if (!options.allowDuplicate) {
+      this.inFlightSaves.add(inFlightKey);
+    }
 
-    // Background reconcile with Sheets (ignore stale overlapping responses via generation).
-    void this.refreshApplications();
+    try {
+      if (!options.allowDuplicate) {
+        const existing = await this.listApplications();
+        const duplicate = findDuplicateApplication(existing, application);
+        if (duplicate) {
+          throw new DuplicateApplicationError(duplicate);
+        }
+      }
+
+      await this.sheets.appendRow(mapApplicationToSheetRow(application));
+      this.applications.update((list) =>
+        list.some((row) => row.id === application.id) ? list : [application, ...list]
+      );
+      this.hydrated.set(true);
+
+      // Background reconcile with Sheets (ignore stale overlapping responses via generation).
+      void this.refreshApplications();
+    } finally {
+      this.inFlightSaves.delete(inFlightKey);
+    }
   }
 
   async createFromAiCapture(input: AiCapturedApplicationInput): Promise<void> {
