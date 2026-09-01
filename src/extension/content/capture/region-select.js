@@ -291,7 +291,7 @@ export async function startAiCaptureOverlay() {
       background-color: rgba(15, 23, 42, 0.7);
       color: #f8fafc;
       font-family: system-ui, -apple-system, sans-serif;
-      font-size: 0.9rem;
+      font-size: 13px;
       font-weight: 500;
       border-radius: inherit;
       pointer-events: none;

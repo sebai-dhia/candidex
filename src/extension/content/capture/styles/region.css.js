@@ -42,7 +42,7 @@ export const REGION_CSS = `.candidex-selection {
   border: none;
   color: #f8fafc;
   padding: 6px 12px;
-  font-size: 0.85rem;
+  font-size: 12px;
   font-weight: 600;
   border-radius: 6px;
   cursor: pointer;

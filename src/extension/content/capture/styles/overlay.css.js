@@ -22,7 +22,7 @@ export const OVERLAY_CSS = `
   padding: 10px 20px;
   border-radius: 9999px;
   font-family: system-ui, -apple-system, sans-serif;
-  font-size: 0.95rem;
+  font-size: 13px;
   font-weight: 500;
   pointer-events: none;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);

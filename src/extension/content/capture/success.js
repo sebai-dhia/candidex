@@ -50,14 +50,14 @@ export async function showSuccessCheckmark() {
         font-weight: 700;
         color: #ecfdf5;
         font-family: system-ui, -apple-system, sans-serif;
-        font-size: 1.2rem;
+        font-size: 16px;
         line-height: 1.2;
         text-align: center;
       }
       .candidex-success-subtitle {
         color: rgba(236, 253, 245, 0.8);
         font-family: system-ui, -apple-system, sans-serif;
-        font-size: 1rem;
+        font-size: 13px;
         line-height: 1.35;
         text-align: center;
         max-width: 260px;

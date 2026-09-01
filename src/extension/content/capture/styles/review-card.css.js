@@ -32,7 +32,7 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
 }
 .candidex-card-title {
   font-family: system-ui, -apple-system, sans-serif;
-  font-size: 1.45rem;
+  font-size: 16px;
   font-weight: 800;
   display: flex;
   align-items: center;
@@ -41,7 +41,7 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
   color: #0f172a;
 }
 .candidex-card-subtitle {
-  font-size: 1.05rem;
+  font-size: 12px;
   color: #64748b;
   flex: 1;
   min-width: 0;
@@ -51,7 +51,7 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  min-height: 1.4rem;
+  min-height: 16px;
 }
 .candidex-form-group {
   display: flex;
@@ -62,7 +62,7 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
 }
 .candidex-form-label {
   font-family: system-ui, -apple-system, sans-serif;
-  font-size: 1.1rem;
+  font-size: 11px;
   font-weight: 700;
   color: #475569;
   text-transform: uppercase;
@@ -78,9 +78,9 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
   background-color: #f8fafc;
   border: 1px solid #e2e8f0;
   color: #0f172a;
-  padding: 10px 14px;
+  padding: 8px 12px;
   border-radius: 7px;
-  font-size: 1.3rem;
+  font-size: 13px;
   font-family: system-ui, -apple-system, sans-serif;
   transition: all 0.2s ease;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
@@ -115,9 +115,9 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
   background-color: #f8fafc;
   border: 1px solid #e2e8f0;
   color: #0f172a;
-  padding: 10px 42px 10px 14px;
+  padding: 8px 42px 8px 12px;
   border-radius: 7px;
-  font-size: 1.3rem;
+  font-size: 13px;
   cursor: pointer;
   outline: none;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
@@ -139,7 +139,7 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
   margin-bottom: 2px;
 }
 .candidex-badge {
-  font-size: 0.95rem;
+  font-size: 11px;
   font-weight: 600;
   padding: 3px 10px;
   border-radius: 9999px;
@@ -233,7 +233,7 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
   color: #065f46;
   padding: 4px 12px;
   border-radius: 9999px;
-  font-size: 0.9rem;
+  font-size: 11px;
   font-weight: 600;
 }
 .candidex-conf-dot {
@@ -248,10 +248,10 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
   background-color: #f5f3ff;
   border: 1px solid #ddd6fe;
   border-radius: 8px;
-  padding: 12px 16px;
+  padding: 10px 14px;
   margin-top: 6px;
   color: #4c1d95;
-  font-size: 1.05rem;
+  font-size: 12px;
 }
 .candidex-privacy-icon {
   color: #8b5cf6;
@@ -269,7 +269,7 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
 }
 .candidex-privacy-desc {
   color: #6d28d9;
-  font-size: 0.95rem;
+  font-size: 11px;
 }
 .candidex-btn-retake {
   border: 1px solid #e2e8f0;
@@ -296,9 +296,9 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
 .candidex-btn {
   background: none;
   border: none;
-  padding: 10px 20px;
+  padding: 8px 18px;
   font-family: system-ui, -apple-system, sans-serif;
-  font-size: 1.2rem;
+  font-size: 13px;
   font-weight: 700;
   border-radius: 8px;
   cursor: pointer;
@@ -337,7 +337,7 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
 .candidex-error-message {
   display: none;
   color: #ef4444;
-  font-size: 0.75rem;
+  font-size: 11px;
   font-weight: 500;
   margin-top: 4px;
   background-color: rgba(239, 68, 68, 0.1);
@@ -387,7 +387,7 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
 }
 .candidex-duplicate-title {
   margin: 0 0 12px;
-  font-size: 1.625rem;
+  font-size: 18px;
   font-weight: 800;
   line-height: 1.25;
   color: #78350f;
@@ -395,14 +395,14 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
 .candidex-duplicate-text {
   margin: 0 0 10px;
   line-height: 1.45;
-  font-size: 1.25rem;
+  font-size: 14px;
   font-weight: 600;
   color: #92400e;
 }
 .candidex-duplicate-date {
   margin: 0 0 18px;
   line-height: 1.4;
-  font-size: 1.125rem;
+  font-size: 12px;
   font-weight: 500;
   color: #b45309;
 }
@@ -415,11 +415,11 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
 .candidex-btn-dup-secondary,
 .candidex-btn-dup-primary {
   cursor: pointer;
-  min-height: 48px;
-  min-width: 140px;
-  padding: 12px 18px;
+  min-height: 44px;
+  min-width: 130px;
+  padding: 10px 16px;
   border-radius: 8px;
-  font-size: 1.0625rem;
+  font-size: 13px;
   font-weight: 600;
   transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
@@ -461,7 +461,7 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
 }
 .candidex-extraction-status {
   flex-shrink: 0;
-  font-size: 1.05rem;
+  font-size: 12px;
   font-weight: 500;
   line-height: 1.35;
   white-space: nowrap;
@@ -493,9 +493,9 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
   background-color: #f8fafc;
   border: 1px solid #e2e8f0;
   color: #0f172a;
-  padding: 10px 14px;
+  padding: 8px 12px;
   border-radius: 7px;
-  font-size: 1.3rem;
+  font-size: 13px;
   font-family: system-ui, -apple-system, sans-serif;
   cursor: pointer;
   width: 100%;
@@ -550,8 +550,8 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 16px;
-  font-size: 1.25rem;
+  padding: 10px 14px;
+  font-size: 13px;
   font-family: system-ui, -apple-system, sans-serif;
   color: #0f172a;
   cursor: pointer;
