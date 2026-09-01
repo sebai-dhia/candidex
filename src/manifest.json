@@ -2,8 +2,7 @@
   "manifest_version": 3,
   "name": "Candidex",
   "version": "1.0.0",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzml9BEmqkyF1mj5vH+5lrehhlPLiZvMZv+57rVqAWdXFu1Rf8x71jl2u3h6+tvhiKT8gOKad1xMjWJ/c7ctpGX+XTlH1Adb13tJeZXahBv/TChGtML8qQrpLbqCgl+J3S1aWYFHTuD4ZESh2lHFR37PEasPA5Mxj2ZWWyioxVp1vFiQOL1YSjpCpHffsre2hx/QymFZlkwmZFgTGGc1STD12B18N224F3SkD1eZbOeoUX6hPCpfz3URVqJax9AuWT8CtqopaN6kGhYOCI7ysdYydI8IAwwEa12+uqqmrrB9kmMnFlZLI9D6SeJO8dKWnjLqFI7BhXgIiYiyWp9xqxwIDAQAB",
-
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAws1R5e7IO0UzUCOYQUgScxDRZhglI3nGCqfmEXsEHj57JZLScQB+Yq38O5c8y+Q3iOIKTorq017wTe37MxhMECwWNCqdW7m6+d+wPeOu250xKAXt6wyqfuaFyAoM0ljXxndgEEvg3czC0skJfYG2UolUUF/aynxWB0TmgO3wkGWvMectynJbJQKCyniS1ZMguhkNHmMD6qTaarg0+zz1OACM5V7qnO5Raxc2DKMR2hdkqUVC93Y/qLqHkkDLHeC6n31+zRjLDhwieZeL9nG5e6VD+rKWr6Jlsft63Ox3gbl2oNMKHb4BnSkDP34ObzppSu4EVEXuEvjlDhhZ8jlgMwIDAQAB",
   "icons": {
     "16": "icon-16.png",
     "48": "icon-48.png",
@@ -29,17 +28,26 @@
   ],
   "oauth2": {
     "client_id": "",
-    "scopes": ["https://www.googleapis.com/auth/drive.file"]
+    "scopes": [
+      "https://www.googleapis.com/auth/drive.file"
+    ]
   },
   "background": {
     "service_worker": "background.js",
     "type": "module"
   },
-
   "web_accessible_resources": [
     {
-      "resources": ["index.html", "candidex_logo.png", "ai_capture.png", "*.woff", "*.woff2"],
-      "matches": ["<all_urls>"],
+      "resources": [
+        "index.html",
+        "candidex_logo.png",
+        "ai_capture.png",
+        "*.woff",
+        "*.woff2"
+      ],
+      "matches": [
+        "<all_urls>"
+      ],
       "use_dynamic_url": true
     }
   ],
