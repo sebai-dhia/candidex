@@ -71,6 +71,7 @@ export class Tracking {
   newInterviewDate = signal('');
   confirmingDelete = signal(false);
   statusDropdownOpen = signal(false);
+  statusDropdownUpward = signal(false);
 
   /** Row id pending scroll/highlight from ?focus= */
   private pendingFocusId = signal<string | null>(null);
@@ -257,6 +258,18 @@ export class Tracking {
     this.error.set('');
     this.confirmingDelete.set(false);
     this.statusDropdownOpen.set(false);
+    this.statusDropdownUpward.set(false);
+  }
+
+  toggleStatusDropdown(event?: MouseEvent) {
+    if (this.isSaving()) return;
+    const next = !this.statusDropdownOpen();
+    if (next && event?.currentTarget) {
+      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      this.statusDropdownUpward.set(spaceBelow < 185);
+    }
+    this.statusDropdownOpen.set(next);
   }
 
   cancelEdit(event: Event) {
@@ -268,6 +281,7 @@ export class Tracking {
     this.selectedApp.set(null);
     this.confirmingDelete.set(false);
     this.statusDropdownOpen.set(false);
+    this.statusDropdownUpward.set(false);
   }
 
   formatDate(dateStr: string): string {

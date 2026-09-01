@@ -168,7 +168,7 @@ export class AiEngineWizardComponent {
     this.closed.emit();
   }
 
-  handleWizardEnter(event: KeyboardEvent): void {
+  handleWizardEnter(event: Event): void {
     const target = event.target as HTMLElement;
     const tag = target.tagName;
 
