@@ -10,7 +10,7 @@ const listeners = [];
 
 function ensureContentPort() {
   if (contentPort) return contentPort;
-  if (typeof chrome === 'undefined' || !chrome?.runtime?.connect) return null;
+  if (typeof chrome === 'undefined' || !chrome?.runtime?.connect || !chrome?.runtime?.id) return null;
 
   try {
     contentPort = chrome.runtime.connect({ name: PORT_CONTENT });
@@ -23,10 +23,14 @@ function ensureContentPort() {
     });
     contentPort.onDisconnect.addListener(() => {
       contentPort = null;
-      window.setTimeout(() => ensureContentPort(), 500);
+      if (typeof chrome !== 'undefined' && chrome?.runtime?.id) {
+        window.setTimeout(() => ensureContentPort(), 500);
+      }
     });
   } catch (error) {
-    console.error('[Candidex] Failed to open content port:', error);
+    if (!error?.message?.includes('Extension context invalidated')) {
+      console.error('[Candidex] Failed to open content port:', error);
+    }
     contentPort = null;
   }
 

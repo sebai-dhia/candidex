@@ -147,7 +147,7 @@ export class ExtensionBridgeService {
   }
 
   private connectPanelPort(): void {
-    if (typeof chrome === 'undefined' || !chrome?.runtime?.connect) return;
+    if (typeof chrome === 'undefined' || !chrome?.runtime?.connect || !chrome?.runtime?.id) return;
 
     try {
       this.panelPort = chrome.runtime.connect({ name: PORT_PANEL });
@@ -156,10 +156,14 @@ export class ExtensionBridgeService {
       });
       this.panelPort.onDisconnect.addListener(() => {
         this.panelPort = null;
-        window.setTimeout(() => this.connectPanelPort(), 500);
+        if (typeof chrome !== 'undefined' && chrome?.runtime?.id) {
+          window.setTimeout(() => this.connectPanelPort(), 500);
+        }
       });
-    } catch (error: unknown) {
-      console.error('[ExtensionBridge] Failed to open panel port:', error);
+    } catch (error: any) {
+      if (!error?.message?.includes('Extension context invalidated')) {
+        console.error('[ExtensionBridge] Failed to open panel port:', error);
+      }
     }
   }
 
@@ -169,8 +173,10 @@ export class ExtensionBridgeService {
     }
     try {
       this.panelPort?.postMessage(message);
-    } catch (error: unknown) {
-      console.error('[ExtensionBridge] Failed to post to content:', error);
+    } catch (error: any) {
+      if (!error?.message?.includes('Extension context invalidated')) {
+        console.error('[ExtensionBridge] Failed to post to content:', error);
+      }
       this.panelPort = null;
     }
   }
