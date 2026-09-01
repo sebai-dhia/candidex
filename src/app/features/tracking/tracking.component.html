@@ -256,7 +256,7 @@
                 </div>
                 <div class="editor-row">
                   <!-- Custom Select -->
-                  <div class="custom-select-container">
+                  <div class="custom-select-container" [class.open-upward]="statusDropdownUpward()">
                     @if (statusDropdownOpen()) {
                       <div class="dropdown-backdrop" (click)="statusDropdownOpen.set(false)"></div>
                     }
@@ -264,7 +264,7 @@
                       class="minimal-input custom-select-display"
                       [class.focused]="statusDropdownOpen()"
                       [class.disabled]="isSaving()"
-                      (click)="!isSaving() && statusDropdownOpen.set(!statusDropdownOpen())"
+                      (click)="toggleStatusDropdown($event)"
                     >
                       {{ statusLabel(newStatus()) }}
                       <svg

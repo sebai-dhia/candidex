@@ -97,6 +97,14 @@
 .custom-select-container {
   position: relative;
   &.filter-select { min-width: 100px; }
+
+  &.open-upward {
+    .custom-select-menu {
+      top: auto;
+      bottom: calc(100% + 4px);
+      box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.1);
+    }
+  }
 }
 
 .dropdown-backdrop {
