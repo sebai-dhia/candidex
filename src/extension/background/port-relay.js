@@ -11,15 +11,45 @@ const panelPorts = new Set();
 const contentPorts = new Set();
 
 /**
- * @param {Set<chrome.runtime.Port>} ports
+ * @param {chrome.runtime.Port} port
+ * @returns {number | undefined}
+ */
+function getTabId(port) {
+  return port.sender?.tab?.id;
+}
+
+/**
+ * Relay a message to the target port set, targeting the matching tab ID when available.
+ * @param {chrome.runtime.Port} sourcePort
+ * @param {Set<chrome.runtime.Port>} targetPorts
  * @param {Record<string, unknown>} message
  */
-function broadcast(ports, message) {
-  for (const port of ports) {
+function relayMessage(sourcePort, targetPorts, message) {
+  const sourceTabId = getTabId(sourcePort);
+
+  if (sourceTabId !== undefined) {
+    const matching = Array.from(targetPorts).filter(
+      (p) => getTabId(p) === sourceTabId
+    );
+    if (matching.length > 0) {
+      // Send to the active port(s) for this specific tab only
+      for (const target of matching) {
+        try {
+          target.postMessage(message);
+        } catch {
+          targetPorts.delete(target);
+        }
+      }
+      return;
+    }
+  }
+
+  // Fallback if tabId is not available (e.g. untabbed context or test harness)
+  for (const port of targetPorts) {
     try {
       port.postMessage(message);
     } catch {
-      ports.delete(port);
+      targetPorts.delete(port);
     }
   }
 }
@@ -44,7 +74,7 @@ export function registerPortRelay() {
           message.action === MSG.ESCAPE_PRESSED ||
           message.action === MSG.SAVE_AI_JOB_RESPONSE
         ) {
-          broadcast(contentPorts, message);
+          relayMessage(port, contentPorts, message);
         }
       });
       try {
@@ -68,7 +98,7 @@ export function registerPortRelay() {
           message.action === MSG.FULLSCREEN_STATE_CHANGED ||
           message.action === MSG.OVERLAY_OPENED
         ) {
-          broadcast(panelPorts, message);
+          relayMessage(port, panelPorts, message);
         }
       });
       try {
