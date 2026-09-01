@@ -168,6 +168,29 @@ export class AiEngineWizardComponent {
     this.closed.emit();
   }
 
+  handleWizardEnter(event: KeyboardEvent): void {
+    const target = event.target as HTMLElement;
+    const tag = target.tagName;
+
+    if (tag === 'BUTTON' || tag === 'A') return;
+    if (tag === 'INPUT') {
+      const type = (target as HTMLInputElement).type;
+      if (type === 'checkbox' || type === 'button') return;
+    }
+
+    if (this.isBusy) return;
+
+    if (this.step() === 1) {
+      if (!this.selectedProviderId()) return;
+      event.preventDefault();
+      this.goNext();
+      return;
+    }
+
+    event.preventDefault();
+    void this.secureConnection();
+  }
+
   openConsole(): void {
     if (this.isBusy) return;
     const url = this.selectedProvider?.consoleUrl;

@@ -1,7 +1,9 @@
 import { tCapture, workTypeDisplayLabel } from '../../../shared/i18n/capture-messages.js';
+import { onEnterSubmit } from '../../../shared/keyboard.js';
 
 /**
  * Wire dropdown, drag, dismiss, and save interactions for the review card.
+ * @returns {() => void} cleanup
  */
 export function wireReviewCardInteractions({
   card,
@@ -18,9 +20,15 @@ export function wireReviewCardInteractions({
 
   wireWorkTypeDropdown(card, shadow);
   const cleanupDragEvents = wireCardDrag(card, scrim);
+  const keyboardCleanups = [];
+
+  const cleanupKeyboard = () => {
+    keyboardCleanups.forEach((cleanup) => cleanup());
+  };
 
   const dismissCapture = () => {
     cleanupDragEvents();
+    cleanupKeyboard();
     cancelAiCapture();
   };
 
@@ -33,21 +41,7 @@ export function wireReviewCardInteractions({
   const saveBtn = card.querySelector('.candidex-btn-save');
   const errorDiv = card.querySelector('.candidex-error-message');
 
-  if (retakeBtn) {
-    retakeBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      dismissCapture();
-      onRetake();
-    });
-  }
-
-  discardBtn?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    dismissCapture();
-  });
-
-  saveBtn?.addEventListener('click', async (e) => {
-    e.stopPropagation();
+  const triggerSave = async () => {
     if (errorDiv) errorDiv.style.display = 'none';
 
     const role = shadow.getElementById('cdx-input-role')?.value.trim() || '';
@@ -93,7 +87,41 @@ export function wireReviewCardInteractions({
         errorDiv.style.display = 'block';
       }
     }
+  };
+
+  const inputIds = ['cdx-input-role', 'cdx-input-company', 'cdx-input-country', 'cdx-input-platform'];
+  inputIds
+    .map((id) => shadow.getElementById(id))
+    .filter(Boolean)
+    .forEach((input) => {
+      keyboardCleanups.push(onEnterSubmit(input, () => {
+        void triggerSave();
+        return true;
+      }));
+    });
+
+  if (retakeBtn) {
+    retakeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dismissCapture();
+      onRetake();
+    });
+  }
+
+  discardBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dismissCapture();
   });
+
+  saveBtn?.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    await triggerSave();
+  });
+
+  return () => {
+    cleanupDragEvents();
+    cleanupKeyboard();
+  };
 }
 
 function scheduleExtractionBannerDismiss(root, delayMs = 5000) {

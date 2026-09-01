@@ -1,4 +1,5 @@
 import { setAiConsentGiven } from '../../shared/storage/content-prefs.js';
+import { onEnterSubmit } from '../../shared/keyboard.js';
 import { CONSENT_OVERLAY_ID } from '../overlay/state.js';
 import { cancelAiCapture, handleCaptureEscape, releaseSidebarFocus } from './capture-lifecycle.js';
 import { isolateCaptureHost } from '../../shared/i18n/capture-locale-ui.js';
@@ -23,6 +24,8 @@ export async function showConsentPrompt(onAccept) {
   overlay.style.alignItems = 'center';
   overlay.style.justifyContent = 'center';
   isolateCaptureHost(overlay);
+
+  let cleanupEnter = () => {};
 
   const dialog = document.createElement('div');
   dialog.style.backgroundColor = 'white';
@@ -53,6 +56,7 @@ export async function showConsentPrompt(onAccept) {
   btnContainer.style.gap = '12px';
 
   const cancelBtn = document.createElement('button');
+  cancelBtn.type = 'button';
   cancelBtn.innerText = tCapture('capture.consentCancel');
   cancelBtn.style.padding = '8px 16px';
   cancelBtn.style.border = '1px solid #cbd5e1';
@@ -61,9 +65,13 @@ export async function showConsentPrompt(onAccept) {
   cancelBtn.style.cursor = 'pointer';
   cancelBtn.style.fontWeight = '500';
   cancelBtn.style.color = '#334155';
-  cancelBtn.onclick = () => cancelAiCapture();
+  cancelBtn.onclick = () => {
+    cleanupEnter();
+    cancelAiCapture();
+  };
 
   const acceptBtn = document.createElement('button');
+  acceptBtn.type = 'button';
   acceptBtn.innerText = tCapture('capture.consentAccept');
   acceptBtn.style.padding = '8px 16px';
   acceptBtn.style.border = 'none';
@@ -73,6 +81,7 @@ export async function showConsentPrompt(onAccept) {
   acceptBtn.style.cursor = 'pointer';
   acceptBtn.style.fontWeight = '500';
   acceptBtn.onclick = () => {
+    cleanupEnter();
     void setAiConsentGiven().then(() => {
       overlay.remove();
       onAccept();
@@ -93,5 +102,10 @@ export async function showConsentPrompt(onAccept) {
 
   overlay.addEventListener('keydown', (event) => {
     handleCaptureEscape(event);
+  });
+
+  cleanupEnter = onEnterSubmit(overlay, () => {
+    acceptBtn.click();
+    return true;
   });
 }

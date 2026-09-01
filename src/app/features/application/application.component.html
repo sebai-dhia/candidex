@@ -315,7 +315,11 @@
       <div class="alert success" role="status">{{ successMessage() }}</div>
     }
     @if (duplicateMatch(); as dup) {
-      <div class="alert warning" role="alert" [attr.dir]="uiLocale() === 'ar' ? 'rtl' : null">
+      <div
+        class="alert warning"
+        role="alert"
+        [attr.dir]="uiLocale() === 'ar' ? 'rtl' : null"
+      >
         <p>
           {{
             t('form.duplicateWarning', {

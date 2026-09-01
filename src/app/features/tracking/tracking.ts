@@ -10,6 +10,7 @@ import {
   ElementRef,
   Injector,
   afterNextRender,
+  DestroyRef,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -108,6 +109,11 @@ export class Tracking {
   filterOptions = [...APPLICATION_FILTER_OPTIONS];
 
   constructor() {
+    const destroyRef = inject(DestroyRef);
+    const escapeHandler = (event: Event) => this.onEscapeKey(event);
+    window.addEventListener('keydown', escapeHandler, { capture: true });
+    destroyRef.onDestroy(() => window.removeEventListener('keydown', escapeHandler, { capture: true }));
+
     effect(() => {
       this.allApplications.set(this.applications.applications());
     });
@@ -153,6 +159,69 @@ export class Tracking {
     if (target.closest('.compact-row')) return;
 
     this.closeEditor();
+  }
+
+  onEscapeKey(event: Event): void {
+    if (!(event instanceof KeyboardEvent)) return;
+    if (event.key !== 'Escape' && event.code !== 'Escape') return;
+
+    if (this.confirmingDelete()) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.confirmingDelete.set(false);
+      return;
+    }
+
+    if (this.statusDropdownOpen()) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.statusDropdownOpen.set(false);
+      return;
+    }
+
+    if (this.selectedApp()) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.closeEditor();
+      return;
+    }
+
+    if (this.mainFilterDropdownOpen()) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.mainFilterDropdownOpen.set(false);
+    }
+  }
+
+  @HostListener('document:keydown.enter', ['$event'])
+  onDocumentEnter(event: Event): void {
+    if (!this.selectedApp()) return;
+    this.onEditorEnter(event);
+  }
+
+  onEditorEnter(event: Event): void {
+    const target = event.target as HTMLElement;
+    if (target.tagName === 'BUTTON' || target.tagName === 'A') return;
+    if (target.tagName === 'TEXTAREA') return;
+    if (target.tagName === 'INPUT' && (target as HTMLInputElement).type === 'date') return;
+    if (this.statusDropdownOpen()) return;
+
+    if (this.confirmingDelete()) {
+      event.preventDefault();
+      this.confirmDeleteFromKeyboard();
+      return;
+    }
+
+    if (!this.hasChanges() || this.isSaving()) return;
+
+    event.preventDefault();
+    void this.updateStatus();
+  }
+
+  confirmDeleteFromKeyboard(): void {
+    const app = this.selectedApp();
+    if (!app || this.isSaving() || !this.confirmingDelete()) return;
+    void this.deleteApp(app, new Event('keydown'));
   }
 
   statusLabel(status: string | null | undefined): string {

@@ -97,6 +97,28 @@ export class App {
     this.bridge.handleEscapeKey();
   }
 
+  @HostListener('document:keydown.enter', ['$event'])
+  onSetupEnter(event: Event): void {
+    if (this.showMainApp() || this.showAiWizard()) return;
+
+    const target = event.target as HTMLElement;
+    if (target.tagName === 'BUTTON' || target.tagName === 'A') return;
+    if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return;
+
+    const step = this.setupStep();
+    if (step === 1) {
+      if (this.isConnecting()) return;
+      event.preventDefault();
+      void this.connectGoogle();
+      return;
+    }
+
+    if (step === 2) {
+      event.preventDefault();
+      this.openAiWizard('onboarding');
+    }
+  }
+
   @HostListener('document:click')
   onDocumentClick(): void {
     if (this.connectionsOpen()) {

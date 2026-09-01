@@ -9,6 +9,7 @@
     [attr.data-locale]="uiLocale()"
     [attr.dir]="isRtl() ? 'rtl' : 'ltr'"
     (click)="$event.stopPropagation()"
+    (keydown.enter)="handleWizardEnter($event)"
     role="dialog"
     aria-modal="true"
   >

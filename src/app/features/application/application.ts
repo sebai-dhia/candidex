@@ -73,10 +73,30 @@ export class Application implements OnInit {
   // Close dropdowns when clicking outside
   @HostListener('document:click')
   onDocumentClick() {
-    this.platformOpen = false;
-    this.statusOpen = false;
-    this.countryOpen = false;
-    this.workTypeOpen = false;
+    this.closeAllDropdowns();
+  }
+
+  @HostListener('document:keydown.escape', ['$event'])
+  onEscapeKey(event: Event): void {
+    if (this.duplicateMatch()) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.duplicateMatch.set(null);
+      return;
+    }
+
+    if (this.platformOpen || this.statusOpen || this.countryOpen || this.workTypeOpen) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.closeAllDropdowns();
+    }
+  }
+
+  onDuplicateAlertEnter(event: KeyboardEvent): void {
+    if (!this.duplicateMatch() || this.isSubmitting()) return;
+    event.preventDefault();
+    event.stopPropagation();
+    void this.saveAnyway();
   }
 
   togglePlatform(event: Event) {

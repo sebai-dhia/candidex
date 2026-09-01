@@ -1,7 +1,9 @@
 import { MSG } from '../../shared/constants.js';
 import { loadCaptureLocale, tCapture, getCachedCaptureLocale } from '../../shared/i18n/capture-messages.js';
 import { getCaptureTextDirection } from '../../shared/i18n/capture-locale-ui.js';
+import { onEnterSubmit, onEscape } from '../../shared/keyboard.js';
 import { isCaptureActive, isConsentVisible, cancelAiCapture, handleCaptureEscape } from '../capture/capture-lifecycle.js';
+import { dismissDuplicateOverlay } from '../capture/duplicate-overlay.js';
 import { startAiCaptureWithConsent } from '../capture/capture-actions.js';
 import { showCaptureProcessingError } from '../capture/processing-state.js';
 import { handleAiCaptureSuccess } from '../capture/review-card.js';
@@ -143,22 +145,6 @@ function readJobLink(shadow) {
 
 /**
  * @param {ShadowRoot} shadow
- */
-function dismissDuplicateOverlay(shadow) {
-  const layer = shadow.querySelector('.candidex-duplicate-layer');
-  layer?.remove();
-
-  const card = shadow.querySelector('.candidex-review-card');
-  card?.classList.remove('candidex-review-card--dup-locked');
-
-  const saveBtn = shadow.querySelector('.candidex-btn-save');
-  if (saveBtn && !saveBtn.dataset.cdxSaved) {
-    saveBtn.disabled = false;
-  }
-}
-
-/**
- * @param {ShadowRoot} shadow
  * @param {{ id?: string, role?: string, company?: string, date_applied?: string }} existing
  */
 function showDuplicateConfirm(shadow, existing) {
@@ -264,6 +250,16 @@ function showDuplicateConfirm(shadow, existing) {
     e.stopPropagation();
     dismissDuplicateOverlay(shadow);
     void saveAiJobFromReviewCard(shadow, true);
+  });
+
+  onEnterSubmit(layer, () => {
+    dismissDuplicateOverlay(shadow);
+    void saveAiJobFromReviewCard(shadow, true);
+    return true;
+  });
+  onEscape(layer, () => {
+    dismissDuplicateOverlay(shadow);
+    return true;
   });
 
   card.appendChild(layer);

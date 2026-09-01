@@ -1,4 +1,5 @@
 import { CONSENT_OVERLAY_ID, CAPTURE_ROOT_ID, IFRAME_ID } from '../overlay/state.js';
+import { dismissDuplicateOverlay, isDuplicateOverlayVisible } from './duplicate-overlay.js';
 
 export function isCaptureActive() {
   return Boolean(document.getElementById(CAPTURE_ROOT_ID));
@@ -41,6 +42,27 @@ export function cancelAiCapture() {
 export function handleCaptureEscape(event) {
   if (event.key !== 'Escape' && event.code !== 'Escape') return false;
   if (!isConsentVisible() && !isCaptureActive()) return false;
+
+  const root = document.getElementById(CAPTURE_ROOT_ID);
+  const shadow = root?.shadowRoot;
+  if (shadow) {
+    if (isDuplicateOverlayVisible(shadow)) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      dismissDuplicateOverlay(shadow);
+      return true;
+    }
+
+    const workTypeDropdown = shadow.querySelector('#cdx-dropdown-worktype.open');
+    if (workTypeDropdown) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      workTypeDropdown.classList.remove('open');
+      return true;
+    }
+  }
 
   event.preventDefault();
   event.stopPropagation();
