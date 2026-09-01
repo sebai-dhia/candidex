@@ -17,12 +17,17 @@ export function extractTextFromRegion(host, shadow, rx, ry, rw, rh) {
   try {
     for (let px = rx; px < rx + rw; px += step) {
       for (let py = ry; py < ry + rh; py += step) {
-        const el = document.elementFromPoint(px, py);
-        if (!el || seen.has(el)) continue;
-        seen.add(el);
-        const text = (el.innerText || el.textContent || '').trim();
-        if (text && text.length > 1 && text.length < 500) {
-          texts.push(text);
+        const stack = typeof document.elementsFromPoint === 'function'
+          ? document.elementsFromPoint(px, py)
+          : [document.elementFromPoint(px, py)].filter(Boolean);
+
+        for (const el of stack) {
+          if (!el || seen.has(el)) continue;
+          seen.add(el);
+          const text = (el.innerText || el.textContent || '').trim();
+          if (text && text.length > 1 && text.length < 500) {
+            texts.push(text);
+          }
         }
       }
     }
