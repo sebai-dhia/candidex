@@ -110,6 +110,7 @@ export const MESSAGES_AR: MessageCatalog = {
   'dashboard.showMore': '+{count} المزيد',
   'dashboard.showLess': 'عرض أقل',
   'dashboard.unknownCountry': 'غير معروف',
+  'dashboard.anywhereLocation': 'من أي مكان',
   'dashboard.errorNetwork':
     'خطأ في الشبكة. متصفحك يحظر الاتصال بـ Google. جرّب تعطيل VPN أو برنامج الحماية.',
   'dashboard.errorLoad': '{message} :تعذّر تحميل البيانات',

@@ -110,6 +110,7 @@ export const MESSAGES_ZH: MessageCatalog = {
   'dashboard.showMore': '+{count} 更多',
   'dashboard.showLess': '收起',
   'dashboard.unknownCountry': '未知',
+  'dashboard.anywhereLocation': '全球',
   'dashboard.errorNetwork': '网络错误。浏览器正在阻止连接 Google。请尝试关闭 VPN 或杀毒软件。',
   'dashboard.errorLoad': '加载失败：{message}',
 

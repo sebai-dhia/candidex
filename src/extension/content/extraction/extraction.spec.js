@@ -133,6 +133,22 @@ describe('extractWithJsonLd', () => {
     expect(result.workType).toBe('Remote');
   });
 
+  it('stores Anywhere for TELECOMMUTE jobs with no geographic location', () => {
+    const result = extractWithJsonLd({
+      pageMeta: {
+        jsonLd: {
+          '@type': 'JobPosting',
+          title: 'Developer',
+          hiringOrganization: { name: 'Soca' },
+          jobLocationType: 'TELECOMMUTE'
+        }
+      }
+    });
+
+    expect(result.country).toBe('Anywhere');
+    expect(result.workType).toBe('Remote');
+  });
+
   it('combines city and country from JobPosting address', () => {
     const result = extractWithJsonLd({
       pageMeta: {

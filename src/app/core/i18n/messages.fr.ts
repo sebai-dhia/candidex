@@ -110,6 +110,7 @@ export const MESSAGES_FR: MessageCatalog = {
   'dashboard.showMore': '+{count} de plus',
   'dashboard.showLess': 'Afficher moins',
   'dashboard.unknownCountry': 'Inconnu',
+  'dashboard.anywhereLocation': 'Partout',
   'dashboard.errorNetwork':
     'Erreur réseau. Votre navigateur bloque la connexion à Google. Essayez de désactiver le VPN ou l’antivirus.',
   'dashboard.errorLoad': 'Échec du chargement : {message}',

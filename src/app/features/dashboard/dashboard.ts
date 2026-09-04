@@ -5,7 +5,7 @@ import { ApplicationRow } from '../../../domain/application/application-row.mode
 import { APPLICATION_STATUS, WORK_TYPE } from '../../core/constants/application-options.constants';
 import { formatApplicationDate, getRelativeDateLabel, parseLocalDate } from '../../core/utils/date.utils';
 import { compareApplicationsByRecency } from '../../../domain/application/application-row.utils';
-import { codeToFlagEmoji, parseCountryLocation } from '../../../domain/country/country-normalize.js';
+import { classifyLocationGroup, codeToFlagEmoji } from '../../../domain/country/country-normalize.js';
 import { aggregatePlatformCounts } from '../../core/utils/platform.utils';
 import { statusMessageKey } from '../../core/utils/display-labels';
 import { LocaleService } from '../../core/services/i18n/locale.service';
@@ -211,16 +211,17 @@ export class Dashboard {
     const map = new Map<string, { code: string; label: string; count: number }>();
 
     for (const a of apps) {
-      if (!a.country) continue;
+      const classified = classifyLocationGroup(a.country, a.work_type);
+      if (!classified) continue;
 
-      const parsed = parseCountryLocation(a.country);
-      const code = parsed.countryCode || 'UNKNOWN';
+      const { code, group } = classified;
       const name =
-        code === 'UNKNOWN'
-          ? this.locale.t('dashboard.unknownCountry')
-          : localizedCountryName(code, locale);
-      const flag = code === 'UNKNOWN' ? '📍' : this.codeToFlag(code);
-      const label = `${flag} ${name}`;
+        group === 'anywhere'
+          ? this.locale.t('dashboard.anywhereLocation')
+          : group === 'unknown'
+            ? this.locale.t('dashboard.unknownCountry')
+            : localizedCountryName(code, locale);
+      const label = `${this.codeToFlag(code)} ${name}`;
 
       if (map.has(code)) {
         map.get(code)!.count++;

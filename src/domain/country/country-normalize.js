@@ -358,6 +358,114 @@ function lookupCountryToken(token) {
   return null;
 }
 
+/** Sentinel used when a job is worldwide / work-from-anywhere (not an ISO country). */
+export const ANYWHERE_CODE = 'ANYWHERE';
+
+/** Sentinel used when a location string cannot be parsed. */
+export const UNKNOWN_CODE = 'UNKNOWN';
+
+const ANYWHERE_EXACT = new Set([
+  'anywhere',
+  'worldwide',
+  'world wide',
+  'work from anywhere',
+  'wfa',
+  'remote',
+  'fully remote',
+  'full remote',
+  'fullremote',
+  '100 percent remote',
+  'remote only',
+  'remoteonly',
+  'global',
+  'distributed',
+  'teletravail',
+  'full teletravail',
+  'fully teletravail',
+  '100 percent teletravail',
+  'a distance',
+  'partout',
+  'monde entier',
+  'en remote',
+  'عن بعد',
+  'عن بُعد',
+  'من أي مكان',
+  'العمل عن بعد',
+  '远程',
+  '全球',
+  '任意地点',
+  '远程办公'
+]);
+
+/**
+ * Normalize a location string for anywhere / worldwide matching.
+ * @param {string | null | undefined} text
+ */
+function normalizeAnywhereKey(text) {
+  return String(text || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[()[\]{}]/g, ' ')
+    .replace(/%/g, ' percent ')
+    .replace(/[-–—,;:/_|]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * True when the location means work-from-anywhere, not a specific country.
+ * Whole-string match only — "Remote, France" still parses as France first.
+ * @param {string | null | undefined} raw
+ */
+export function isAnywhereLocation(raw) {
+  const key = normalizeAnywhereKey(raw);
+  if (!key) return false;
+  if (ANYWHERE_EXACT.has(key)) return true;
+  return (
+    /^(?:fully|full|100 percent)?\s*(?:remote|teletravail)(?:\s+only)?$/.test(key) ||
+    /^work from anywhere$/.test(key) ||
+    /^(?:worldwide|world wide)(?:\s+remote)?$/.test(key) ||
+    /^(?:remote|teletravail)\s+(?:worldwide|world wide|anywhere)$/.test(key)
+  );
+}
+
+function isRemoteWorkType(workType) {
+  const key = String(workType || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '');
+  return key === 'remote' || key === 'teletravail';
+}
+
+/**
+ * Group an application into a country, Anywhere, or Unknown bucket.
+ * Remote jobs with a real country stay on that country.
+ * @param {string | null | undefined} country
+ * @param {string | null | undefined} workType
+ * @returns {{ code: string, group: 'country' | 'anywhere' | 'unknown' } | null}
+ */
+export function classifyLocationGroup(country, workType) {
+  const parsed = parseCountryLocation(country);
+  if (parsed.countryCode && parsed.countryCode !== ANYWHERE_CODE) {
+    return { code: parsed.countryCode, group: 'country' };
+  }
+  if (parsed.countryCode === ANYWHERE_CODE || isAnywhereLocation(country)) {
+    return { code: ANYWHERE_CODE, group: 'anywhere' };
+  }
+
+  const empty = !String(country || '').trim() || String(country).trim().toLowerCase() === 'null';
+  if (isRemoteWorkType(workType) && empty) {
+    return { code: ANYWHERE_CODE, group: 'anywhere' };
+  }
+  if (!empty) {
+    return { code: UNKNOWN_CODE, group: 'unknown' };
+  }
+  return null;
+}
+
 /**
  * Parse a free-text location into ISO country + optional city.
  * @param {string | null | undefined} raw
@@ -442,6 +550,14 @@ export function parseCountryLocation(raw) {
     };
   }
 
+  if (isAnywhereLocation(text)) {
+    return {
+      countryCode: ANYWHERE_CODE,
+      city: null,
+      englishName: 'Anywhere'
+    };
+  }
+
   return empty;
 }
 
@@ -451,6 +567,7 @@ export function parseCountryLocation(raw) {
  */
 export function formatCanonicalCountry(raw) {
   const parsed = parseCountryLocation(raw);
+  if (parsed.countryCode === ANYWHERE_CODE) return 'Anywhere';
   if (!parsed.countryCode || !parsed.englishName) {
     const fallback = String(raw || '').trim();
     return fallback || null;
@@ -465,6 +582,7 @@ export function formatCanonicalCountry(raw) {
  */
 export function codeToFlagEmoji(code) {
   const upper = String(code || '').toUpperCase();
+  if (upper === ANYWHERE_CODE) return '🌐';
   if (!/^[A-Z]{2}$/.test(upper)) return '📍';
   const A = 0x1f1e6;
   return String.fromCodePoint(...[...upper].map((ch) => A + ch.charCodeAt(0) - 65));

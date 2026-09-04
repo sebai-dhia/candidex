@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Candidex",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAws1R5e7IO0UzUCOYQUgScxDRZhglI3nGCqfmEXsEHj57JZLScQB+Yq38O5c8y+Q3iOIKTorq017wTe37MxhMECwWNCqdW7m6+d+wPeOu250xKAXt6wyqfuaFyAoM0ljXxndgEEvg3czC0skJfYG2UolUUF/aynxWB0TmgO3wkGWvMectynJbJQKCyniS1ZMguhkNHmMD6qTaarg0+zz1OACM5V7qnO5Raxc2DKMR2hdkqUVC93Y/qLqHkkDLHeC6n31+zRjLDhwieZeL9nG5e6VD+rKWr6Jlsft63Ox3gbl2oNMKHb4BnSkDP34ObzppSu4EVEXuEvjlDhhZ8jlgMwIDAQAB",
   "icons": {
     "16": "icon-16.png",

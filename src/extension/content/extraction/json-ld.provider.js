@@ -35,6 +35,7 @@ export function extractWithJsonLd(input) {
   let workType = null;
   if (schema.jobLocationType === 'TELECOMMUTE') {
     workType = 'Remote';
+    if (!country) country = 'Anywhere';
   }
 
   return normalizeExtractionResult(

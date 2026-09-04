@@ -32,6 +32,19 @@ describe('parseCountryLocation', () => {
     const parsed = parseCountryLocation('SomeUnknownPlace');
     expect(parsed.countryCode).toBeNull();
   });
+
+  it('maps worldwide remote phrases to ANYWHERE, not a country', () => {
+    expect(parseCountryLocation('Remote').countryCode).toBe('ANYWHERE');
+    expect(parseCountryLocation('Work from anywhere').countryCode).toBe('ANYWHERE');
+    expect(parseCountryLocation('Worldwide').countryCode).toBe('ANYWHERE');
+    expect(parseCountryLocation('100% remote').countryCode).toBe('ANYWHERE');
+    expect(parseCountryLocation('Télétravail').countryCode).toBe('ANYWHERE');
+  });
+
+  it('keeps a real country when remote is only a qualifier', () => {
+    expect(parseCountryLocation('Remote, France').countryCode).toBe('FR');
+    expect(parseCountryLocation('Paris, France').countryCode).toBe('FR');
+  });
 });
 
 describe('formatCanonicalCountry', () => {
@@ -42,10 +55,19 @@ describe('formatCanonicalCountry', () => {
   it('formats country-only English', () => {
     expect(formatCanonicalCountry('tunisie')).toBe('Tunisia');
   });
+
+  it('canonicalizes worldwide remote as Anywhere', () => {
+    expect(formatCanonicalCountry('Remote')).toBe('Anywhere');
+    expect(formatCanonicalCountry('worldwide')).toBe('Anywhere');
+  });
 });
 
 describe('codeToFlagEmoji', () => {
   it('returns Tunisia flag for TN', () => {
     expect(codeToFlagEmoji('TN')).toBe('🇹🇳');
+  });
+
+  it('returns globe for worldwide remote', () => {
+    expect(codeToFlagEmoji('ANYWHERE')).toBe('🌐');
   });
 });

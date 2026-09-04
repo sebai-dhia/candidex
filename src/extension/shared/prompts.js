@@ -19,6 +19,8 @@ Rules:
   - When only a country is visible (e.g. "Tunisie", "France"), return just the country name.
   - When company and location appear as "Company - City, Country", split company from location and put the full "City, Country" string in country.
   - If you infer separate city and country values, still return a single country string formatted as "City, Country".
+  - If the job is fully remote / work from anywhere with no country or city restriction, set country to "Anywhere". Do not leave it null and do not copy "Remote" into country — work arrangement belongs in workType.
+  - If remote but restricted to a country (e.g. "Remote, France"), return that country (with city when known).
 - For workType, always return one of: Remote, Hybrid, On-site (English enum). Map localized labels:
   - French: Hybride → Hybrid, Télétravail → Remote, Présentiel → On-site
   - Arabic: عن بُعد → Remote, هجين → Hybrid, في الموقع → On-site
@@ -30,7 +32,7 @@ Required JSON Structure:
 {
   "company": "Company Name or null",
   "role": "Full occupation/specialty title from the headline (no glued posting metadata), or null",
-  "country": "City, Country when both are known (e.g. Ariana, Tunisie), otherwise Country alone, or null",
+  "country": "City, Country when both are known (e.g. Ariana, Tunisie), Country alone, Anywhere when fully remote with no geographic restriction, or null",
   "workType": "Remote, Hybrid, or On-site (or null)"
 }`;
 

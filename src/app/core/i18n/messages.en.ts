@@ -110,6 +110,7 @@ export const MESSAGES_EN: MessageCatalog = {
   'dashboard.showMore': '+{count} more',
   'dashboard.showLess': 'Show less',
   'dashboard.unknownCountry': 'Unknown',
+  'dashboard.anywhereLocation': 'Anywhere',
   'dashboard.errorNetwork':
     'Network error. Your browser is blocking the connection to Google. Try disabling your VPN or antivirus.',
   'dashboard.errorLoad': 'Failed to load data: {message}',
