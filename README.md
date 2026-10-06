@@ -2,6 +2,15 @@
 
 An open-source browser extension for tracking job applications without giving your data to another hiring platform.
 
+<p align="left">
+  <a href="https://chromewebstore.google.com/detail/candidex/nbmbbbdlnkoaaomijbmjllmgojpkoknm">
+    <img src="https://img.shields.io/badge/Chrome_Web_Store-Candidex-4285F4?style=flat&logo=googlechrome&logoColor=white" alt="Available on Chrome Web Store" />
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License: MIT" />
+  </a>
+</p>
+
 Candidex opens as a slide-out panel on top of the page you are browsing, lets you save applications in seconds, and keeps everything in your own Google Sheet.
 
 ![Candidex in use on a job search page](landing/images/promotional.png)
@@ -56,9 +65,15 @@ Candidex is built around a simple rule: your job search data should belong to yo
 
 Read the full policy in `docs/privacy-policy.md`.
 
-## Install From Source
+## Installation
 
-Packaged store releases are not available yet. For now, you can install Candidex from source.
+Install the official Candidex release directly from the **[Chrome Web Store](https://chromewebstore.google.com/detail/candidex/nbmbbbdlnkoaaomijbmjllmgojpkoknm)**.
+
+Candidex is compatible with Google Chrome, Brave, Microsoft Edge, Opera, and Vivaldi (all Chromium browsers can install directly from the Chrome Web Store).
+
+## Development & Building from Source
+
+If you want to run Candidex locally or inspect/modify the code:
 
 ### Prerequisites
 
@@ -66,7 +81,7 @@ Packaged store releases are not available yet. For now, you can install Candidex
 - npm 10+
 - Chrome, Opera, or another Chromium-based browser
 
-### Build
+### Build & Setup
 
 ```bash
 git clone https://github.com/sebai-dhia/candidex.git
@@ -85,7 +100,7 @@ Google sign-in only works after you create your own OAuth clients in Google Clou
 
 The official Chrome Web Store ZIP is built the same way: put the production IDs in `.env`, then `npm run package`. `.env` is gitignored and is not uploaded to Google — only the baked-in IDs inside `candidex.zip`.
 
-### Load the Extension
+### Load Unpacked Extension
 
 1. Open your browser's extensions page: `chrome://extensions` in Chrome, Edge, Brave, or Vivaldi, and `opera://extensions` in Opera.
 2. Enable **Developer mode**.
@@ -93,7 +108,7 @@ The official Chrome Web Store ZIP is built the same way: put the production IDs 
 4. Select `dist/candidex/browser`.
 5. Pin or open Candidex from the browser toolbar.
 
-## Development
+### Local Watch & Workflow
 
 ```bash
 npm run watch
