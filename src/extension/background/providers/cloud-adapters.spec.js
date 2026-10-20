@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EXTRACTION_PROMPT } from '../../shared/prompts.js';
-import { extractWithOpenAiCompatible } from '../../background/providers/cloud-adapters.js';
+import { extractWithOpenAiCompatible, extractWithOpenRouterNative } from '../../background/providers/cloud-adapters.js';
 
 describe('extractWithOpenAiCompatible', () => {
   beforeEach(() => {
@@ -96,5 +96,30 @@ describe('extractWithOpenAiCompatible', () => {
     ).rejects.toMatchObject({ code: 'AUTH_FAILED', status: 401 });
 
     expect(fetch).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('extractWithOpenRouterNative', () => {
+  it('sends at most 3 models, the limit OpenRouter enforces', async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(
+        JSON.stringify({
+          choices: [{ message: { content: JSON.stringify({ company: 'Acme', role: 'Engineer', country: 'France', workType: 'Remote' }) } }]
+        }),
+        { status: 200 }
+      )
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    await extractWithOpenRouterNative(
+      { endpoint: 'https://openrouter.ai/api/v1/chat/completions', apiKey: 'sk-or-test', models: ['a', 'b', 'c', 'd', 'e'], source: 'openrouter' },
+      { regionText: 'Engineer at Acme' }
+    );
+
+    const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+    expect(body.model).toBe('a');
+    expect(body.models).toEqual(['a', 'b', 'c']);
+    expect(body.max_tokens).toBe(1024);
+    vi.unstubAllGlobals();
   });
 });

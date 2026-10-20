@@ -3,6 +3,9 @@ import { logHttpAttempt } from '../../shared/extraction-logger.js';
 import { parseModelJson, normalizeExtractionResult } from '../../shared/normalize-result.js';
 import { autoModelRoute, httpErrorFromResponse } from './auto-model-route.js';
 
+const OPENROUTER_MAX_MODELS = 3;
+const OPENROUTER_MAX_OUTPUT_TOKENS = 1024;
+
 async function readResponse(config, model, response) {
   const startedAt = Date.now();
   const raw = await response.text();
@@ -78,7 +81,8 @@ export async function extractWithOpenAiCompatible(config, input) {
  */
 export async function extractWithOpenRouterNative(config, input) {
   const userContent = buildExtractionUserMessage(input);
-  const [primary, ...fallbacks] = config.models;
+  // OpenRouter rejects a models array longer than 3 ("'models' array must have 3 items or fewer").
+  const [primary, ...fallbacks] = config.models.slice(0, OPENROUTER_MAX_MODELS);
 
   const response = await fetch(config.endpoint, {
     method: 'POST',
@@ -96,6 +100,9 @@ export async function extractWithOpenRouterNative(config, input) {
         { role: 'user', content: userContent }
       ],
       temperature: 0,
+      // Without a cap OpenRouter reserves the model's maximum (e.g. 65536) against the key's credits
+      // and rejects the call on small balances; the four JSON fields need far less.
+      max_tokens: OPENROUTER_MAX_OUTPUT_TOKENS,
       response_format: { type: 'json_object' }
     }),
     signal: config.signal
