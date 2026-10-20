@@ -43,6 +43,24 @@ export async function resetProviderFailures() {
   return next;
 }
 
+/**
+ * Keep the toolbar badge in step with the stored engine health, so reconnecting or
+ * changing the key clears a stale warning instead of waiting for the next capture.
+ */
+export function registerBadgeSync() {
+  try {
+    chrome.storage.onChanged.addListener((changes) => {
+      const change = changes.aiEngineConfig;
+      if (change) updateActionBadge(change.newValue?.healthStatus === 'degraded');
+    });
+    void getAiEngineConfigFromStorage().then((config) =>
+      updateActionBadge(config?.healthStatus === 'degraded')
+    );
+  } catch {
+    // ignore when storage API unavailable in tests
+  }
+}
+
 function updateActionBadge(degraded) {
   try {
     if (degraded) {

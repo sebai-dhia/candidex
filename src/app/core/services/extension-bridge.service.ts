@@ -189,6 +189,11 @@ export class ExtensionBridgeService {
     }
   }
 
+  private reconnectAndPost(message: Record<string, unknown>): void {
+    this.connectPanelPort();
+    this.panelPort?.postMessage(message);
+  }
+
   private postToContent(message: Record<string, unknown>): void {
     if (!this.panelPort) {
       this.connectPanelPort();
@@ -196,10 +201,21 @@ export class ExtensionBridgeService {
     try {
       this.panelPort?.postMessage(message);
     } catch (error: any) {
+      this.panelPort = null;
+      // The background worker idles out and closes the port before onDisconnect reaches us:
+      // reconnect once and resend, so the click is not silently lost.
+      if (error?.message?.includes('disconnected port')) {
+        try {
+          this.reconnectAndPost(message);
+        } catch (retryError: any) {
+          this.panelPort = null;
+          console.error('[ExtensionBridge] Failed to post to content:', retryError);
+        }
+        return;
+      }
       if (!error?.message?.includes('Extension context invalidated')) {
         console.error('[ExtensionBridge] Failed to post to content:', error);
       }
-      this.panelPort = null;
     }
   }
 }

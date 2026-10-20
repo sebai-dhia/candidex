@@ -53,7 +53,16 @@ export function postToPanel(message) {
   if (!port) {
     throw new Error('Content port unavailable');
   }
-  port.postMessage(message);
+  try {
+    port.postMessage(message);
+  } catch (error) {
+    // The worker idled out and closed the port before onDisconnect fired: reconnect once and resend.
+    if (!String(error?.message).includes('disconnected port')) throw error;
+    contentPort = null;
+    const fresh = ensureContentPort();
+    if (!fresh) throw error;
+    fresh.postMessage(message);
+  }
 }
 
 /**
