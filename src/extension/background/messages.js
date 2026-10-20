@@ -266,6 +266,10 @@ function startServiceWorkerKeepAlive() {
   return setInterval(tick, 20000);
 }
 
+function isMalformedReply(error) {
+  return error instanceof SyntaxError || error?.message === 'Empty model response';
+}
+
 async function handleExtractText(request) {
   const keepAliveId = startServiceWorkerKeepAlive();
   const controller = new AbortController();
@@ -289,14 +293,18 @@ async function handleExtractText(request) {
     };
     const options = { signal: controller.signal };
 
+    // A model occasionally answers with text that is not valid JSON; the next attempt usually is.
+    const callProvider = async (modelList) => {
+      try {
+        return await extractWithActiveProvider(config.providerId, config.apiKey, input, modelList, options);
+      } catch (error) {
+        if (!isMalformedReply(error) || controller.signal.aborted) throw error;
+        return extractWithActiveProvider(config.providerId, config.apiKey, input, modelList, options);
+      }
+    };
+
     try {
-      return await extractWithActiveProvider(
-        config.providerId,
-        config.apiKey,
-        input,
-        models,
-        options
-      );
+      return await callProvider(models);
     } catch (error) {
       if (controller.signal.aborted) {
         throw new Error('Background AI extraction timed out');
@@ -311,13 +319,7 @@ async function handleExtractText(request) {
         throw error;
       }
 
-      return await extractWithActiveProvider(
-        config.providerId,
-        config.apiKey,
-        input,
-        discovery.models,
-        options
-      );
+      return await callProvider(discovery.models);
     }
   } finally {
     clearTimeout(timeoutId);

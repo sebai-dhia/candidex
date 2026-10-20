@@ -73,6 +73,15 @@ describe('parseModelJson', () => {
     const parsed = parseModelJson('```json\n{"company":"Acme","role":"Dev"}\n```');
     expect(parsed.company).toBe('Acme');
   });
+
+  it('extracts the object when the model adds prose around it', () => {
+    const parsed = parseModelJson('Sure! Here it is:\n{"company":"Acme","role":"Dev"}\nHope this helps');
+    expect(parsed.role).toBe('Dev');
+  });
+
+  it('still throws when there is no JSON object', () => {
+    expect(() => parseModelJson('no json here')).toThrow(SyntaxError);
+  });
 });
 
 describe('fillNullFieldsFromFallback', () => {

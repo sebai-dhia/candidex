@@ -55,7 +55,15 @@ export function parseModelJson(raw) {
     .replace(/\s*```$/i, '')
     .trim();
 
-  return JSON.parse(clean);
+  try {
+    return JSON.parse(clean);
+  } catch (error) {
+    // Some models wrap the object in prose; fall back to the outermost {...} block.
+    const start = clean.indexOf('{');
+    const end = clean.lastIndexOf('}');
+    if (start === -1 || end <= start) throw error;
+    return JSON.parse(clean.slice(start, end + 1));
+  }
 }
 
 function cleanString(value) {
