@@ -29,7 +29,6 @@ export const MESSAGES_FR: MessageCatalog = {
   'connections.apiIssues': 'Problèmes API — vérifier la clé',
   'connections.aiEngine': 'Moteur IA',
   'connections.language': 'Langue',
-  'connections.extractionFailed': 'Échec de l’extraction IA : {message}',
   'connections.disconnectAiBody': 'Déconnecter le moteur IA personnel ? Votre clé API sera retirée de ce navigateur. Google Sheets reste connecté.',
 
   'setup.connectTitle': 'Connecter Google Sheets',

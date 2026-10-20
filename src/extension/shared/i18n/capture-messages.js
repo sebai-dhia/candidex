@@ -269,12 +269,6 @@ const MESSAGES = {
     ar: 'حضوري',
     zh: '现场'
   },
-  'capture.extractionFailed': {
-    en: 'Extraction failed: {error}',
-    fr: 'Échec de l’extraction : {error}',
-    ar: 'فشل الاستخراج: {error}',
-    zh: '提取失败：{error}'
-  },
   'capture.consentTitle': {
     en: 'AI Quick Capture',
     fr: 'Capture IA rapide',
@@ -304,6 +298,12 @@ const MESSAGES = {
     fr: 'Échec de la capture',
     ar: 'فشل الالتقاط',
     zh: '捕获失败'
+  },
+  'capture.reloadHint': {
+    en: 'This took too long. Reload the page and try again.',
+    fr: 'Cela a pris trop de temps. Rechargez la page et réessayez.',
+    ar: 'استغرق الأمر وقتًا طويلًا. أعد تحميل الصفحة وحاول مجددًا.',
+    zh: '耗时过长。请刷新页面后重试。'
   },
   'capture.tryAgain': {
     en: 'Try again',

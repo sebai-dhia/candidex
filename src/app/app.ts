@@ -236,10 +236,7 @@ export class App {
       return this.t('connections.notConfigured');
     }
     if (this.aiEngine.isDegraded()) {
-      const message = this.aiEngine.lastFailureMessage()?.trim();
-      return message
-        ? this.t('connections.extractionFailed', { message })
-        : this.t('connections.apiIssues');
+      return this.t('connections.apiIssues');
     }
     return this.aiEngine.isSessionOnly()
       ? this.t('connections.keyStoredSession')

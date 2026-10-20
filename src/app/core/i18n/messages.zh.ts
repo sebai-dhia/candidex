@@ -29,7 +29,6 @@ export const MESSAGES_ZH: MessageCatalog = {
   'connections.apiIssues': 'API 异常 — 请检查密钥',
   'connections.aiEngine': 'AI 引擎',
   'connections.language': '语言',
-  'connections.extractionFailed': 'AI 提取失败：{message}',
   'connections.disconnectAiBody': '断开个人 AI 引擎？API 密钥将从本浏览器删除。Google Sheets 保持连接。',
 
   'setup.connectTitle': '连接 Google Sheets',

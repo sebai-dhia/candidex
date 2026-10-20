@@ -26,11 +26,8 @@ export function registerMessaging() {
       if (!root?.shadowRoot) return;
 
       root.dispatchEvent(new CustomEvent('candidex-capture-settled'));
-      showCaptureProcessingError(
-        root.shadowRoot,
-        root,
-        request.error || 'Screenshot capture failed.'
-      );
+      console.warn('[Candidex] Capture failed:', request.error);
+      showCaptureProcessingError(root.shadowRoot, root, request.timedOut ? 'timeout' : undefined);
       return;
     }
 
@@ -129,7 +126,8 @@ function handleSaveAiJobResponse(eventData) {
 
     errorDiv.classList.remove('candidex-duplicate-warning');
     errorDiv.textContent = '';
-    errorDiv.innerText = eventData.error || tCapture('capture.saveFailed');
+    if (eventData.error) console.warn('[Candidex] Save failed:', eventData.error);
+    errorDiv.innerText = tCapture('capture.saveFailed');
     errorDiv.style.display = 'block';
   });
 }

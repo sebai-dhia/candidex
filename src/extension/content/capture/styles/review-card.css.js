@@ -344,6 +344,7 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
   border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 6px;
   padding: 6px 10px;
+  overflow-wrap: anywhere;
 }
 .candidex-review-card--dup-locked {
   position: relative;
@@ -460,7 +461,11 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
   }
 }
 .candidex-extraction-status {
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 0;
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 12px;
   font-weight: 500;
   line-height: 1.35;
@@ -471,9 +476,6 @@ export const REVIEW_CARD_CSS = `.candidex-review-card {
 }
 .candidex-extraction-status-warn {
   color: #c2410c;
-}
-.candidex-extraction-status-error {
-  color: #b91c1c;
 }
 .cdx-extraction-banner-leaving {
   opacity: 0 !important;

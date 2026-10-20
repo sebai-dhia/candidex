@@ -20,29 +20,12 @@ function getConfidenceBadge(conf) {
   return `<span class="candidex-badge candidex-badge-none">${tCapture('capture.notFound')}</span>`;
 }
 
-function escapeHtml(value) {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
+/** Short, user-facing status only: technical details stay in the console. */
 function buildExtractionStatus(error, meta) {
-  if (error) {
-    return `<div class="candidex-extraction-status candidex-extraction-status-error" role="alert">
-      ${tCapture('capture.extractionFailed', { error: escapeHtml(error) })}
+  if (!error && !meta?.usedFallback) return '';
+  return `<div class="candidex-extraction-status candidex-extraction-status-warn" role="status">
+      ${tCapture('capture.aiFailed')}
     </div>`;
-  }
-
-  if (meta?.usedFallback) {
-    const detail = meta.aiError ? `: ${escapeHtml(meta.aiError)}` : '';
-    return `<div class="candidex-extraction-status candidex-extraction-status-warn" role="status">
-      ${tCapture('capture.aiFailed')}${detail}
-    </div>`;
-  }
-
-  return '';
 }
 
 function buildWorkTypeOptionsMarkup() {

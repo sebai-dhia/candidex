@@ -315,14 +315,14 @@ export async function startAiCaptureOverlay() {
     selection.appendChild(loader);
 
     let captureSettled = false;
-    const failCapture = (message) => {
+    const failCapture = (kind) => {
       if (captureSettled) return;
       captureSettled = true;
-      showCaptureProcessingError(shadow, host, message);
+      showCaptureProcessingError(shadow, host, kind);
     };
 
     const responseTimeoutId = setTimeout(() => {
-      failCapture('Capture took too long. Reload the page and try again.');
+      failCapture('timeout');
     }, CAPTURE_RESPONSE_TIMEOUT_MS);
 
     const finishCaptureRequest = () => {
@@ -358,16 +358,14 @@ export async function startAiCaptureOverlay() {
           if (response?.success === false) {
             clearTimeout(responseTimeoutId);
             captureSettled = true;
-            showCaptureProcessingError(
-              shadow,
-              host,
-              response.error || 'Screenshot capture failed.'
-            );
+            console.warn('[Candidex] Capture failed:', response.error);
+            showCaptureProcessingError(shadow, host, response.timedOut ? 'timeout' : undefined);
           }
         })
         .catch((err) => {
           clearTimeout(responseTimeoutId);
-          failCapture(err?.message || 'Could not reach the extension background.');
+          console.warn('[Candidex] Capture request failed:', err);
+          failCapture();
         })
         .finally(finishCaptureRequest);
     }, 50);

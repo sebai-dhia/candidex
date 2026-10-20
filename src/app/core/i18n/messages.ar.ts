@@ -29,7 +29,6 @@ export const MESSAGES_AR: MessageCatalog = {
   'connections.apiIssues': 'مشاكل في واجهة البرمجة — تحقق من المفتاح',
   'connections.aiEngine': 'محرك الذكاء الاصطناعي',
   'connections.language': 'اللغة',
-  'connections.extractionFailed': 'فشل الاستخراج بالذكاء الاصطناعي: {message}',
   'connections.disconnectAiBody': 'قطع اتصال محرك الذكاء الاصطناعي؟ سيتم حذف مفتاح API من هذا المتصفح. يبقى Google Sheets متصلاً.',
 
   'setup.connectTitle': 'ربط Google Sheets',

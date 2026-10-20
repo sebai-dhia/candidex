@@ -203,9 +203,10 @@ async function handleCaptureArea(request, sender, sendResponse) {
     timedOut = true;
     await notifyTab(tabId, {
       action: MSG.CAPTURE_AREA_FAILED,
-      error: 'Screenshot capture timed out. Reload the page and try again.',
+      error: 'Screenshot capture timed out',
+      timedOut: true,
     });
-    safeSendResponse(sendResponse, { success: false, error: 'Capture timed out' });
+    safeSendResponse(sendResponse, { success: false, error: 'Capture timed out', timedOut: true });
   }, CAPTURE_TIMEOUT_MS);
 
   try {
