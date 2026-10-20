@@ -68,8 +68,13 @@ export function parseModelsResponse(providerId, json) {
   const body = /** @type {Record<string, unknown>} */ (json || {});
 
   if (providerId === 'gemini') {
-    const models = /** @type {{ name?: string }[]} */ (body.models || []);
-    return models.map((entry) => normalizeModelId(entry.name || '')).filter(Boolean);
+    const models = /** @type {{ name?: string, supportedGenerationMethods?: string[] }[]} */ (body.models || []);
+    return models
+      // The list also holds embedding, image and audio models that reject generateContent.
+      // Keep entries that do not declare their methods, so an unexpected shape never empties the list.
+      .filter((entry) => !Array.isArray(entry.supportedGenerationMethods) || entry.supportedGenerationMethods.includes('generateContent'))
+      .map((entry) => normalizeModelId(entry.name || ''))
+      .filter(Boolean);
   }
 
   if (providerId === 'anthropic') {
@@ -102,6 +107,15 @@ function scoreByRules(id, rules) {
 }
 
 /**
+ * First version-like number in a model id ("gemini-3.5-flash" → 3.5), 0 when there is none.
+ * @param {string} id
+ */
+function modelVersion(id) {
+  const match = /(\d+(?:\.\d+)?)/.exec(id);
+  return match ? parseFloat(match[1]) : 0;
+}
+
+/**
  * Rank models for balanced quality + speed extraction.
  * @param {string[]} ids
  * @param {string[]} [preferredHints]
@@ -124,7 +138,9 @@ export function rankModelsForExtraction(ids, preferredHints = []) {
   scored.sort((a, b) => {
     if (b.balanced !== a.balanced) return b.balanced - a.balanced;
     if (b.hintBoost !== a.hintBoost) return b.hintBoost - a.hintBoost;
-    return a.id.localeCompare(b.id);
+    // Equal scores: prefer the newer model, since providers retire old ones while still listing them.
+    const newer = modelVersion(b.id) - modelVersion(a.id);
+    return newer !== 0 ? newer : a.id.localeCompare(b.id);
   });
 
   return scored.map((entry) => entry.id);
@@ -161,9 +177,9 @@ async function fetchModelList(providerId, apiKey) {
   }
 
   if (definition.apiStyle === 'gemini-generate') {
-    const url = `${definition.endpoint}/models?key=${encodeURIComponent(trimmedKey)}`;
+    const url = `${definition.endpoint}/models`;
     try {
-      response = await fetch(url, { method: 'GET' });
+      response = await fetch(url, { method: 'GET', headers: { 'x-goog-api-key': trimmedKey } });
     } catch {
       return null;
     }

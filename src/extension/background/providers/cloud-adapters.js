@@ -43,7 +43,7 @@ async function readResponse(config, model, response) {
 export async function extractWithOpenAiCompatible(config, input) {
   const userContent = buildExtractionUserMessage(input);
 
-  return autoModelRoute(config.models, async (model) => {
+  return autoModelRoute(config.models, async (model, signal) => {
     const response = await fetch(config.endpoint, {
       method: 'POST',
       headers: {
@@ -61,7 +61,7 @@ export async function extractWithOpenAiCompatible(config, input) {
         response_format: { type: 'json_object' },
         ...(config.bodyExtras || {})
       }),
-      signal: config.signal
+      signal
     });
 
     const raw = await readResponse(config, model, response);
@@ -73,7 +73,7 @@ export async function extractWithOpenAiCompatible(config, input) {
 
     const parsed = parseModelJson(content);
     return normalizeExtractionResult(parsed, { source: config.source, confidenceBoost: 0.95 });
-  });
+  }, { signal: config.signal });
 }
 
 /**
@@ -129,7 +129,7 @@ export async function extractWithOpenRouterNative(config, input) {
 export async function extractWithAnthropic(config, input) {
   const userContent = buildExtractionUserMessage(input);
 
-  return autoModelRoute(config.models, async (model) => {
+  return autoModelRoute(config.models, async (model, signal) => {
     const response = await fetch(config.endpoint, {
       method: 'POST',
       headers: {
@@ -144,7 +144,7 @@ export async function extractWithAnthropic(config, input) {
         system: EXTRACTION_PROMPT,
         messages: [{ role: 'user', content: userContent }]
       }),
-      signal: config.signal
+      signal
     });
 
     const raw = await response.text();
@@ -160,7 +160,7 @@ export async function extractWithAnthropic(config, input) {
 
     const parsed = parseModelJson(content);
     return normalizeExtractionResult(parsed, { source: 'anthropic', confidenceBoost: 0.95 });
-  });
+  }, { signal: config.signal });
 }
 
 /**
@@ -169,11 +169,11 @@ export async function extractWithAnthropic(config, input) {
 export async function extractWithGemini(config, input) {
   const userContent = buildExtractionUserMessage(input);
 
-  return autoModelRoute(config.models, async (model) => {
-    const url = `${config.endpoint}/models/${model}:generateContent?key=${encodeURIComponent(config.apiKey)}`;
+  return autoModelRoute(config.models, async (model, signal) => {
+    const url = `${config.endpoint}/models/${model}:generateContent`;
     const response = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': config.apiKey },
       body: JSON.stringify({
         contents: [
           {
@@ -186,7 +186,7 @@ export async function extractWithGemini(config, input) {
           responseMimeType: 'application/json',
         }
       }),
-      signal: config.signal
+      signal
     });
 
     const raw = await response.text();
@@ -202,5 +202,5 @@ export async function extractWithGemini(config, input) {
 
     const parsed = parseModelJson(content);
     return normalizeExtractionResult(parsed, { source: 'gemini', confidenceBoost: 0.95 });
-  });
+  }, { signal: config.signal });
 }

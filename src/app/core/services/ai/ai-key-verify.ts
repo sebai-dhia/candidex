@@ -80,10 +80,11 @@ async function verifyAnthropic(definition: CatalogEntry, apiKey: string): Promis
 }
 
 async function verifyGemini(definition: CatalogEntry, apiKey: string): Promise<void> {
-  const url = `${definition.endpoint}/models?key=${encodeURIComponent(apiKey)}`;
+  const url = `${definition.endpoint}/models`;
   let response: Response;
   try {
-    response = await fetch(url, { method: 'GET' });
+    // Header, not ?key=: newer Google keys ("AQ.…") are only accepted this way, and URLs get logged.
+    response = await fetch(url, { method: 'GET', headers: { 'x-goog-api-key': apiKey } });
   } catch {
     throw new Error(`Could not reach ${definition.displayName}. Check your network and try again.`);
   }

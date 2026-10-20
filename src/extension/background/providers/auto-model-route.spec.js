@@ -42,4 +42,45 @@ describe('autoModelRoute', () => {
     });
     expect(callModel).toHaveBeenCalledTimes(2);
   });
+
+  it('moves on when a model does not support generateContent', async () => {
+    const callModel = vi
+      .fn()
+      .mockRejectedValueOnce(Object.assign(new Error('models/imagen-4 is not supported for generateContent.'), { status: 400 }))
+      .mockResolvedValueOnce('ok');
+    await expect(autoModelRoute(['imagen-4', 'gemini-flash'], callModel)).resolves.toBe('ok');
+    expect(callModel).toHaveBeenCalledTimes(2);
+  });
+
+  it('still stops on an unrelated 400', async () => {
+    const callModel = vi.fn().mockRejectedValue(Object.assign(new Error('Invalid JSON payload received'), { status: 400 }));
+    await expect(autoModelRoute(['a', 'b'], callModel)).rejects.toThrow('Invalid JSON payload');
+    expect(callModel).toHaveBeenCalledTimes(1);
+  });
+
+  it('moves on when a model is no longer available to new users', async () => {
+    const callModel = vi
+      .fn()
+      .mockRejectedValueOnce(Object.assign(new Error('This model models/gemini-2.5-flash is no longer available to new users.'), { status: 400 }))
+      .mockResolvedValueOnce('ok');
+    await expect(autoModelRoute(['old', 'new'], callModel)).resolves.toBe('ok');
+  });
+
+  it('skips a model that exceeds its own deadline', async () => {
+    const callModel = vi.fn((model, signal) =>
+      model === 'slow'
+        ? new Promise((_, reject) => signal.addEventListener('abort', () => reject(signal.reason)))
+        : Promise.resolve('ok')
+    );
+    await expect(autoModelRoute(['slow', 'fast'], callModel, { attemptTimeoutMs: 20 })).resolves.toBe('ok');
+    expect(callModel).toHaveBeenCalledTimes(2);
+  });
+
+  it('stops when the whole request is cancelled', async () => {
+    const controller = new AbortController();
+    controller.abort();
+    const callModel = vi.fn().mockRejectedValue(Object.assign(new Error('aborted'), { name: 'AbortError' }));
+    await expect(autoModelRoute(['a', 'b'], callModel, { signal: controller.signal })).rejects.toThrow('aborted');
+    expect(callModel).toHaveBeenCalledTimes(1);
+  });
 });

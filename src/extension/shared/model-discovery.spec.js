@@ -18,12 +18,30 @@ describe('parseModelsResponse', () => {
     ).toEqual(['gemini-2.0-flash', 'gemini-1.5-pro']);
   });
 
+  it('keeps only Gemini models that support generateContent', () => {
+    expect(
+      parseModelsResponse('gemini', {
+        models: [
+          { name: 'models/gemini-3.5-flash-lite', supportedGenerationMethods: ['generateContent', 'countTokens'] },
+          { name: 'models/imagen-4.0-generate', supportedGenerationMethods: ['predict'] },
+          { name: 'models/gemini-unknown-shape' }
+        ]
+      })
+    ).toEqual(['gemini-3.5-flash-lite', 'gemini-unknown-shape']);
+  });
+
   it('parses Anthropic data array', () => {
     expect(
       parseModelsResponse('anthropic', {
         data: [{ id: 'claude-3-5-haiku-latest' }, { id: 'claude-3-5-sonnet-latest' }]
       })
     ).toEqual(['claude-3-5-haiku-latest', 'claude-3-5-sonnet-latest']);
+  });
+});
+
+describe('rankModelsForExtraction ties', () => {
+  it('prefers the newer model when scores are equal', () => {
+    expect(rankModelsForExtraction(['gemini-2.0-flash', 'gemini-3.5-flash', 'gemini-2.5-flash'])[0]).toBe('gemini-3.5-flash');
   });
 });
 

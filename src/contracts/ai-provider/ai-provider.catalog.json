@@ -38,7 +38,7 @@
     "hostPermission": "https://generativelanguage.googleapis.com/*",
     "apiStyle": "gemini-generate",
     "endpoint": "https://generativelanguage.googleapis.com/v1beta",
-    "models": ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-pro"]
+    "models": ["gemini-3.5-flash-lite"]
   },
   {
     "id": "deepseek",
