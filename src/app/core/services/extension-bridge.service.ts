@@ -29,8 +29,30 @@ export class ExtensionBridgeService {
     this.postToContent({ action: EXTENSION_MSG.TOGGLE_FULLSCREEN, isFullscreen: next });
   }
 
-  startAiCapture(): void {
+  async startAiCapture(): Promise<void> {
+    await this.requestFrameAccess();
     this.postToContent({ action: EXTENSION_MSG.START_AI_CAPTURE });
+  }
+
+  /**
+   * Job text is often inside a cross-origin iframe (ATS embeds), which only a script
+   * running in that frame can read. Chrome needs the user's OK for that site, and the
+   * request must run during the click that started capture — hence here, in the panel.
+   */
+  private async requestFrameAccess(): Promise<void> {
+    try {
+      // First use: the consent popup asks in its own click, after explaining. Only ask here
+      // when consent was already given, so a new site's iframe still gets its one prompt.
+      const prefs = await chrome.runtime.sendMessage({ action: EXTENSION_MSG.GET_CONTENT_PREFS });
+      if (!prefs?.aiConsentGiven) return;
+
+      const response = await chrome.runtime.sendMessage({ action: EXTENSION_MSG.GET_FRAME_ORIGINS });
+      const origins: string[] = response?.origins ?? [];
+      if (origins.length === 0 || (await chrome.permissions.contains({ origins }))) return;
+      await chrome.permissions.request({ origins });
+    } catch (error) {
+      console.warn('[ExtensionBridge] Frame access request skipped:', error);
+    }
   }
 
   handleEscapeKey(): void {

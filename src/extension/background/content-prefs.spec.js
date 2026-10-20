@@ -18,6 +18,7 @@ describe('content prefs messaging', () => {
           }
         }
       },
+      permissions: { request: vi.fn().mockResolvedValue(true) },
       storage: {
         local: {
           data: {},
@@ -61,12 +62,41 @@ describe('content prefs messaging', () => {
     expect(JSON.stringify(sendResponse.mock.calls[0][0])).not.toContain('secret');
   });
 
-  it('persists AI consent', () => {
+  it('persists AI consent', async () => {
     const sendResponse = vi.fn();
     const keptOpen = listener({ action: MSG.SET_AI_CONSENT }, { id: 'candidex-test', tab: { id: 1 } }, sendResponse);
 
     expect(keptOpen).toBe(true);
     expect(chrome.storage.local.data.aiConsentGiven).toBe(true);
-    expect(sendResponse).toHaveBeenCalledWith({ success: true });
+    await vi.waitFor(() => expect(sendResponse).toHaveBeenCalledWith({ success: true }));
+    expect(chrome.permissions.request).not.toHaveBeenCalled();
+  });
+
+  it('asks Chrome for valid iframe sites in the same click and ignores anything else', async () => {
+    const sendResponse = vi.fn();
+    listener(
+      {
+        action: MSG.SET_AI_CONSENT,
+        frameOrigins: ['https://revolutpeople.com/*', '<all_urls>', 'https://*/*', 42]
+      },
+      { id: 'candidex-test', tab: { id: 1 } },
+      sendResponse
+    );
+
+    expect(chrome.permissions.request).toHaveBeenCalledWith({ origins: ['https://revolutpeople.com/*'] });
+    await vi.waitFor(() => expect(sendResponse).toHaveBeenCalledWith({ success: true }));
+  });
+
+  it('still saves consent when Chrome refuses the site permission', async () => {
+    chrome.permissions.request.mockRejectedValueOnce(new Error('This function must be called during a user gesture'));
+    const sendResponse = vi.fn();
+    listener(
+      { action: MSG.SET_AI_CONSENT, frameOrigins: ['https://revolutpeople.com/*'] },
+      { id: 'candidex-test', tab: { id: 1 } },
+      sendResponse
+    );
+
+    await vi.waitFor(() => expect(sendResponse).toHaveBeenCalledWith({ success: true }));
+    expect(chrome.storage.local.data.aiConsentGiven).toBe(true);
   });
 });

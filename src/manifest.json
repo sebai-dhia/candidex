@@ -26,6 +26,10 @@
     "https://api.anthropic.com/*",
     "https://api.openai.com/*"
   ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
   "oauth2": {
     "client_id": "",
     "scopes": [

@@ -282,10 +282,10 @@ const MESSAGES = {
     zh: 'AI 快速捕获'
   },
   'capture.consentBody': {
-    en: 'To extract job details, text from the selected area is sent to your configured Personal AI Engine provider. No other page data is shared.',
-    fr: 'Pour extraire les détails du poste, le texte de la zone sélectionnée est envoyé à votre moteur IA personnel. Aucune autre donnée de la page n’est partagée.',
-    ar: 'لاستخراج تفاصيل الوظيفة، يُرسل نص المنطقة المحددة إلى مزود محرك الذكاء الاصطناعي الذي أعددته. لا تتم مشاركة أي بيانات أخرى من الصفحة.',
-    zh: '为提取职位详情，所选区域中的文本会发送到您配置的个人 AI 引擎。不会共享页面上的其他数据。'
+    en: 'To extract job details, text from the selected area is sent to your configured Personal AI Engine provider. No other page data is shared. Candidex only reads the job text and never changes anything on the site. If the job is embedded from another site, Chrome may ask to allow access and describes it as “read and change”; Candidex only reads.',
+    fr: 'Pour extraire les détails du poste, le texte de la zone sélectionnée est envoyé à votre moteur IA personnel. Aucune autre donnée de la page n’est partagée. Candidex lit uniquement le texte de l’offre et ne modifie rien sur le site. Si l’offre est intégrée depuis un autre site, Chrome peut demander l’autorisation et la décrit comme « lire et modifier » ; Candidex ne fait que lire.',
+    ar: 'لاستخراج تفاصيل الوظيفة، يُرسل نص المنطقة المحددة إلى مزود محرك الذكاء الاصطناعي الذي أعددته. لا تتم مشاركة أي بيانات أخرى من الصفحة. يقرأ Candidex نص الوظيفة فقط ولا يغيّر أي شيء في الموقع. إذا كانت الوظيفة مدمجة من موقع آخر، فقد يطلب Chrome الإذن ويصفه بأنه «قراءة وتعديل»؛ لكن Candidex يقرأ فقط.',
+    zh: '为提取职位详情，所选区域中的文本会发送到您配置的个人 AI 引擎。不会共享页面上的其他数据。Candidex 只读取职位文本，不会更改网站上的任何内容。如果职位信息嵌入自其他网站，Chrome 可能会请求授权并描述为“读取和更改”；Candidex 仅读取。'
   },
   'capture.consentCancel': {
     en: 'Cancel',

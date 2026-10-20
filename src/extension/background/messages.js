@@ -2,6 +2,7 @@ import { MSG } from '../shared/constants.js';
 import { cropScreenshot } from './screenshot-cropper.js';
 import { extractWithActiveProvider } from './providers/registry.js';
 import { inferPlatform } from './platform.js';
+import { crossOriginFrameOrigins, readIframeText } from './frame-access.js';
 import { incrementProviderFailures, resetProviderFailures } from './ai-engine-health.js';
 import { isModelsCacheStale } from '../../contracts/ai-provider/model-discovery.js';
 import { getAiEngineConfigFromStorage } from './ai/config-storage.js';
@@ -42,6 +43,22 @@ export function registerMessageListener() {
       return true;
     }
 
+    if (request.action === MSG.GET_FRAME_ORIGINS) {
+      if (rejectUntrustedContentSender(sender, sendResponse)) return true;
+      crossOriginFrameOrigins(sender.tab).then((origins) =>
+        safeSendResponse(sendResponse, { success: true, origins })
+      );
+      return true;
+    }
+
+    if (request.action === MSG.EXTRACT_FRAME_TEXT) {
+      if (rejectUntrustedContentSender(sender, sendResponse)) return true;
+      readIframeText(sender.tab.id, request.rect, request.iframes || []).then((frames) =>
+        safeSendResponse(sendResponse, { success: true, ...frames })
+      );
+      return true;
+    }
+
     if (request.action === MSG.GET_CONTENT_PREFS) {
       if (rejectUntrustedContentSender(sender, sendResponse)) return true;
       handleGetContentPrefs(sendResponse);
@@ -50,7 +67,7 @@ export function registerMessageListener() {
 
     if (request.action === MSG.SET_AI_CONSENT) {
       if (rejectUntrustedContentSender(sender, sendResponse)) return true;
-      handleSetAiConsent(sendResponse);
+      handleSetAiConsent(request, sendResponse);
       return true;
     }
 
@@ -91,7 +108,26 @@ function handleGetContentPrefs(sendResponse) {
   });
 }
 
-function handleSetAiConsent(sendResponse) {
+/** Only plain "https://host/*" site patterns: never wildcards or all-sites access. */
+const SITE_PATTERN = /^https?:\/\/[a-z0-9.-]+(?::\d+)?\/\*$/i;
+
+/**
+ * Stores consent and, in the same user click, asks Chrome for the page's cross-origin
+ * iframe sites. The request must be the first thing here: Chrome ties it to the click.
+ * A refusal (or Chrome rejecting the gesture) is not an error: capture still works.
+ */
+function handleSetAiConsent(request, sendResponse) {
+  const origins = (Array.isArray(request.frameOrigins) ? request.frameOrigins : [])
+    .filter((o) => typeof o === 'string' && SITE_PATTERN.test(o))
+    .slice(0, 5);
+
+  const permission = origins.length
+    ? chrome.permissions.request({ origins }).catch((error) => {
+        console.warn('[Candidex] Frame access not granted:', error?.message || error);
+        return false;
+      })
+    : Promise.resolve(false);
+
   chrome.storage.local.set({ [AI_CONSENT_KEY]: true }, () => {
     if (chrome.runtime.lastError) {
       safeSendResponse(sendResponse, {
@@ -100,7 +136,8 @@ function handleSetAiConsent(sendResponse) {
       });
       return;
     }
-    safeSendResponse(sendResponse, { success: true });
+    // Reply only after the Chrome dialog is answered, so capture starts with the result.
+    void permission.then(() => safeSendResponse(sendResponse, { success: true }));
   });
 }
 

@@ -4,6 +4,7 @@ import { IFRAME_ID, CAPTURE_ROOT_ID } from '../overlay/state.js';
 import { showCaptureProcessingError } from './processing-state.js';
 import { CAPTURE_OVERLAY_STYLES } from './styles.js';
 import { extractTextFromRegion, extractPageMeta } from './region-text.js';
+import { listIframes } from '../../shared/list-iframes.js';
 import { resolveJobLink } from '../../shared/job-link.js';
 import { applyHandleResize } from './region-resize.js';
 import { loadCaptureLocale, tCapture } from '../../shared/i18n/capture-messages.js';
@@ -271,7 +272,8 @@ export async function startAiCaptureOverlay() {
       iframe.style.opacity = '0';
     }
 
-    const regionText = extractTextFromRegion(host, left, top, width, height);
+    let regionText = extractTextFromRegion(host, left, top, width, height);
+    const iframes = listIframes();
     const pageMeta = extractPageMeta();
     const jobLink = resolveJobLink(window.location.href);
 
@@ -327,7 +329,16 @@ export async function startAiCaptureOverlay() {
       if (wasOpen && iframe) iframe.style.opacity = '1';
     };
 
-    setTimeout(() => {
+    setTimeout(async () => {
+      if (iframes.length > 0) {
+        const frame = await readFrameText(
+          { left, top, right: left + width, bottom: top + height },
+          iframes
+        );
+        if (frame.text) regionText = [regionText, frame.text].filter(Boolean).join('\n');
+        if (frame.title) pageMeta.frameTitle = frame.title;
+        if (frame.largest) pageMeta.frameLargestText = frame.largest;
+      }
       chrome.runtime
         .sendMessage({
           action: MSG.CAPTURE_AREA,
@@ -370,4 +381,14 @@ export async function startAiCaptureOverlay() {
       { once: true }
     );
   });
+}
+
+/** Text and hints from cross-origin iframes under the box; empty when the user did not grant access. */
+async function readFrameText(rect, iframes) {
+  try {
+    const response = await chrome.runtime.sendMessage({ action: MSG.EXTRACT_FRAME_TEXT, rect, iframes });
+    return response?.success ? response : { text: '' };
+  } catch {
+    return { text: '' };
+  }
 }

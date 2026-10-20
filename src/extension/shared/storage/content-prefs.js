@@ -25,13 +25,15 @@ export function getContentPrefs() {
 }
 
 /**
- * Persist AI capture consent via the background worker.
+ * Persist AI capture consent via the background worker. `frameOrigins` are the page's
+ * cross-origin iframe sites: the worker asks Chrome for access to them in the same click.
+ * @param {string[]} [frameOrigins]
  * @returns {Promise<boolean>}
  */
-export function setAiConsentGiven() {
+export function setAiConsentGiven(frameOrigins = []) {
   return new Promise((resolve) => {
     try {
-      chrome.runtime.sendMessage({ action: MSG.SET_AI_CONSENT }, (response) => {
+      chrome.runtime.sendMessage({ action: MSG.SET_AI_CONSENT, frameOrigins }, (response) => {
         if (chrome.runtime.lastError || !response?.success) {
           resolve(false);
           return;

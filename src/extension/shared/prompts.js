@@ -52,6 +52,12 @@ export function buildExtractionUserMessage(input) {
   if (input?.pageMeta?.ogTitle && input.pageMeta.ogTitle !== input?.pageMeta?.title) {
     hints.push(`- og:title: ${input.pageMeta.ogTitle}`);
   }
+  if (input?.pageMeta?.frameTitle) {
+    hints.push(`- embedded page title: ${input.pageMeta.frameTitle}`);
+  }
+  if (input?.pageMeta?.frameLargestText) {
+    hints.push(`- largest text on the page (often the job title): ${input.pageMeta.frameLargestText}`);
+  }
 
   const hintBlock =
     hints.length > 0 ? `\n\nOptional page hints:\n${hints.join('\n')}` : '';

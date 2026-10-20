@@ -4,6 +4,7 @@ import { CONSENT_OVERLAY_ID } from '../overlay/state.js';
 import { cancelAiCapture, handleCaptureEscape, releaseSidebarFocus } from './capture-lifecycle.js';
 import { isolateCaptureHost } from '../../shared/i18n/capture-locale-ui.js';
 import { loadCaptureLocale, tCapture } from '../../shared/i18n/capture-messages.js';
+import { crossOriginIframePatterns } from '../../shared/list-iframes.js';
 
 export async function showConsentPrompt(onAccept) {
   if (document.getElementById(CONSENT_OVERLAY_ID)) return;
@@ -82,7 +83,7 @@ export async function showConsentPrompt(onAccept) {
   acceptBtn.style.fontWeight = '500';
   acceptBtn.onclick = () => {
     cleanupEnter();
-    void setAiConsentGiven().then(() => {
+    void setAiConsentGiven(crossOriginIframePatterns()).then(() => {
       overlay.remove();
       onAccept();
     });
