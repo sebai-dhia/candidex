@@ -271,7 +271,7 @@ export async function startAiCaptureOverlay() {
       iframe.style.opacity = '0';
     }
 
-    const regionText = extractTextFromRegion(host, shadow, left, top, width, height);
+    const regionText = extractTextFromRegion(host, left, top, width, height);
     const pageMeta = extractPageMeta();
     const jobLink = resolveJobLink(window.location.href);
 

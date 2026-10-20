@@ -19,6 +19,8 @@ Rules:
   - When only a country is visible (e.g. "Tunisie", "France"), return just the country name.
   - When company and location appear as "Company - City, Country", split company from location and put the full "City, Country" string in country.
   - If you infer separate city and country values, still return a single country string formatted as "City, Country".
+  - Lines shaped like "name: value" (e.g. an address or workplace type attribute) are structured data from the page: trust them for country and workType.
+  - Use "Anywhere" only when the text explicitly says remote/work from anywhere; a missing location is null, never "Anywhere".
   - If the job is fully remote / work from anywhere with no country or city restriction, set country to "Anywhere". Do not leave it null and do not copy "Remote" into country — work arrangement belongs in workType.
   - If remote but restricted to a country (e.g. "Remote, France"), return that country (with city when known).
 - For workType, always return one of: Remote, Hybrid, On-site (English enum). Map localized labels:
@@ -41,7 +43,7 @@ Required JSON Structure:
  * @param {{ regionText?: string, pageMeta?: { title?: string, ogTitle?: string } | null }} input
  */
 export function buildExtractionUserMessage(input) {
-  const text = (input?.regionText || '').substring(0, 1500);
+  const text = (input?.regionText || '').substring(0, 3000);
   const hints = [];
 
   if (input?.pageMeta?.title) {
