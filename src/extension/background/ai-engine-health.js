@@ -9,7 +9,9 @@ export async function incrementProviderFailures(error) {
   }
 
   const consecutiveFailures = (config.consecutiveFailures || 0) + 1;
-  const degraded = consecutiveFailures >= DEGRADED_THRESHOLD;
+  // A rejected key cannot fix itself, so it degrades at once instead of after three tries.
+  const authFailed = error?.code === 'AUTH_FAILED' || error?.status === 401 || error?.status === 403;
+  const degraded = authFailed || consecutiveFailures >= DEGRADED_THRESHOLD;
 
   const next = {
     ...config,

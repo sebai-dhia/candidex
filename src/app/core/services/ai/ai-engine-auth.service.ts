@@ -24,6 +24,18 @@ export class AiEngineAuthService {
 
   constructor() {
     void this.hydrate();
+    this.watchStorage();
+  }
+
+  /**
+   * The background worker records failures and the key can be removed elsewhere, so follow the
+   * stored config instead of trusting the state read when the panel opened.
+   */
+  private watchStorage(): void {
+    if (typeof chrome === 'undefined' || !chrome?.storage?.onChanged) return;
+    chrome.storage.onChanged.addListener((changes) => {
+      if (changes[STORAGE_KEY]) void this.syncFromStorage();
+    });
   }
 
   get catalog(): AiProviderCatalogEntry[] {
@@ -38,6 +50,14 @@ export class AiEngineAuthService {
   async hydrate(): Promise<void> {
     this.isInitializing.set(true);
     try {
+      await this.syncFromStorage();
+    } finally {
+      this.isInitializing.set(false);
+    }
+  }
+
+  private async syncFromStorage(): Promise<void> {
+    try {
       const config = await this.storage.getFromEither<AiEngineConfig>(STORAGE_KEY);
       if (config?.providerId && config?.apiKey) {
         this.activeProviderId.set(config.providerId);
@@ -50,8 +70,6 @@ export class AiEngineAuthService {
       }
     } catch {
       this.resetSessionState();
-    } finally {
-      this.isInitializing.set(false);
     }
   }
 

@@ -53,6 +53,23 @@ describe('ai-engine-health', () => {
     expect(chrome.action.setBadgeText).not.toHaveBeenCalled();
   });
 
+  it('degrades at once when the key is rejected', async () => {
+    chrome.storage.local.data.aiEngineConfig = { providerId: 'groq', apiKey: 'bad-key' };
+
+    const state = await incrementProviderFailures(Object.assign(new Error('Invalid API key'), { code: 'AUTH_FAILED', status: 401 }));
+
+    expect(state.consecutiveFailures).toBe(1);
+    expect(state.healthStatus).toBe('degraded');
+  });
+
+  it('does not degrade on a single non-auth failure', async () => {
+    chrome.storage.local.data.aiEngineConfig = { providerId: 'groq', apiKey: 'key' };
+
+    const state = await incrementProviderFailures(new Error('HTTP 500'));
+
+    expect(state.healthStatus).toBe('healthy');
+  });
+
   it('resets health on success', async () => {
     chrome.storage.local.data.aiEngineConfig = {
       providerId: 'groq',
