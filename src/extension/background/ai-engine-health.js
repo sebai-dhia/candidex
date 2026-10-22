@@ -20,7 +20,6 @@ export async function incrementProviderFailures(error) {
   };
 
   await setAiEngineConfigInStorage(next, config.persistKey === 'session' ? 'session' : 'local');
-  updateActionBadge(degraded);
   return next;
 }
 
@@ -39,36 +38,16 @@ export async function resetProviderFailures() {
   };
 
   await setAiEngineConfigInStorage(next, config.persistKey === 'session' ? 'session' : 'local');
-  updateActionBadge(false);
   return next;
 }
 
 /**
- * Keep the toolbar badge in step with the stored engine health, so reconnecting or
- * changing the key clears a stale warning instead of waiting for the next capture.
+ * The toolbar icon carries no badge: engine health is shown by the dots in the panel.
+ * Clears a "!" left behind by an earlier version.
  */
-export function registerBadgeSync() {
+export function clearLegacyBadge() {
   try {
-    chrome.storage.onChanged.addListener((changes) => {
-      const change = changes.aiEngineConfig;
-      if (change) updateActionBadge(change.newValue?.healthStatus === 'degraded');
-    });
-    void getAiEngineConfigFromStorage().then((config) =>
-      updateActionBadge(config?.healthStatus === 'degraded')
-    );
-  } catch {
-    // ignore when storage API unavailable in tests
-  }
-}
-
-function updateActionBadge(degraded) {
-  try {
-    if (degraded) {
-      chrome.action.setBadgeText({ text: '!' });
-      chrome.action.setBadgeBackgroundColor({ color: '#F97316' });
-    } else {
-      chrome.action.setBadgeText({ text: '' });
-    }
+    chrome.action.setBadgeText({ text: '' });
   } catch {
     // ignore when action API unavailable in tests
   }

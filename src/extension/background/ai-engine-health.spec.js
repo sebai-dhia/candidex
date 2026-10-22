@@ -50,7 +50,7 @@ describe('ai-engine-health', () => {
 
     expect(state.consecutiveFailures).toBe(3);
     expect(state.healthStatus).toBe('degraded');
-    expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ text: '!' });
+    expect(chrome.action.setBadgeText).not.toHaveBeenCalled();
   });
 
   it('resets health on success', async () => {
@@ -64,6 +64,6 @@ describe('ai-engine-health', () => {
     const state = await resetProviderFailures();
     expect(state.consecutiveFailures).toBe(0);
     expect(state.healthStatus).toBe('healthy');
-    expect(chrome.action.setBadgeText).toHaveBeenCalledWith({ text: '' });
+    expect(chrome.action.setBadgeText).not.toHaveBeenCalled();
   });
 });
