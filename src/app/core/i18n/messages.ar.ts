@@ -26,7 +26,7 @@ export const MESSAGES_AR: MessageCatalog = {
   'connections.keyStored': 'محفوظة في هذا المتصفح',
   'connections.keyStoredSession': 'تُحذف عند إغلاق المتصفح',
   'connections.paidKeyHint': 'استخدم مفتاحًا مخصصًا مع حد إنفاق في لوحة تحكم المزوّد',
-  'connections.apiIssues': 'مشاكل في واجهة البرمجة — تحقق من المفتاح',
+  'connections.apiIssues': 'يفشل الالتقاط بالذكاء الاصطناعي — تحقق من المفتاح أو الاتصال، ثم افتح إدارة',
   'connections.aiEngine': 'محرك الذكاء الاصطناعي',
   'connections.language': 'اللغة',
   'connections.disconnectAiBody': 'قطع اتصال محرك الذكاء الاصطناعي؟ سيتم حذف مفتاح API من هذا المتصفح. يبقى Google Sheets متصلاً.',

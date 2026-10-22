@@ -251,9 +251,8 @@
   &.degraded {
     color: #ea580c;
     font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    // Let the longer help text wrap instead of being cut off.
+    overflow-wrap: anywhere;
     max-width: 100%;
   }
 }

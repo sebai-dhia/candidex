@@ -26,7 +26,7 @@ export const MESSAGES_ZH: MessageCatalog = {
   'connections.keyStored': '已保存在此浏览器',
   'connections.keyStoredSession': '关闭浏览器后清除',
   'connections.paidKeyHint': '请使用专用密钥，并在提供商控制台设置消费上限',
-  'connections.apiIssues': 'API 异常 — 请检查密钥',
+  'connections.apiIssues': 'AI 捕获失败 — 请检查密钥或网络连接，然后打开“管理”',
   'connections.aiEngine': 'AI 引擎',
   'connections.language': '语言',
   'connections.disconnectAiBody': '断开个人 AI 引擎？API 密钥将从本浏览器删除。Google Sheets 保持连接。',

@@ -26,7 +26,7 @@ export const MESSAGES_FR: MessageCatalog = {
   'connections.keyStored': 'Enregistrée dans ce navigateur',
   'connections.keyStoredSession': 'Effacée à la fermeture du navigateur',
   'connections.paidKeyHint': 'Utilisez une clé dédiée avec une limite de dépenses dans la console du fournisseur',
-  'connections.apiIssues': 'Problèmes API — vérifier la clé',
+  'connections.apiIssues': 'La capture IA échoue — vérifiez votre clé ou votre connexion, puis ouvrez Gérer',
   'connections.aiEngine': 'Moteur IA',
   'connections.language': 'Langue',
   'connections.disconnectAiBody': 'Déconnecter le moteur IA personnel ? Votre clé API sera retirée de ce navigateur. Google Sheets reste connecté.',

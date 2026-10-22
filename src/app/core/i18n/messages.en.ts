@@ -26,7 +26,7 @@ export const MESSAGES_EN: MessageCatalog = {
   'connections.keyStored': 'Saved in this browser',
   'connections.keyStoredSession': 'Removed when browser closes',
   'connections.paidKeyHint': 'Use a dedicated key with a spend limit in your provider console',
-  'connections.apiIssues': 'API issues — check key',
+  'connections.apiIssues': 'AI capture is failing — check your key or connection, then open Manage',
   'connections.aiEngine': 'AI Engine',
   'connections.language': 'Language',
   'connections.disconnectAiBody': 'Disconnect Personal AI Engine? Your API key will be removed from this browser. Google Sheets stays connected.',
