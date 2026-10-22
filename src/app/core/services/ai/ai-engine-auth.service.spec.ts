@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vite
 import type { WritableSignal } from '@angular/core';
 import type {
   AiEngineHealthStatus,
+  AiFailureKind,
   AiEnginePersistKey,
   AiModelsSource,
   AiProviderId,
@@ -91,6 +92,7 @@ type TestableAuthService = {
   activeProviderId: WritableSignal<AiProviderId | null>;
   healthStatus: WritableSignal<AiEngineHealthStatus>;
   lastFailureMessage: WritableSignal<string | null>;
+  lastFailureKind: WritableSignal<AiFailureKind | null>;
   persistKey: WritableSignal<AiEnginePersistKey>;
   connect: (
     providerId: AiProviderId,
@@ -126,6 +128,7 @@ describe('AiEngineAuthService.connect', () => {
     service.activeProviderId = signal(null);
     service.healthStatus = signal('healthy');
     service.lastFailureMessage = signal(null);
+    service.lastFailureKind = signal(null);
     service.persistKey = signal('local');
   });
 

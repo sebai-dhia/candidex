@@ -18,6 +18,7 @@ export async function incrementProviderFailures(error) {
     consecutiveFailures,
     healthStatus: degraded ? 'degraded' : config.healthStatus || 'healthy',
     lastFailureAt: new Date().toISOString(),
+    lastFailureKind: authFailed ? 'auth' : 'other',
     lastFailureMessage: String(error?.message || 'Provider request failed').slice(0, 200)
   };
 
@@ -36,7 +37,8 @@ export async function resetProviderFailures() {
     consecutiveFailures: 0,
     healthStatus: 'healthy',
     lastFailureAt: undefined,
-    lastFailureMessage: undefined
+    lastFailureMessage: undefined,
+    lastFailureKind: undefined
   };
 
   await setAiEngineConfigInStorage(next, config.persistKey === 'session' ? 'session' : 'local');

@@ -111,8 +111,9 @@ export class SetupShellFacade {
    * Confirm and disconnect Personal AI Engine. Returns true if disconnected.
    */
   async confirmDisconnectAiEngine(): Promise<boolean> {
-    const ok = window.confirm(this.locale.t('connections.disconnectAiBody'));
-    if (!ok) return false;
+    // A key the provider has rejected is already useless, so there is nothing to protect: skip the question.
+    const keyRejected = this.aiEngine.isDegraded() && this.aiEngine.lastFailureKind() === 'auth';
+    if (!keyRejected && !window.confirm(this.locale.t('connections.disconnectAiBody'))) return false;
 
     await this.aiEngine.disconnect();
     this.closeConnections();

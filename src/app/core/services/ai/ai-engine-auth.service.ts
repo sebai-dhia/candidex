@@ -4,7 +4,7 @@ import { ChromeStorageService } from '../../../infrastructure/chrome/chrome-stor
 import { AI_PROVIDER_CATALOG, getAiProviderCatalogEntry } from './ai-provider.catalog';
 import { discoverProviderModels } from './discover-models';
 import { verifyProviderApiKey } from './ai-key-verify';
-import {AiEngineConfig, AiEngineHealthStatus, AiEnginePersistKey, AiProviderCatalogEntry, AiProviderId} from './ai-provider.types';
+import {AiEngineConfig, AiEngineHealthStatus, AiEnginePersistKey, AiFailureKind, AiProviderCatalogEntry, AiProviderId} from './ai-provider.types';
 
 const STORAGE_KEY = 'aiEngineConfig';
 
@@ -17,6 +17,7 @@ export class AiEngineAuthService {
   readonly activeProviderId = signal<AiProviderId | null>(null);
   readonly healthStatus = signal<AiEngineHealthStatus>('healthy');
   readonly lastFailureMessage = signal<string | null>(null);
+  readonly lastFailureKind = signal<AiFailureKind | null>(null);
   readonly persistKey = signal<AiEnginePersistKey>('local');
 
   readonly isDegraded = computed(() => this.healthStatus() === 'degraded');
@@ -65,6 +66,7 @@ export class AiEngineAuthService {
         this.persistKey.set(config.persistKey === 'session' ? 'session' : 'local');
         this.healthStatus.set(config.healthStatus === 'degraded' ? 'degraded' : 'healthy');
         this.lastFailureMessage.set(config.lastFailureMessage ?? null);
+        this.lastFailureKind.set(config.lastFailureKind ?? null);
       } else {
         this.resetSessionState();
       }
@@ -110,6 +112,7 @@ export class AiEngineAuthService {
     this.persistKey.set(persistKey);
     this.healthStatus.set('healthy');
     this.lastFailureMessage.set(null);
+    this.lastFailureKind.set(null);
   }
 
   async disconnect(): Promise<void> {
@@ -123,5 +126,6 @@ export class AiEngineAuthService {
     this.persistKey.set('local');
     this.healthStatus.set('healthy');
     this.lastFailureMessage.set(null);
+    this.lastFailureKind.set(null);
   }
 }

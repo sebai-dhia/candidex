@@ -60,6 +60,7 @@ describe('ai-engine-health', () => {
 
     expect(state.consecutiveFailures).toBe(1);
     expect(state.healthStatus).toBe('degraded');
+    expect(state.lastFailureKind).toBe('auth');
   });
 
   it('does not degrade on a single non-auth failure', async () => {
@@ -68,6 +69,7 @@ describe('ai-engine-health', () => {
     const state = await incrementProviderFailures(new Error('HTTP 500'));
 
     expect(state.healthStatus).toBe('healthy');
+    expect(state.lastFailureKind).toBe('other');
   });
 
   it('resets health on success', async () => {
@@ -81,6 +83,7 @@ describe('ai-engine-health', () => {
     const state = await resetProviderFailures();
     expect(state.consecutiveFailures).toBe(0);
     expect(state.healthStatus).toBe('healthy');
+    expect(state.lastFailureKind).toBeUndefined();
     expect(chrome.action.setBadgeText).not.toHaveBeenCalled();
   });
 });
