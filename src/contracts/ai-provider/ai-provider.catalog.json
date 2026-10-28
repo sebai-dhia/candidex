@@ -31,7 +31,7 @@
   {
     "id": "gemini",
     "displayName": "Gemini",
-    "badge": "free-billing",
+    "badge": "free",
     "top": false,
     "consoleUrl": "https://aistudio.google.com/apikey",
     "keyPlaceholder": "AIza...",
