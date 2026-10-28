@@ -48,7 +48,7 @@
     "@angular/compiler-cli": "^22.2.3",
     "@types/chrome": "^0.1.43",
     "adm-zip": "^0.6.0",
-    "autoprefixer": "^10.5.0",
+    "autoprefixer": "^10.6.1",
     "esbuild": "^0.28.1",
     "happy-dom": "^20.11.12",
     "postcss": "^8.5.26",
